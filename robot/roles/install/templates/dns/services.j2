@@ -1,0 +1,18 @@
+zone "pma.{{ configs.domain_users }}" {
+        type master;
+        allow-transfer {none;};
+        file "/etc/bind/zones.autoweb/pri.phpmyadmin";
+};
+
+zone "{{ configs.domain_users }}" {
+        type master;
+        allow-transfer {none;};
+        file "/etc/bind/zones.autoweb/pri.autoweb";
+};
+
+#zone "webftp.{{ configs.domain_users }}" {
+#        type master;
+#        allow-transfer {none;};
+#        file "/etc/bind/zones.autoweb/pri.webftp";
+#};
+

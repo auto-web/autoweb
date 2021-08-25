@@ -1,0 +1,22 @@
+#!/bin/sh
+PHPRC="/etc/php/{{ user.php_version }}/cgi/"
+export PHPRC
+PHP_DOCUMENT_ROOT="{{ apache_docroot }}"
+export PHP_DOCUMENT_ROOT
+# The variable PHP_FCGI_CHILDREN is onyl useful for lighty or nginx as apache 
+# mod_fcgi will control the number of childs themself and never use the additional processes.
+# PHP_FCGI_CHILDREN=8
+# export PHP_FCGI_CHILDREN
+PHP_FCGI_MAX_REQUESTS=5000
+export PHP_FCGI_MAX_REQUESTS
+exec /usr/bin/php-cgi{{ user.php_version }} \
+ -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:{{ apache_docroot }}:{{ php_tmpdir }}" \
+ -d upload_tmp_dir={{ php_tmpdir }} \
+ -d session.save_path={{ php_tmpdir }} \
+ -d sendmail_path="/usr/sbin/sendmail-wrapper" \
+ -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \ 
+ -d memory_limit="64M" \ 
+ -d post_max_size="300M" \ 
+ -d upload_max_filesize="300M" \ 
+  $1
+

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 291.04177 52.916668"
+   height="200"
+   width="1100">
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-244.08332)"
+     id="layer1">
+    <g
+       transform="matrix(0.88879351,0,0,0.88879351,2.9433981,30.094482)"
+       style="stroke:#7e1ab3;stroke-opacity:1"
+       id="g924">
+      <g
+         style="stroke:#7e1ab3;stroke-opacity:1"
+         id="g860"
+         transform="matrix(0.97162657,0,0,0.96952045,5.1921801,3.9203438)">
+        <g
+           style="stroke:#7e1ab3;stroke-opacity:1"
+           transform="matrix(0.85702016,0,0,0.85702016,-0.76451775,43.221367)"
+           id="g840">
+          <path
+             style="fill:none;stroke:#7e1ab3;stroke-width:10.58333302;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             id="path10"
+             d="M 52.916334,270.54166 A 26.458,26.458334 0 0 1 35.507502,295.40436 26.458,26.458334 0 0 1 6.1903291,287.54874" />
+          <path
+             style="fill:none;stroke:#7e1ab3;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="m 17.127439,282.45819 -15.6284262,2.79306 2.7823559,15.6282"
+             id="path836" />
+        </g>
+      </g>
+      <g
+         style="stroke:#7e1ab3;stroke-opacity:1"
+         id="g860-5"
+         transform="matrix(-0.97162657,0,0,-0.96952046,47.743543,537.31572)">
+        <g
+           style="stroke:#7e1ab3;stroke-opacity:1"
+           transform="matrix(0.85702016,0,0,0.85702016,-0.76451775,43.221367)"
+           id="g840-6">
+          <path
+             id="path10-2"
+             style="fill:none;stroke:#7e1ab3;stroke-width:10.58333302;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="M 52.916334,270.54166 A 26.458,26.458334 0 0 1 35.507502,295.40436 26.458,26.458334 0 0 1 6.1903291,287.54874" />
+          <path
+             style="fill:none;stroke:#7e1ab3;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="m 17.127439,282.45819 -15.6284262,2.79306 2.7823559,15.6282"
+             id="path836-9" />
+        </g>
+      </g>
+    </g>
+    <text
+       id="text966"
+       y="288.22769"
+       x="60.85231"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:48.74572754px;line-height:1.25;font-family:Nunito;-inkscape-font-specification:'Nunito Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.21864319"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Nunito;-inkscape-font-specification:'Nunito Bold';stroke-width:1.21864319"
+         y="288.22769"
+         x="60.85231"
+         id="tspan964">AutoWeb</tspan></text>
+  </g>
+</svg>

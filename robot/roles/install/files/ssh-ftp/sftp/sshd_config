@@ -1,0 +1,68 @@
+# THIS FILE IS HANDLED BY PUPPET, DO NOT EDIT
+
+Port 22
+
+#Privilege Separation is turned on for security
+UsePrivilegeSeparation yes
+
+# Different PID from default SSH agent
+PidFile /var/run/sftp.pid
+
+
+# Logging
+SyslogFacility AUTH
+LogLevel INFO
+
+# Authentication:
+LoginGraceTime 120
+PermitRootLogin no
+StrictModes yes
+AllowGroups jailkit enseignant
+
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile	%h/.ssh/authorized_keys
+
+# Don't read the user's ~/.rhosts and ~/.shosts files
+IgnoreRhosts yes
+
+# To enable empty passwords, change to yes (NOT RECOMMENDED)
+PermitEmptyPasswords no
+
+# Change to yes to enable challenge-response passwords (beware issues with
+# some PAM modules and threads)
+ChallengeResponseAuthentication no
+
+# Change to no to disable tunnelled clear text passwords
+#PasswordAuthentication yes
+
+# Disable X11 forwarding
+X11Forwarding no
+X11DisplayOffset 10
+
+# Disable motd, enable some info at login
+PrintMotd no
+PrintLastLog yes
+#Banner /etc/issue.net
+
+# Enable keepalive
+TCPKeepAlive yes
+
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+Subsystem sftp /usr/lib/openssh/sftp-server
+#ChrootDirectory %h
+#ForceCommand internal-sftp
+AllowTcpForwarding no
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'.
+UsePAM yes

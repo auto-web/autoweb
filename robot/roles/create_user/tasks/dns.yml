@@ -1,0 +1,25 @@
+---
+
+- name: "Copy /etc/bind/zones.autoweb/pri.{{ user.domain_name }}"
+  template:
+    src: "templates/dns/pri.zone.students.j2"
+    dest: "/etc/bind/zones.autoweb/pri.{{ user.domain_name }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart bind9
+
+- name: "Copy /etc/bind/zones.autoweb/master.fragments/master.{{ user.domain_name }}"
+  template:
+    src: "templates/dns/zone.students.j2"
+    dest: "/etc/bind/zones.autoweb/master.fragments/master.{{ user.domain_name }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart bind9
+
+- name: "Assemble bind9 master"
+  assemble:
+    src: "/etc/bind/zones.autoweb/master.fragments"
+    dest: "/etc/bind/zones.autoweb/master"
+  notify: Restart bind9

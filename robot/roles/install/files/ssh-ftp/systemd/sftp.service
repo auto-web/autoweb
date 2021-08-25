@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenBSD Secure Shell server (SFTP only)
+After=network.target auditd.service
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStart=/usr/sbin/sshd -D $SSHD_OPTS -f /etc/ssh/sftp.conf
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=sftp.service

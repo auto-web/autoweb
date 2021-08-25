@@ -1,0 +1,64 @@
+---
+
+- name: "Install bind9"
+  apt:
+    name: bind9
+    state: present
+  notify: Restart bind9
+
+- name: "Copy dns conf"
+  copy:
+    src: "files/dns/"
+    dest: "/etc/bind/"
+    owner: root
+    group: root
+    mode: 0755
+  notify: Restart bind9
+
+- name: "Mkdir /etc/bind/zones.autoweb"
+  file:
+    path: "/etc/bind/zones.autoweb"
+    state: directory
+
+- name: "Copy services conf"
+  template:
+    src: "templates/dns/services.j2"
+    dest: "/etc/bind/zones.autoweb/services"
+    owner: root
+    group: root
+    mode: 0755
+  notify: Restart bind9
+
+- name: "Copy pri.phpmyadmin"
+  template:
+    src: "templates/dns/pri.zone.phpmyadmin.j2"
+    dest: "/etc/bind/zones.autoweb/pri.phpmyadmin"
+    owner: root
+    group: root
+    mode: 0755
+  notify: Restart bind9
+
+- name: "Copy pri.autoweb"
+  template:
+    src: "templates/dns/pri.zone.autoweb.j2"
+    dest: "/etc/bind/zones.autoweb/pri.autoweb"
+    owner: root
+    group: root
+    mode: 0755
+  notify: Restart bind9
+
+- name: "Mkdir /etc/bind/zones.autoweb/master.fragments"
+  file:
+    path: "/etc/bind/zones.autoweb/master.fragments"
+    state: directory
+
+- name: "touch /etc/bind/zones.autoweb/master"
+  file:
+    path: "/etc/bind/zones.autoweb/master"
+    state: touch
+
+- name: "Start service bind9"
+  service:
+    name: bind9
+    state: started
+    enabled: yes

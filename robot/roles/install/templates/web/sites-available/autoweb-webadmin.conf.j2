@@ -1,0 +1,46 @@
+<VirtualHost *:80>
+	ServerName {{ configs.domain_users }}
+	RedirectPermanent / https://{{ configs.domain_users }}/
+</VirtualHost>
+
+<VirtualHost *:443>
+	Servername {{ configs.domain_users }}
+	DocumentRoot /usr/local/share/autoweb_webadmin
+
+	<Directory /usr/local/share/autoweb_webadmin>
+		Options FollowSymLinks
+		DirectoryIndex index.php
+		Require all granted
+
+		<IfModule mod_fcgid.c>
+			<FilesMatch "\.php$">
+				SetHandler fcgid-script
+			</FilesMatch>
+			FCGIWrapper /var/www/fcgi-scripts/autoweb_webadmin/php-fcgi-starter .php
+			Options +ExecCGI
+		</IfModule>
+
+	</Directory>
+
+	<IfModule mod_fcgid.c>
+		SuexecUserGroup autoweb_webadmin autoweb_webadmin
+		IPCCommTimeout  7200
+	</IfModule>
+
+	<IfModule mod_rewrite.c>
+	RewriteEngine on
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+	</IfModule> 
+
+	# SSL Configuration
+	SSLEngine On
+	SSLProtocol All -SSLv2 -SSLv3
+	SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile  /etc/ssl/private/ssl-cert-snakeoil.key
+	#SSLCertificateFile	/etc/letsencrypt/live/{{ configs.domain_users }}/fullchain.pem
+	#SSLCertificateKeyFile   /etc/letsencrypt/live/{{ configs.domain_users }}/privkey.pem
+
+	ErrorLog /var/log/apache2/error.log
+
+</VirtualHost>
+

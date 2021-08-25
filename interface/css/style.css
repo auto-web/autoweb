@@ -1,0 +1,141 @@
+.intro {
+	text-align: center;
+}
+.intro img {
+	display: inline-block;
+	text-align: center;
+	width: 300px;
+	height: 150px;
+}
+
+.powered {
+	padding-top: 25px;
+	text-align: center;
+}
+.powered img {
+	width: 70px;
+	height: 26px;
+}
+
+.faq {
+	padding: 10px 0;
+}
+
+.faq h2 {
+	margin-top: 80px;
+	border: solid thin #000;
+	padding: 10px;
+	text-align: center;
+}
+
+.faq dt {
+	font-weight: bold;
+	margin-top: 10px;
+	margin-left: 10px;
+	background-color: #c0c0c0;
+	padding: 10px;
+}
+
+.faq dd {
+	margin-bottom: 10px;
+	margin-left: 50px;
+	background-color: #e0e0e0;
+	padding: 10px;
+}
+
+.faq pre {
+	display: inline-block;
+	margin: 0;
+}
+
+.faq ul li {
+	margin: 5px 0;
+}
+
+/* https://tobiasahlin.com/spinkit/ */
+.spinner {
+	width: 1em;
+	height: 1em;
+	line-height: 1em;
+
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 10px;
+
+	position: relative;
+}
+.double-bounce1, .double-bounce2 {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background-color: #eee;
+	opacity: 0.6;
+	position: absolute;
+	top: 0;
+	left: 0;
+	
+	-webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+	animation: sk-bounce 2.0s infinite ease-in-out;
+}
+.double-bounce2 {
+	-webkit-animation-delay: -1.0s;
+	animation-delay: -1.0s;
+}
+@-webkit-keyframes sk-bounce {
+	0%, 100% { -webkit-transform: scale(0.0) }
+	50% { -webkit-transform: scale(1.0) }
+}
+@keyframes sk-bounce {
+	0%, 100% { 
+		transform: scale(0.0);
+		-webkit-transform: scale(0.0);
+	} 50% { 
+		transform: scale(1.0);
+		-webkit-transform: scale(1.0);
+	}
+}
+
+#jobs-notify {
+	position: relative;
+}
+#jobs-notify:hover #jobs-tooltip {
+	display: block;
+}
+#jobs-tooltip {
+	z-index: 10;
+	display: none;
+	position: absolute;
+	top: calc(1em + 40px);
+	left: 0;
+	width: 350px;
+	margin-left: -50%;
+	padding: 5px;
+	color: #fff;
+	background-color: rgba(0, 0, 0, 0.8);
+	border-radius: 10px;
+}
+#jobs-tooltip:before {
+	z-index: 10;
+	content: "";
+	position: absolute;
+	display: block;
+	width: 0;
+	height: 0;
+	transform: translateX(-50%);
+	left: 50%;
+	top: -15px;
+	border: 8px solid rgba(0, 0, 0, 0.8);
+	border-top-color: transparent;
+	border-left-color: transparent;
+	border-right-color: transparent;
+}
+#jobs-tooltip ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#jobs-tooltip li {
+	display: flex;
+	align-items: center;
+}
+

@@ -1,0 +1,9 @@
+
+
+- name: Revoke all privileges for user
+  community.mysql.mysql_user:
+    name: "{{ user.mysql_username }}"
+    priv: "*.*:USAGE"
+    state: present
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"

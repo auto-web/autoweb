@@ -1,0 +1,91 @@
+---
+
+- name: "Install ssh"
+  apt:
+    name: openssh-server
+  notify: Restart ssh
+
+- name: "Copy sshd.conf"
+  copy:
+    src: "files/ssh-ftp/sshd/sshd_config"
+    dest: "/etc/ssh/sshd_config"
+    owner: root
+    group: root
+    mode: 0600
+  notify: Restart ssh
+
+- name: "Install pure-ftpd"
+  apt:
+    name: pure-ftpd
+  notify: Restart pure-ftpd
+
+- name: "Copy pure-ftpd.conf"
+  copy:
+    src: "files/ssh-ftp/pure-ftpd/"
+    dest: "/etc/pure-ftpd/"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart pure-ftpd
+
+- name: "generate ssl key for pure-ftpd"
+  command:
+    cmd: "openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem -days 3650 -subj '/C=. /ST=. /L=. /O=. /OU=. /CN={{ configs.domain_hostname }}'"
+    creates: /etc/ssl/private/pure-ftpd.pem
+  notify: Restart pure-ftpd
+
+- name: "Copy sftp.conf"
+  copy:
+    src: "files/ssh-ftp/sftp/sshd_config"
+    dest: "/etc/ssh/sftp.conf"
+    owner: root
+    group: root
+    mode: 0600
+  notify: Restart sftp
+
+- name: "Copy sftp.service"
+  copy:
+    src: "files/ssh-ftp/systemd/sftp.service"
+    dest: "/lib/systemd/system/sftp.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart sftp
+
+- name: "Link /etc/systemd/system/sftp.service"
+  file:
+    src: "/lib/systemd/system/sftp.service"
+    dest: "/etc/systemd/system/sftp.service"
+    state: link
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart sftp
+
+- name: "Link /etc/systemd/system/multi-user.target.wants/sftp.service"
+  file:
+    src: "/lib/systemd/system/sftp.service"
+    dest: "/etc/systemd/system/multi-user.target.wants/sftp.service"
+    state: link
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart sftp
+
+- name: "Start ssh"
+  service:
+    name: ssh
+    state: started
+    enabled: yes
+
+- name: "Start pure-ftpd"
+  service:
+    name: pure-ftpd
+    state: started
+    enabled: yes
+
+- name: "Start sftp"
+  service:
+    name: sftp
+    state: started
+    enabled: yes

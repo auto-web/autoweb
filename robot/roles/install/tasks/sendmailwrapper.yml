@@ -1,0 +1,72 @@
+---
+
+- name: "Install git & sudo"
+  apt:
+    name: 
+      - git
+      - sudo
+    state: present
+
+- name: "Clone sendmail-wrapper"
+  command:
+    cmd: "git clone https://github.com/onlime/sendmail-wrapper.git sendmail-wrapper"
+    chdir: "/opt"
+    creates: "/opt/sendmail-wrapper"
+
+- name: "create sendmail user"
+  user:
+    name: "sendmailwrapper"
+    system: yes
+    create_home: no
+    state: present
+
+- name: "modify install path"
+  lineinfile:
+    dest: "/opt/sendmail-wrapper/install.sh"
+    line: "PHP_AUTO_PREPEND=/var/www/sendmail-wrapper/prepend.php"
+    regexp: '^PHP_AUTO_PREPEND='
+    state: present
+
+- name: "Mkdir /var/www/sendmail-wrapper/"
+  file:
+    path: "/var/www/sendmail-wrapper/"
+    state: directory
+
+- name: "Install sendmail-wrapper"
+  command:
+    cmd: "./install.sh"
+    chdir: "/opt/sendmail-wrapper"
+
+- name: "add www-data and %sendmailwrapper to sudoers"
+  lineinfile:
+    dest: "/etc/sudoers"
+    line: "{{ item }}        ALL = (sendmailwrapper) NOPASSWD:/usr/sbin/sendmail-throttle [0-9]*"
+    state: present
+    validate: /usr/sbin/visudo -cf %s
+  with_items:
+    - "www-data"
+    - "%sendmailwrapper"
+
+- name: add schema.mysql.sql
+  mysql_db:
+    name: all
+    state: import
+    target: /opt/sendmail-wrapper/schema/schema.mysql.sql
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "Create mysql sendmailwrapper user"
+  no_log: true
+  mysql_user:
+    name: "sendmailwrapper"
+    password: "{{ configs.sendmailwrapper_mysql_password }}"
+    host: localhost
+    state: present
+    priv:  "*.*:USAGE/sendmailwrapper.throttle.*:SELECT,INSERT,UPDATE/sendmailwrapper.messages.*:INSERT"
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "Copy config.private.ini"
+  template:
+    src: "templates/sendmailwrapper/config.private.ini.j2"
+    dest: "/opt/sendmail-wrapper/config.private.ini"

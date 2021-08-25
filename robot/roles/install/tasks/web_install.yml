@@ -1,0 +1,68 @@
+---
+
+- name: "Install apache2"
+  apt:
+    name:
+      - apache2
+      - apache2-suexec-custom
+      - libapache2-mod-fcgid
+    state: present
+  notify:
+    - Restart apache2
+
+- name: "Install ftpcopy"
+  apt:
+    name:
+      - ftpcopy
+    state: present
+
+- name: "Add PHP repo. source"
+  copy:
+    dest: "/etc/apt/sources.list.d/php.list"
+    content: "deb https://packages.sury.org/php/ buster main"
+
+- name: "Add PHP repo. key"
+  get_url:
+    url: "https://packages.sury.org/php/apt.gpg"
+    dest: "/etc/apt/trusted.gpg.d/php.gpg"
+
+- name: "Install PHP 72 73 74 80"
+  apt:
+    update_cache: yes
+    name:
+      - "php{{ item }}"
+      - "php{{ item }}-cgi"
+      - "php{{ item }}-cli"
+      - "php{{ item }}-mysql"
+      - "php{{ item }}-gd"
+      - "php{{ item }}-curl"
+      - "php{{ item }}-zip"
+      - "php{{ item }}-mbstring"
+      - "php{{ item }}-xml"
+      - "php{{ item }}-imap"
+      - "php{{ item }}-sqlite3"
+      - "php{{ item }}-bz2"
+      - "php{{ item }}-xmlrpc"
+      - "php{{ item }}-soap"
+    state: present
+  loop:
+    - "7.2"
+    - "7.3"
+    - "7.4"
+    - "8.0"
+
+#- name: "Install PHP-mcrypt 56 70 71"
+#  apt:
+#    name:
+#      - "php{{ item }}-mcrypt"
+#    state: present
+#  loop:
+#    - "5.6"
+#    - "7.0"
+#    - "7.1"
+    
+- name: "Start service apache2"
+  service:
+    name: apache2
+    state: started
+    enabled: yes

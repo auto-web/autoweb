@@ -1,0 +1,24 @@
+---
+
+- name: "create user Playbook"
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    
+    - name: "load configs"
+      include_vars:
+        file: data/config.yml
+        name: configs
+
+    - name: "load args"
+      include_vars:
+        file: "data/args.json"
+        name: args
+
+    - name: "looping role create_user"
+      include_role:
+        name: disable_user
+      vars:
+        user: "{{ item }}"
+      with_items:
+        - "{{ args.users }}"

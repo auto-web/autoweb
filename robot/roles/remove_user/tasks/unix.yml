@@ -1,0 +1,22 @@
+
+- name: "remove user"
+  user:
+    name: "{{ user.unix_username }}"
+    home: "{{ configs.chroot_path }}/./home/{{ user.unix_username }}"
+    shell: "/usr/sbin/jk_chrootsh"
+    state: absent
+  notify: Refresh jail
+
+- name: "remove user's group"
+  ansible.builtin.group:
+    name: "{{ user.unix_username }}"
+    state: absent
+  notify: Refresh jail
+
+- name: "remove {{ configs.chroot_path }}/home/{{ user.unix_username }}"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}"
+    state: absent
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750

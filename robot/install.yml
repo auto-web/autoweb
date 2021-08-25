@@ -1,0 +1,15 @@
+---
+
+- name: "install Playbook"
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    
+    - name: "load configs"
+      include_vars:
+        file: data/config.yml
+        name: configs
+
+    - name: "include role install"
+      include_role:
+        name: install

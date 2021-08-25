@@ -1,0 +1,41 @@
+{% extends "base.twig" %}
+
+{% block content %}
+
+<h2 class="m-2 mt-4">Modification d'un compte</h3>
+    <table class="table">
+        <tr>
+            <td>Prénom</td>
+            <td>{{ user.first_name }}</td>
+        </tr>
+        <tr>
+            <td>Nom</td>
+            <td>{{ user.last_name }}</td>
+        </tr>
+        <tr>
+            <td>Site</td>
+            <td><a href="http://{{ user.domain_name }}">{{ user.domain_name }}</a></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>{{ user.email }}</td>
+        </tr>
+        <tr>
+            <td>Mot de passe</td>
+            <td><a href="password.php" class="btn btn-primary">Changer mot de passe</a></td>
+        </tr>
+        <tr>
+            <td>Version PHP</td>
+            <td><form action="#" method="post">
+                <select name="php_version" id="php_version">
+                {% for valid_php_version in valid_php_versions %}
+                    <option value="{{ valid_php_version }}" {{ (user.php_version == valid_php_version) ? 'selected' : '' }}>{{ valid_php_version }}</option>
+                {% endfor %}
+                </select>
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <input type="submit" value="Changer version PHP">
+            </form></td>
+        </tr>
+    </table>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+
+- name: "remove mysql admin SELECT,SHOW VIEW"
+  mysql_user:
+    name: "{{ admin.mysql_username }}"
+    priv: "{{ user.mysql_username }}.*:USAGE"
+    append_privs: yes
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+  with_items:
+     - "{{ admins }}"
+  loop_control:
+    loop_var: admin
+
+- name: "remove mysql user"
+  no_log: true
+  mysql_user:
+    name: "{{ user.mysql_username }}"
+    password: "{{ user.mysql_password }}"
+    host: localhost
+    state: absent
+    priv: "{{ user.mysql_username }}.*:ALL,GRANT"
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "remove mysql user's DB"
+  mysql_db:
+    name: "{{ user.mysql_username }}"
+    state: absent
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"

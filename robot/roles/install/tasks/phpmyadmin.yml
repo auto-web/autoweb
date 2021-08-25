@@ -1,0 +1,75 @@
+- name: "create phpmyadmin user"
+  user:
+    name: "phpmyadmin"
+    system: yes
+    create_home: no
+    state: present
+
+- name: "add www-data to phpmyadmin group"
+  user:
+    name: "www-data"
+    append: yes
+    groups: 
+      - "phpmyadmin"
+  notify: Restart apache2
+
+- name: "Mkdir /var/www/fcgi-scripts/phpmyadmin"
+  file:
+    path: "/var/www/fcgi-scripts/phpmyadmin"
+    state: directory
+    owner: "phpmyadmin"
+    group: "phpmyadmin"
+    mode: 0550
+
+- name: "Copy php config"
+  template:
+    src: "templates/web/php-fcgi-starter-phpmyadmin.j2"
+    dest: "/var/www/fcgi-scripts/phpmyadmin/php-fcgi-starter"
+    owner: "phpmyadmin"
+    group: "phpmyadmin"
+    mode: 0550
+  notify: Restart apache2
+
+- name: "Add backport repo. source"
+  copy:
+    dest: "/etc/apt/sources.list.d/backports.list"
+    content: "deb http://deb.debian.org/debian buster-backports main"
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: install phpmyadmin
+  apt:
+    name: phpmyadmin
+    state: latest
+    default_release: buster-backports
+  notify: Restart apache2
+
+- name: set /usr/share/phpmyadmin permissions
+  file:
+    dest: /usr/share/phpmyadmin
+    owner: root
+    group: phpmyadmin
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
+  notify: Restart apache2
+
+- name: set /var/lib/phpmyadmin/tmp permissions
+  file:
+    dest: /var/lib/phpmyadmin/tmp
+    owner: phpmyadmin
+    group: phpmyadmin
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
+  notify: Restart apache2
+
+- name: set /var/lib/phpmyadmin/blowfish_secret.inc.php permissions
+  file:
+    dest: /var/lib/phpmyadmin/blowfish_secret.inc.php
+    owner: root
+    group: phpmyadmin
+    mode: u=rwX,g=r
+  notify: Restart apache2
+
+    

@@ -1,0 +1,27 @@
+
+- name: "disable site config"
+  file:
+    path: '/etc/apache2/sites-enabled/100-{{ user.domain_name }}.conf'
+    state: absent
+    owner: "root"
+    group: "root"
+    mode: 0777
+  notify: Restart apache2
+
+- name: "rm php config"
+  file:
+    path: "/var/www/fcgi-scripts/{{ user.unix_username }}/php-fcgi-starter"
+    state: absent
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0550
+  notify: Restart apache2
+
+- name: "rm /var/www/fcgi-scripts/{{ user.unix_username }}"
+  file:
+    path: "/var/www/fcgi-scripts/{{ user.unix_username }}"
+    state: absent
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0550
+  notify: Restart apache2

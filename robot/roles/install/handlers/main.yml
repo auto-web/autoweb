@@ -1,0 +1,26 @@
+---
+
+- name: "Restart apache2"
+  service:
+    name: apache2
+    state: restarted
+
+- name: "Restart sftp"
+  service:
+    name: sftp
+    state: restarted
+
+- name: "Restart ssh"
+  service:
+    name: ssh
+    state: restarted
+
+- name: "Restart pure-ftpd"
+  service:
+    name: pure-ftpd
+    state: restarted
+
+- name: "Restart bind9"
+  service:
+    name: bind9
+    state: restarted

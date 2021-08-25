@@ -1,0 +1,16 @@
+#!/bin/sh
+PHPRC=/etc/php8.0/cgi/
+export PHPRC
+export PHP_FCGI_MAX_REQUESTS=5000
+export PHP_FCGI_CHILDREN=1
+exec /usr/bin/php-cgi \
+  -d magic_quotes_gpc=off \
+  -d track_vars=on \
+  -d register_globals=off \
+  -d allow_url_fopen=off \
+  -d include_path=/usr/share/php/:./ \
+  -d upload_tmp_dir=/var/lib/phpmyadmin/tmp \
+  -d upload_max_filesize=64M \
+  -d post_max_size=64M \
+  -d open_basedir=/usr/share/phpmyadmin/:/etc/phpmyadmin/:/var/lib/phpmyadmin/:/usr/share/php/:/usr/share/doc/phpmyadmin/:/var/lib/php/sessions \
+$1

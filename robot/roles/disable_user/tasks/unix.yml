@@ -1,0 +1,9 @@
+
+- name: "diasble user"
+  user:
+    name: "{{ user.unix_username }}"
+    password: "!"
+    home: "{{ configs.chroot_path }}/./home/{{ user.unix_username }}"
+    shell: "/bin/false"
+    state: present
+  notify: Refresh jail

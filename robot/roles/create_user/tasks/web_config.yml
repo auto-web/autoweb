@@ -1,0 +1,66 @@
+--- 
+
+- name: "Setting template variables"
+  set_fact:
+    apache_docroot: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
+    apache_logdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    php_tmpdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+    apache_domain: "{{ user.domain_name }}"
+    apache_suexec_user: "{{ user.unix_username }}"
+    apache_suexec_group: "{{ user.unix_username }}"
+
+- name: "Copy site config"
+  template:
+    src: "templates/web/apache_user_vhost_enabled.conf.j2"
+    dest: "/etc/apache2/sites-available/{{ user.domain_name }}.conf"
+  notify: Restart apache2
+
+- name: "enable site config"
+  file:
+    src: '../sites-available/{{ user.domain_name }}.conf'
+    dest: '/etc/apache2/sites-enabled/100-{{ user.domain_name }}.conf'
+    state: link
+    owner: "root"
+    group: "root"
+    mode: 0777
+  notify: Restart apache2
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Mkdir /var/www/fcgi-scripts/{{ user.unix_username }}"
+  file:
+    path: "/var/www/fcgi-scripts/{{ user.unix_username }}"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0550
+
+- name: "Copy php config"
+  template:
+    src: "templates/web/php-fcgi-starter.j2"
+    dest: "/var/www/fcgi-scripts/{{ user.unix_username }}/php-fcgi-starter"
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0550

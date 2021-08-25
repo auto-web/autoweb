@@ -1,0 +1,72 @@
+{% extends "base.twig" %}
+
+{% block content %}
+
+<div class="row mt-4">
+    <div class="col-sm-6">
+        <h3 class="m-2">Utilisateurs actifs</h3>
+    </div>
+    <div class="col-sm-6">
+        <a href="newuser.php" class="btn btn-primary float-end m-2">Créer un compte</a>
+        <form action="#" method="post"><input type="hidden" name="action" value="repare_all"><input class="btn btn-primary float-end m-2" type="submit" value="Réparer tous les comptes"></form>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Email</th>
+            <th>Login</th>
+            <th>Mot de passe</th>
+            <th>Modifier</th>
+            <th>Réparer</th>
+            <th>Désactiver</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in active_users %}
+        <tr>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.description }}</td>
+            <td>{{ user.email }}</td>
+            <td><a href="http://{{ user.domain_name }}">{{ user.unix_username }}</a></td>
+            <td>{{ user.unix_password }}</td>
+            <td> <a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
+            <td> <form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="repare"><input class="btn btn-primary" type="submit" value="Réparer"></form></td>
+            <td> <form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="deactivate"><input class="btn btn-primary" type="submit" value="Désactiver"></form></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h3 class="m-2 mt-4">Utilisateurs inactifs</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Email</th>
+            <th>Login</th>
+            <th>Mot de passe</th>
+            <th>Réactiver</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in inactive_users %}
+        <tr>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.description }}</td>
+            <td>{{ user.email }}</td>
+            <td><a href="http://{{ user.domain_name }}">{{ user.unix_username }}</a></td>
+            <td>{{ user.unix_password }}</td>
+            <td> <form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="reactivate"><input class="btn btn-primary" type="submit" value="Réactiver"></form></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

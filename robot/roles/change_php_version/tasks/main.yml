@@ -1,0 +1,18 @@
+
+- name: "Setting template variables"
+  set_fact:
+    apache_docroot: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
+    apache_logdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    php_tmpdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+    apache_domain: "{{ user.domain_name }}"
+    apache_suexec_user: "{{ user.unix_username }}"
+    apache_suexec_group: "{{ user.unix_username }}"
+
+- name: "Copy php config"
+  template:
+    src: "templates/web/php-fcgi-starter.j2"
+    dest: "/var/www/fcgi-scripts/{{ user.unix_username }}/php-fcgi-starter"
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0550
+  notify: Restart apache2

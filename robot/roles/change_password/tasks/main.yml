@@ -1,0 +1,14 @@
+
+- name: "change unix password"
+  user:
+    name: "{{ user.unix_username }}"
+    password: "{{ user.unix_password | password_hash('sha512') }}"
+
+- name: "change mysql password"
+  no_log: true
+  mysql_user:
+    name: "{{ user.mysql_username }}"
+    password: "{{ user.mysql_password }}"
+    host: localhost
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"

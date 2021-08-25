@@ -1,0 +1,6 @@
+zone "{{ user.domain_name }}" {
+        type master;
+        allow-transfer {none;};
+        file "/etc/bind/zones.autoweb/pri.{{ user.domain_name }}";
+};
+

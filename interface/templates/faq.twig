@@ -1,0 +1,106 @@
+{% extends "base.twig" %}
+
+{% block content %}
+<div class="faq">
+	<dl>
+		<h2 class="mt-4">AutoWeb</h2>
+		<dt>Erreur de certificat : page non sécurisée</dt>
+		<dd>Accepter le certificat autosigné pour continuer.
+			<ul>
+				<li>Sous Firefox : <pre>Je comprends les risques</pre> puis <pre>Ajouter une exception</pre></li>
+				<li>Sous Chrome : <pre>Continuer vers le site (dangereux)</pre></li>
+			</ul>
+		</dd>
+
+		<dt>Je souhaite changer de mot de passe / Je me suis fait voler mes accès</dt>
+		<dd><ul><li>Vous pouvez effectuer un rappel de mot de passe à partir du bouton "Renvoi du mot de passe"</li>
+		<li>Vous pouvez effectuer une demande de changement de mot de passe à partir de votre interface utilisateur : bouton "Outils utilisateur" puis "Changer le mot de passe".
+		<br />Le nouveau mot de passe vous sera transmis par mail.
+		<br />Attention, cela changera aussi le mot de passe MySQL !</li></ul>
+		<br />À noter : le changement n'est pas immédiat et quelques minutes sont nécessaires pour la prise en compte du nouveau mot de passe.</dd>
+
+		<h2>FTP</h2>
+		<dt>Impossible de se connecter</dt>
+		<dd>Vérifier les paramètres de la connexion : protocole, port, nom d'utilisateur, mot de passe.<br /><img src="img/faq/ftp-param.png"></dd>
+
+		<dt>Impossible d'envoyer des fichiers</dt>
+		<dd><ul>
+			<li>Vérifiez que le dossier vers lequel vous envoyez est bien "www" (ou un de ses sous-dossiers) et qu'il est accessible en écriture.<br /><img src="img/faq/ftp-perm.png"></li>
+			<li>Vérifiez que vous n'avez pas dépassé votre quota (un message vous en informant s'affiche au moment de l'upload), en particulier si vous avez de gros fichiers dans votre dossier <pre>/tmp</pre>.</li>
+		</ul></dd>
+
+		<dt>Error : quota exceeded</dt>
+		<dd>le poids des fichiers sur votre espace web dépasse le quota, merci de contacter le support ou effacer/compresser les fichiers superflus.</dd>
+
+		<dt>Mes fichiers ne se mettent pas à jour !</dt>
+		<dd>Deux solutions : soit vous n'avez pas vidé le cache de votre navigateur (CTRL+F5), soit vous avez supprimé/écrasé/remplacé le dossier www.<br />
+		Le dossier www est un lien symbolique qui fait partie d'un environnement chroot, en le remplaçant par un dossier réel vous cassez le lien entre ce dossier et le pointage du serveur web.<br />
+		Si votre dossier s'est trouvé dans cette situation, et que vous ne retrouvez plus vos fichiers, merci de contacter le support.<br />
+		<br />
+		Cette situation ne devrait plus se produire car à présent le dossier supérieur est <a href="https://en.wikipedia.org/wiki/Chattr">immutable</a>. Pour effacer les liens symboliques, le lancement de la commande <i>chattr -i</i> est nécessaire, il faudrait le faire exprès.</dd>
+
+		<h2>Structure des dossiers</h2>
+		<dt>Supprimer des sessions</dt>
+		<dd>Effacer les fichiers <pre>sess_*</pre> dans le dossier <pre>/tmp</pre>.</dd>
+
+		<h2>PHP</h2>
+		<dt>Erreur 403 : Accès refusé</dt>
+		<dd>
+			<ul>
+				<li>Vérifiez qu'un .htaccess dans le dossier ou les dossiers supérieurs ne bloque pas l'accès</li>
+				<li>Vérifiez que le dossier est bien en mode 750 (avec des permissions <b>lecture et exécution pour le groupe</b>)
+				<li>Consultez les logs dans le dossier <pre>logs/error.log</pre> et <pre>logs/access.log</pre> pour plus d'informations</li>
+			</ul>
+		</dd>
+
+		<dt>Erreur 500</dt>
+		<dd>Consultez les logs dans le dossier <pre>logs/error.log</pre> pour plus de détails. Si vous pensez que vous n'êtes pas responsable de l'erreur, merci de contacter le support.</dd>
+
+		<dt>PHP non exécuté : je reçois le fichier PHP brut au lieu de la page HTML</dt>
+		<dd>
+			<ul>
+				<li>Vérifiez qu'un .htaccess dans le dossier ou les dossiers supérieurs ne contient pas une directive <pre>Options -ExecCGI</pre> ou <pre>FCGIWrapper</pre>.</li>
+				<li>Consultez les logs dans le dossier <pre>logs/error.log</pre> et <pre>logs/access.log</pre> pour plus d'informations.</li>
+				<li>Contactez le support.</li>
+			</ul>
+		</dd>
+
+		<dt>Function disabled for security reasons</dt>
+		<dd>La fonctionnalité que vous essayez d'utiliser a été désactivée. S'il n'est pas possible de contourner le problème, merci de contacter le support.</dd>
+
+		<dt>J'utilise une fonction référencée sur le site php.net et elle me retourne "function does not exists"</dt>
+		<dd>Soit vous utilisez une fonction obsolète sur votre version de PHP (mysql_connect), soit le module PHP requis n'a pas été installé sur le serveur ou n'est pas à jour. Dans ce cas, merci de contacter le support.</dd>
+
+		<h2>Node.js</h2>
+		<dt>C'est quoi Node.js ?</dt>
+		<dd>Node.js est un langage permettant de manipuler directement les requêtes HTTP avec une API haut niveau et une approche événementielle non bloquante.</dd>
+
+		<dt>Comment s'en servir ?</dt>
+		<dd>Sur le serveur AutoWeb, placez vos fichiers dans votre dossier <pre>nodejs/</pre>.<br /><strong>Attention</strong> : vous avez un port réseau assigné pour mettre en route votre serveur, veuillez n'utiliser que ce port pour lancer votre serveur. Dans le cas contraire, votre processus sera automatiquement tué dans les secondes qui suivent et une erreur s'affichera dans votre interface utilisateur.</dd>
+
+		<dt>Comment démarrer mon serveur ?</dt>
+		<dd>Vous pouvez démarrer votre serveur en ligne de commande avec la commande <pre>node votrefichier.js</pre>, ou utiliser l'interface web. Attention, si vous utilisez l'interface web, votre fichier devra obligatoirement s'appeler <strong>main.js</strong> et se trouver à la racine du dossier <pre>nodejs/</pre></dd>
+
+		<dt>Mon serveur refuse de démarrer (socket already in use)</dt>
+		<dd>Vous ou un autre utilisateur du serveur utilise déjà le port sur lequel vous tentez de lancer votre serveur. Vérifiez que le port vous appartient bien, et qu'aucun autre processus n'est lancé de votre part (commande <pre>ps -u</pre> pour afficher vos processus en cours d'exécution).</dd>
+
+		<dt>Mon serveur refuse de démarrer (permission denied)</dt>
+		<dd>En tant qu'utilisateur non privilégié, vous ne pouvez pas démarrer de serveur sur un numéro de port inférieur à 1024. Utilisez le port qui vous a été assigné.</dd>
+
+		<h2>Ligne de commande / SSH</h2>
+		<dt>Comment se connecter ?</dt>
+		<dd>Il est possible de se connecter en SSH au serveur, sur le port 22 (standard).
+		<ul><li>Via Linux avec la ligne de commande : <pre>ssh login@autoweb.example.com</pre> (acceptez le certificat la première fois)</li>
+		<li>Via Windows avec un client SSH comme <a href="http://www.putty.org/">Putty</a>.</li></ul>
+		</dd>
+
+		<dt>Quelles sont les commandes accessibles ?</dt>
+		<dd>Le shell tourne dans un environnement chrooté, ce qui signifie qu'un sous-ensemble des commandes est disponible, mais pas toutes.<br />
+		<p>Quelques commandes disponibles :</p>
+		<ul><li><b><pre>mysql&gt;</pre></b> <pre>mysql -h 127.0.0.1 -u login -p database</pre> (remplacer login et database par vos accès).</li>
+		<li><b><pre>php&gt;</pre></b> <pre>php monfichier.php</pre> (exécute une version particulière de PHP: PHP CLI)</li></ul>
+		<p>À noter : il peut manquer certaines librairies qui empêchent certaines commandes de s'exécuter, en particulier certaines extensions de PHP lorsqu'elles sont utilisées avec PHP CLI, dans ce cas veuillez contacter le support pour les ajouter à l'environnement chroot.</p></dd>
+
+	</dl>
+	</div>
+{% endblock %}

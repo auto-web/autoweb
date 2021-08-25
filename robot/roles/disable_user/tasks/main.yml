@@ -1,0 +1,19 @@
+# -disable unix login
+#     - password
+#     - shell
+#     -notify jailkit
+# -diasble mysql login
+#
+
+
+- name: "include : unix"
+  include_tasks: unix.yml
+
+- name: "include : mysql"
+  include_tasks: mysql.yml
+
+- name: "include : web_config"
+  include_tasks: web_config.yml
+
+- name: "include : dns"
+  include_tasks: dns.yml

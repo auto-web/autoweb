@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cat /etc/passwd | egrep "^root:" > {{ configs.chroot_path }}/etc/passwd
+cat /etc/group | egrep "^root:" > {{ configs.chroot_path }}/etc/group
+cat /etc/passwd | grep '{{ configs.chroot_path }}/' | sed 's|{{ configs.chroot_path }}/.||' | sed 's/\/usr\/sbin\/jk_chrootsh/\/bin\/bash/' >> {{ configs.chroot_path }}/etc/passwd
+cat /etc/group | grep jailkit >> {{ configs.chroot_path }}/etc/group
+
+GIDS=$(cat /etc/passwd | grep '{{ configs.chroot_path }}/' | cut -d':' -f4)
+
+for GID in $GIDS ; do
+	cat /etc/group | grep ":$GID:" >> {{ configs.chroot_path }}/etc/group
+done
+
+jk_update -j {{ configs.chroot_path }}/
+

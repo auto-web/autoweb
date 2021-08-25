@@ -1,0 +1,58 @@
+---
+
+- name: "create user"
+  user:
+    name: "{{ user.unix_username }}"
+    comment: "{{ user.first_name }} {{ user.last_name }}"
+    password: "{{ user.unix_password | password_hash('sha512') }}"
+    home: "{{ configs.chroot_path }}/./home/{{ user.unix_username }}"
+    shell: "/usr/sbin/jk_chrootsh"
+    create_home: yes
+    state: present
+    groups: 
+      - jailkit
+      - sendmailwrapper
+  notify: Refresh jail
+
+- name: "add www-data to {{ user.unix_username }} group"
+  user:
+    name: "www-data"
+    append: yes
+    groups: 
+      - "{{ user.unix_username }}"
+  notify: Restart apache2
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    state: directory
+    owner: "root"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
+  file:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
+    state: directory
+    owner: "{{ user.unix_username }}"
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Set user Quota"
+  command: "/usr/sbin/quotatool -u {{ user.unix_username }} -b -l 500MB {{ configs.fs }}"

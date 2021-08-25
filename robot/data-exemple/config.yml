@@ -1,0 +1,32 @@
+# Login MySQL pour Ansible
+ansible_mysql_login: "ansible"
+# Mot de passe MySQL pour Ansible
+ansible_mysql_password: "ansiblepw"
+
+# Mot de pases MySQL pour l'interface utilisateur
+autoweb_mysql_password: "autowebpw"
+
+# Login du compte "super admin" pour MySQL et l'interface utilisateur
+admin_login: "admin"
+# Mot de passe du compte "super admin" pour MySQL et l'interface utilisateur
+admin_mysql_login: "admin"
+
+# Mot de passe pour le système de quota des emails (utilisé par les robots)
+sendmailwrapper_mysql_password: "sendmailwrapperpw"
+
+# Chemin d'accès à la racine de la jail des utilisateurs, par exemple /data/chroot
+chroot_path: "/data/chroot"
+# Point de montage où sont configurés les quotas, par exemple /data
+fs: "/data"
+
+# Domaine principal sous lequel les comptes seront créés, par exemple autoweb.example.com
+domain_users: "autoweb.example.com"
+# Nom d'hôte de la machine
+domain_hostname: "autoweb.vps.example.com"
+# Adresse IPv4 de la machine
+server_ipv4: "xx.xx.xx.xx"
+# Adresse IPv6 de la machine (facultatif, peut être vide mais doit être déclaré)
+server_ipv6: ""
+
+# Captcha public key
+captcha_pubkey: ""

@@ -1,0 +1,19 @@
+$TTL        3600
+@       IN      SOA     {{ configs.domain_hostname }}. support.wellhosted.ch. (
+                        2018090101       ; serial, todays date + todays serial #
+                        7200              ; refresh, seconds
+                        540              ; retry, seconds
+                        604800              ; expire, seconds
+                        86400 )            ; minimum, seconds
+;
+
+{% if configs.server_ipv4 != None and configs.server_ipv4 != '' %}
+{{ configs.domain_users }}. 3600 A       {{ configs.server_ipv4 }}
+{% endif %}
+
+{% if configs.server_ipv6 != None and configs.server_ipv6 != '' %}
+{{ configs.domain_users }}. 3600 AAAA    {{ configs.server_ipv6 }}
+{% endif %}
+
+{{ configs.domain_users }}. 3600      NS        {{ configs.domain_hostname }}.
+

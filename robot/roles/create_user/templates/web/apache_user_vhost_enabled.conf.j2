@@ -1,0 +1,115 @@
+<VirtualHost *:80>
+	ServerName {{ user.domain_name }}
+	ServerAdmin webmaster@localhost
+
+	DocumentRoot {{ apache_docroot }}
+	<Directory {{ apache_docroot }}>
+		Options Indexes SymLinksIfOwnerMatch MultiViews
+		AllowOverride All
+		Require all granted
+
+		# Clear PHP settings of this website
+		<FilesMatch ".+\.ph(p[345]?|t|tml)$">
+			SetHandler None
+		</FilesMatch>
+
+		# PHP wrapper settings
+		<FilesMatch "\.php[5]?$">
+			SetHandler fcgid-script
+		</FilesMatch>
+		FCGIWrapper /var/www/fcgi-scripts/{{ apache_suexec_user }}/php-fcgi-starter .php
+		Options +ExecCGI
+
+	</Directory>
+
+	# Suexec settings
+	<IfModule mod_suexec.c>
+		SuexecUserGroup {{ apache_suexec_user }} {{ apache_suexec_group }}
+	</IfModule>
+
+	# In case ITK is used instead of suexec
+	<IfModule mpm_itk_module>
+		AssignUserId {{ apache_suexec_user }} {{ apache_suexec_group }}
+	</IfModule>
+
+	# FastCGI settings
+	IdleTimeout 300
+	ProcessLifeTime 3600
+	# MaxProcessCount 1000
+	DefaultMinClassProcessCount 0
+	DefaultMaxClassProcessCount 20
+	IPCConnectTimeout 3
+	IPCCommTimeout 600
+	BusyTimeout 3600
+
+	ErrorLog {{ apache_logdir }}/error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog {{ apache_logdir }}/access.log vhost_combined
+</VirtualHost>
+
+<VirtualHost *:443>
+	ServerName {{ user.domain_name }}
+	ServerAdmin webmaster@localhost
+
+	# SSL Configuration
+	SSLEngine On
+	SSLProtocol All -SSLv2 -SSLv3
+	SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+	#SSLCertificateFile /etc/ssl/wellhosted/wellhosted.crt
+	#SSLCertificateKeyFile /etc/ssl/wellhosted/wellhosted.key
+	#SSLCACertificateFile /etc/ssl/wellhosted/wellhosted.ca-bundle
+
+	DocumentRoot {{ apache_docroot }}
+	<Directory {{ apache_docroot }}>
+		Options Indexes SymLinksIfOwnerMatch MultiViews
+		AllowOverride All
+		Require all granted
+
+		# Clear PHP settings of this website
+		<FilesMatch ".+\.ph(p[345]?|t|tml)$">
+			SetHandler None
+		</FilesMatch>
+
+		# PHP wrapper settings
+		<FilesMatch "\.php[5]?$">
+			SetHandler fcgid-script
+		</FilesMatch>
+		FCGIWrapper /var/www/fcgi-scripts/{{ apache_suexec_user }}/php-fcgi-starter .php
+		Options +ExecCGI
+
+	</Directory>
+
+	# Suexec settings
+	<IfModule mod_suexec.c>
+		SuexecUserGroup {{ apache_suexec_user }} {{ apache_suexec_group }}
+	</IfModule>
+
+	# In case ITK is used instead of suexec
+	<IfModule mpm_itk_module>
+		AssignUserId {{ apache_suexec_user }} {{ apache_suexec_group }}
+	</IfModule>
+
+	# FastCGI settings
+	IdleTimeout 300
+	ProcessLifeTime 3600
+	# MaxProcessCount 1000
+	DefaultMinClassProcessCount 0
+	DefaultMaxClassProcessCount 100
+	IPCConnectTimeout 3
+	IPCCommTimeout 600
+	BusyTimeout 3600
+
+	ErrorLog {{ apache_logdir }}/error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog {{ apache_logdir }}/access.log vhost_combined
+
+</VirtualHost>

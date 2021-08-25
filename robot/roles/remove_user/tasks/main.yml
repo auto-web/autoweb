@@ -1,0 +1,9 @@
+
+- name: "include : web_config"
+  include_tasks: web_config.yml
+
+- name: "include : mysql"
+  include_tasks: mysql.yml
+
+- name: "include : unix"
+  include_tasks: unix.yml

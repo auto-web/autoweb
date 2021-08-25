@@ -1,0 +1,12 @@
+
+- name: "Give mysql admin SELECT,SHOW VIEW"
+  mysql_user:
+    name: "{{ admin.mysql_username }}"
+    priv: "{{ user.mysql_username }}.*:SELECT,SHOW VIEW"
+    append_privs: yes
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+  with_items:
+     - "{{ users }}"
+  loop_control:
+    loop_var: user

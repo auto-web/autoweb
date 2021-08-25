@@ -1,0 +1,17 @@
+---
+
+- name: "debug create user"
+  debug:
+    var: user
+
+- name: "include : unix_user"
+  include_tasks: unix_user.yml
+
+- name: "include : mysql_user"
+  include_tasks: mysql_user.yml
+
+- name: "include : web_config"
+  include_tasks: web_config.yml
+
+- name: "include : dns"
+  include_tasks: dns.yml

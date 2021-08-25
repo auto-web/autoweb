@@ -1,0 +1,36 @@
+---
+
+- name: "change /opt/autoweb/data permission"
+  file:
+    path: "/opt/autoweb/data"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0750
+
+- name: "include : jailkit"
+  include_tasks: jailkit.yml
+
+- name: "include : web_install"
+  include_tasks: web_install.yml
+
+- name: "include : web_base_config"
+  include_tasks: web_base_config.yml
+
+- name: "include : phpmyadmin"
+  include_tasks: phpmyadmin.yml
+
+- name: "include : autoweb"
+  include_tasks: autoweb.yml
+
+- name: "include : sftp"
+  include_tasks: sftp.yml
+
+- name: "include : dns"
+  include_tasks: dns.yml
+
+- name: "include : logrotate"
+  include_tasks: logrotate.yml
+
+- name: "include : sendmailwrapper"
+  include_tasks: sendmailwrapper.yml

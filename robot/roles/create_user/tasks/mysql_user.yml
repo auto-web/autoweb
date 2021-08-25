@@ -1,0 +1,31 @@
+---
+
+- name: "Create mysql user DB"
+  mysql_db:
+    name: "{{ user.mysql_username }}"
+    state: present
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "Create mysql user"
+  no_log: true
+  mysql_user:
+    name: "{{ user.mysql_username }}"
+    password: "{{ user.mysql_password }}"
+    host: localhost
+    state: present
+    priv: "{{ user.mysql_username }}.*:ALL,GRANT"
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "Give mysql admin SELECT,SHOW VIEW"
+  mysql_user:
+    name: "{{ admin.mysql_username }}"
+    priv: "{{ user.mysql_username }}.*:SELECT,SHOW VIEW"
+    append_privs: yes
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+  with_items:
+     - "{{ admins }}"
+  loop_control:
+    loop_var: admin

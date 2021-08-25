@@ -1,0 +1,86 @@
+---
+
+- name: "Copy sites-available"
+  copy:
+    src: "files/web/sites-available/"
+    dest: "/etc/apache2/sites-available/"
+  notify: Restart apache2
+
+- name: "Copy webadmin.conf"
+  template:
+    src: "templates/web/sites-available/autoweb-webadmin.conf.j2"
+    dest: "/etc/apache2/sites-available/autoweb-webadmin.conf"
+  notify: Restart apache2
+
+- name: "Copy phpmyadmin.conf"
+  template:
+    src: "templates/web/sites-available/phpmyadmin.conf.j2"
+    dest: "/etc/apache2/sites-available/phpmyadmin.conf"
+  notify: Restart apache2
+
+- name: "Enable sites-available"
+  file:
+    src: '../sites-available/{{ item.src }}'
+    dest: '/etc/apache2/sites-enabled/{{ item.dest }}'
+    state: link
+    owner: "root"
+    group: "root"
+    mode: 0777
+  loop:
+    - { src: default.conf, dest: 000-default.conf }
+    - { src: phpmyadmin.conf, dest: 010-phpmyadmin.conf }
+    - { src: autoweb-webadmin.conf, dest: 010-autoweb-webadmin.conf }
+  notify: Restart apache2
+
+- name: "Copy mods-available"
+  copy:
+    src: "files/web/mods-available/"
+    dest: "/etc/apache2/mods-available/"
+  notify: Restart apache2
+
+- name: "Enable mods-available"
+  file:
+    src: '../mods-available/{{ item }}'
+    dest: '/etc/apache2/mods-enabled/{{ item }}'
+    state: link
+    owner: "root"
+    group: "root"
+    mode: 0777
+  loop:
+    - actions.conf
+    - actions.load
+    - auth_digest.load
+    - dav.load
+    - dav_fs.conf
+    - dav_fs.load
+    - include.load
+    - ssl.conf
+    - ssl.load
+    - socache_shmcb.load
+    - suexec.load
+    - rewrite.load
+    - headers.load
+    - proxy.load
+    - proxy.conf
+    - proxy_http.load
+    - expires.load
+    - fcgid.conf
+    - fcgid.load
+  notify: Restart apache2
+
+- name: "Copy default-index.html"
+  copy:
+    src: "files/web/default-index.html"
+    dest: "/var/www/index.html"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart apache2
+
+- name: "Mkdir /var/www/fcgi-scripts"
+  file:
+    path: "/var/www/fcgi-scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755

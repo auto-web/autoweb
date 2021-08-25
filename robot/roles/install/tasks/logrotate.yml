@@ -1,0 +1,11 @@
+---
+
+- name: "Install logrotate"
+  apt:
+    name: logrotate
+    state: present
+
+- name: "Copy logrotate conf"
+  template:
+    src: "templates/logrotate/users-apache.j2"
+    dest: "/etc/logrotate.d/users-apache"

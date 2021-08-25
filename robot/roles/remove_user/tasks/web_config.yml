@@ -1,0 +1,6 @@
+
+- name: "remove site config"
+  file:
+    path: "/etc/apache2/sites-available/{{ user.domain_name }}.conf"
+    state: absent
+  notify: Restart apache2

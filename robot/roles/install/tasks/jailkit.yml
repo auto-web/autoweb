@@ -1,0 +1,75 @@
+---
+
+- name: "Install Jailkit Dependencies"
+  apt:
+    name:
+      - gcc
+      - make
+    state: present
+
+- name: "Check if Jailkit is Installed"
+  command: jk_check --help
+  ignore_errors: true
+  changed_when: false
+  register: Jailkit_is_found
+
+- when: Jailkit_is_found.failed
+  block:
+    - name: "Download Jailkit"
+      get_url:
+        url: "https://olivier.sessink.nl/jailkit/jailkit-2.21.tar.gz"
+        dest: "/tmp/jailkit.tar.gz"
+        checksum: "md5:d316dc22b9f3ab7464c8bd73c2539304"
+
+    - name: "Unarchive Jailkit"
+      unarchive:
+        src: "/tmp/jailkit.tar.gz"
+        dest: "/tmp"
+        remote_src: yes
+
+    - name: "Jailkit ./configure"
+      command:
+        cmd: "./configure"
+        chdir: "/tmp/jailkit-2.21/"
+
+    - name: "Jailkit make"
+      command:
+        cmd: "make"
+        chdir: "/tmp/jailkit-2.21/"
+
+    - name: "Jailkit make install"
+      command:
+        cmd: "make install"
+        chdir: "/tmp/jailkit-2.21/"
+
+- name: Ensure group "jailkit" exists
+  group:
+    name: jailkit
+    state: present
+
+- name: "Copy jk_init.ini"
+  copy:
+    src: files/jailkit/jk_init.ini
+    dest: /etc/jailkit/jk_init.ini
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: "Jailkit mkdir {{ configs.chroot_path }}"
+  file:
+    path: "{{ configs.chroot_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: "Jailkit jk_init -j {{ configs.chroot_path }}/ autoweb"
+  command:
+    cmd: "jk_init -j {{ configs.chroot_path }}/ autoweb"
+    creates: "{{ configs.chroot_path }}/bin"
+
+- name: "Copy autoweb_refresh_jail"
+  template:
+    src: "templates/jailkit/autoweb_refresh_jail.j2"
+    dest: "/usr/local/sbin/autoweb_refresh_jail"
+    mode: 0744

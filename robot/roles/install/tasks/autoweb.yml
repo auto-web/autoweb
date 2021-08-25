@@ -1,0 +1,83 @@
+- name: "Create mysql autoweb DB"
+  mysql_db:
+    name: "autoweb"
+    state: present
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "Create mysql autoweb"
+  no_log: true
+  mysql_user:
+    name: "autoweb"
+    password: "{{ configs.autoweb_mysql_password }}"
+    host: localhost
+    state: present
+    priv: "autoweb.*:ALL,GRANT"
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+
+- name: "Create cron job for autoweb robot"
+  ansible.builtin.cron:
+    name: "autoweb robot"
+    minute: "*"
+    job: "php /usr/local/share/autoweb_webadmin/robot/robot.php"
+
+- name: add PATH to crontab
+  ansible.builtin.cron:
+    name: PATH
+    env: yes
+    job: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+- name: "create autoweb_webadmin user"
+  user:
+    name: "autoweb_webadmin"
+    system: yes
+    create_home: no
+    state: present
+
+- name: "add www-data to autoweb_webadmin group"
+  user:
+    name: "www-data"
+    append: yes
+    groups: 
+      - "autoweb_webadmin"
+  notify: Restart apache2
+
+- name: "Mkdir /var/www/fcgi-scripts/autoweb_webadmin"
+  file:
+    path: "/var/www/fcgi-scripts/autoweb_webadmin"
+    state: directory
+    owner: "autoweb_webadmin"
+    group: "autoweb_webadmin"
+    mode: 0550
+
+- name: "Copy php config"
+  template:
+    src: "templates/web/php-fcgi-starter-autoweb_webadmin.j2"
+    dest: "/var/www/fcgi-scripts/autoweb_webadmin/php-fcgi-starter"
+    owner: "autoweb_webadmin"
+    group: "autoweb_webadmin"
+    mode: 0550
+
+- name: "Instal composer"
+  apt:
+    name: composer
+    state: present
+
+- name: "Install autoweb dependencies (with composer)"
+  command: "composer install --no-plugins --no-scripts"
+  args:
+    chdir: "/usr/local/share/autoweb_webadmin/"
+    creates: "/usr/local/share/autoweb_webadmin/vendor"
+
+- name: "create autoweb config"
+  copy:
+      dest: "/usr/local/share/autoweb_webadmin/config.php"
+      content: |
+        <?php
+        $domain_name='{{ configs.domain_users }}';
+        $dbPassword='{{ configs.autoweb_mysql_password }}';
+        $captcha_pubkey='{{ configs.captcha_pubkey }}';
+
+
+#TODO: create job first admin
