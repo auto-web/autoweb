@@ -5,14 +5,14 @@
     name: openssh-server
   notify: Restart ssh
 
-- name: "Copy sshd.conf"
-  copy:
-    src: "files/ssh-ftp/sshd/sshd_config"
-    dest: "/etc/ssh/sshd_config"
-    owner: root
-    group: root
-    mode: 0600
-  notify: Restart ssh
+#- name: "Copy sshd.conf"
+#  copy:
+#    src: "files/ssh-ftp/sshd/sshd_config"
+#    dest: "/etc/ssh/sshd_config"
+#    owner: root
+#    group: root
+#    mode: 0600
+#  notify: Restart ssh
 
 - name: "Install pure-ftpd"
   apt:
@@ -72,11 +72,11 @@
     mode: 0644
   notify: Restart sftp
 
-- name: "Start ssh"
-  service:
-    name: ssh
-    state: started
-    enabled: yes
+#- name: "Start ssh"
+#  service:
+#    name: ssh
+#    state: started
+#    enabled: yes
 
 - name: "Start pure-ftpd"
   service:
