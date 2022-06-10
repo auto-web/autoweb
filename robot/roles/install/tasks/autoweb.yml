@@ -20,7 +20,7 @@
   ansible.builtin.cron:
     name: "autoweb robot"
     minute: "*"
-    job: "php /usr/local/share/autoweb_webadmin/robot/robot.php"
+    job: "php /opt/autoweb/interface/robot/robot.php"
 
 - name: add PATH to crontab
   ansible.builtin.cron:
@@ -67,12 +67,12 @@
 - name: "Install autoweb dependencies (with composer)"
   command: "composer install --no-plugins --no-scripts"
   args:
-    chdir: "/usr/local/share/autoweb_webadmin/"
-    creates: "/usr/local/share/autoweb_webadmin/vendor"
+    chdir: "/opt/autoweb/interface/"
+    creates: "/opt/autoweb/interface/vendor"
 
 - name: "create autoweb config"
   copy:
-      dest: "/usr/local/share/autoweb_webadmin/config.php"
+      dest: "/opt/autoweb/interface/config.php"
       content: |
         <?php
         $domain_name='{{ configs.domain_users }}';

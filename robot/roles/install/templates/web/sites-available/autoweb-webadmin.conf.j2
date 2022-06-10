@@ -5,9 +5,9 @@
 
 <VirtualHost *:443>
 	Servername {{ configs.domain_users }}
-	DocumentRoot /usr/local/share/autoweb_webadmin
+	DocumentRoot /opt/autoweb/interface
 
-	<Directory /usr/local/share/autoweb_webadmin>
+	<Directory /opt/autoweb/interface>
 		Options FollowSymLinks
 		DirectoryIndex index.php
 		Require all granted

@@ -1,7 +1,7 @@
 #!/bin/sh
 PHPRC="/etc/php/8.0/cgi/"
 export PHPRC
-PHP_DOCUMENT_ROOT="/usr/local/share/autoweb_webadmin"
+PHP_DOCUMENT_ROOT="/opt/autoweb/interface"
 export PHP_DOCUMENT_ROOT
 # The variable PHP_FCGI_CHILDREN is onyl useful for lighty or nginx as apache 
 # mod_fcgi will control the number of childs themself and never use the additional processes.
@@ -10,7 +10,7 @@ export PHP_DOCUMENT_ROOT
 PHP_FCGI_MAX_REQUESTS=5000
 export PHP_FCGI_MAX_REQUESTS
 exec /usr/bin/php-cgi8.0 \
- -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:/usr/local/share/autoweb_webadmin" \
+ -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:/opt/autoweb/interface" \
  -d sendmail_path="/usr/sbin/sendmail-wrapper" \
  -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \ 
  -d memory_limit="64M" \ 
