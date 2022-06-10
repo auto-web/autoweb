@@ -33,7 +33,7 @@
 - name: "Add backport repo. source"
   copy:
     dest: "/etc/apt/sources.list.d/backports.list"
-    content: "deb http://deb.debian.org/debian buster-backports main"
+    content: "deb http://deb.debian.org/debian bullseye-backports main"
 
 - name: apt update
   apt:
@@ -43,7 +43,7 @@
   apt:
     name: phpmyadmin
     state: latest
-    default_release: buster-backports
+    default_release: bullseye-backports
   notify: Restart apache2
 
 - name: set /usr/share/phpmyadmin permissions
