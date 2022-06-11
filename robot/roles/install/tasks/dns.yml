@@ -26,7 +26,7 @@
     dest: "/etc/bind/zones.autoweb/services"
     owner: root
     group: root
-    mode: 0755
+    mode: 0644
   notify: Restart bind9
 
 - name: "Copy pri.phpmyadmin"
@@ -35,7 +35,7 @@
     dest: "/etc/bind/zones.autoweb/pri.phpmyadmin"
     owner: root
     group: root
-    mode: 0755
+    mode: 0644
   notify: Restart bind9
 
 - name: "Copy pri.autoweb"
@@ -44,7 +44,7 @@
     dest: "/etc/bind/zones.autoweb/pri.autoweb"
     owner: root
     group: root
-    mode: 0755
+    mode: 0644
   notify: Restart bind9
 
 - name: "Mkdir /etc/bind/zones.autoweb/master.fragments"
