@@ -51,10 +51,10 @@ function create_users($job){
 
     $data = ["users" => $users_data, "admins" => $admins];
     
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/create_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
     
 
     if($return_var != 0) {
@@ -81,10 +81,10 @@ function create_admins($job){
 
     $data = ["users" => $users_data, "admins" => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $output = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/create_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
     
     echo $output;
 
@@ -101,8 +101,8 @@ function create_admins($job){
 
     $data = ["admins" => $users_data, "users" => $users];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
-    exec("ansible-playbook /opt/autoweb/grant_admin.yml", $output, $return_var);
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    exec("ansible-playbook /opt/autoweb/robot/grant_admin.yml", $output, $return_var);
 
     echo $output;
 
@@ -137,10 +137,10 @@ function reactivate($job){
 
     $data = ["users" => $users, "admins" => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/create_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -173,10 +173,10 @@ function deactivate($job){
 
     $data = ["users" => $users, "admins" => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/disable_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/disable_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -212,10 +212,10 @@ function remove_users($job){
 
     $data = ["users" => $users, "admins" => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/remove_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/remove_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -241,10 +241,10 @@ function repare_all($job){
 
     $data = ["users" => $users, "admins" => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/create_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -277,10 +277,10 @@ function repare($job){
 
     $data = ["users" => $users, "admins" => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/data/args.json");
+    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/create_user.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -306,10 +306,10 @@ function change_password($job){
         $users[] = $user;
     }
 
-    file_write(json_encode(["users" => $users]), "/opt/autoweb/data/args.json");
+    file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/change_password.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/change_password.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -340,10 +340,10 @@ function change_php_version($job){
         $users[] = $user;
     }
 
-    file_write(json_encode(["users" => $users]), "/opt/autoweb/data/args.json");
+    file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/change_php_version.yml", $output, $return_var);
+    exec("ansible-playbook /opt/autoweb/robot/change_php_version.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
