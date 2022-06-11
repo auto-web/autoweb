@@ -59,7 +59,7 @@
     group: "autoweb_webadmin"
     mode: 0550
 
-- name: "Instal composer"
+- name: "Install composer"
   apt:
     name: composer
     state: present
