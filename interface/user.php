@@ -43,7 +43,7 @@ require_once 'lib/Job.class.php';
 if (isset($user_id)) {
     $messages = [];
 
-    $valid_php_versions = array("7.2", "7.3", "7.4", "8.0");
+    $valid_php_versions = array('7.2', '7.3', '7.4', '8.0', '8.1');
 
     if (isset($_POST['php_version']) && in_array($_POST['php_version'], $valid_php_versions)) {
         if (Job::addJob("change_php_version", json_encode([['user_id' => $user_id, 'php_version' => $_POST['php_version']]]))) {
