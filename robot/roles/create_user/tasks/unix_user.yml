@@ -55,4 +55,4 @@
     mode: 0750
 
 - name: "Set user Quota"
-  command: "/usr/sbin/quotatool -u {{ user.unix_username }} -b -l 500MB {{ configs.fs }}"
+  command: "/usr/sbin/quotatool -u {{ user.unix_username }} -b -l 1024M {{ configs.fs }}"
