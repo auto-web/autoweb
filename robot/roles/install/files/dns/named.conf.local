@@ -6,6 +6,8 @@
 // organization
 //include "/etc/bind/zones.rfc1918";
 
+include "/etc/bind/letsencrypt_wildcard.key";
+
 include "/etc/bind/zones.autoweb/master";
 include "/etc/bind/zones.autoweb/services";
 

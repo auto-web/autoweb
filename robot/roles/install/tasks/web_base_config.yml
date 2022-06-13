@@ -84,3 +84,9 @@
     owner: root
     group: root
     mode: 0755
+
+- name: "Start service apache2"
+  service:
+    name: apache2
+    state: started
+    enabled: yes

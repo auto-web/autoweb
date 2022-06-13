@@ -61,9 +61,4 @@
 #    - "5.6"
 #    - "7.0"
 #    - "7.1"
-    
-- name: "Start service apache2"
-  service:
-    name: apache2
-    state: started
-    enabled: yes
+

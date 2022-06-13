@@ -7,7 +7,15 @@ zone "pma.{{ configs.domain_users }}" {
 zone "{{ configs.domain_users }}" {
         type master;
         allow-transfer {none;};
-        file "/etc/bind/zones.autoweb/pri.autoweb";
+
+        # Letsencrypt needs changeable file (RFC 2136), because of AppArmor it has to be in /var/lib/bind
+        file "/var/lib/bind/zones.autoweb/pri.autoweb";
+
+        # Letsencrypt needs the lines below
+        check-names warn;
+        update-policy {
+                grant letsencrypt_wildcard. name _acme-challenge.{{ configs.domain_users }}. txt;
+        };
 };
 
 #zone "webftp.{{ configs.domain_users }}" {

@@ -58,11 +58,8 @@
 	# SSL Configuration
 	SSLEngine On
 	SSLProtocol All -SSLv2 -SSLv3
-	SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
-	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
-	#SSLCertificateFile /etc/ssl/wellhosted/wellhosted.crt
-	#SSLCertificateKeyFile /etc/ssl/wellhosted/wellhosted.key
-	#SSLCACertificateFile /etc/ssl/wellhosted/wellhosted.ca-bundle
+	SSLCertificateKeyFile  /etc/letsencrypt/live/{{ configs.domain_users }}/privkey.pem
+	SSLCertificateFile     /etc/letsencrypt/live/{{ configs.domain_users }}/fullchain.pem
 
 	DocumentRoot {{ apache_docroot }}
 	<Directory {{ apache_docroot }}>

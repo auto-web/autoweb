@@ -1,0 +1,38 @@
+---
+
+- name: "Install letsencrypt certbot"
+  apt:
+    name: certbot
+    state: present
+
+- name: "Install letsencrypt certbot RFC 2136 plugin"
+  apt:
+    name: python3-certbot-dns-rfc2136
+    state: present
+
+- name: "Get bind9 secret key"
+  shell:
+    cmd: "grep 'secret' /etc/bind/letsencrypt_wildcard.key | awk -F'\"' '{print $2}'"
+  register: letsencrypt_wildcard_key
+
+- name: "Mkdir /etc/letsencrypt/secrets"
+  file:
+    path: "/etc/letsencrypt/secrets"
+    owner: root
+    group: root
+    mode: 0700
+    state: directory
+
+- name: "Copy bind9 secret to letsencrypt configuration"
+  template:
+    src: "templates/letsencrypt/rfc2136-credentials.ini.j2"
+    dest: "/etc/letsencrypt/secrets/rfc2136-credentials.ini"
+    owner: "root"
+    group: "root"
+    mode: 0600
+
+- name: "Generate letsencrypt wildcard certificate"
+  command:
+    cmd: "certbot certonly --non-interactive --agree-tos -m {{ configs.letsencrypt_email }} --dns-rfc2136 --dns-rfc2136-credentials /etc/letsencrypt/secrets/rfc2136-credentials.ini -d {{ configs.domain_users }} -d *.{{ configs.domain_users }}"
+    creates: /etc/letsencrypt/live/{{ configs.domain_users }}
+

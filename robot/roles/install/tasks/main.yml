@@ -11,6 +11,12 @@
 - name: "include : jailkit"
   include_tasks: jailkit.yml
 
+- name: "include : dns"
+  include_tasks: dns.yml
+
+- name: "include letsencrypt"
+  include_tasks: letsencrypt.yml
+
 - name: "include : web_install"
   include_tasks: web_install.yml
 
@@ -25,9 +31,6 @@
 
 - name: "include : sftp"
   include_tasks: sftp.yml
-
-- name: "include : dns"
-  include_tasks: dns.yml
 
 - name: "include : logrotate"
   include_tasks: logrotate.yml

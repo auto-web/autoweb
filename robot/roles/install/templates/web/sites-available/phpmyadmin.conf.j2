@@ -66,12 +66,8 @@
 	# SSL Configuration
 	SSLEngine On
 	SSLProtocol All -SSLv2 -SSLv3
-	SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
-	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
-	#SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
-	#SSLCertificateKeyFile  /etc/ssl/private/ssl-cert-snakeoil.key
-	#SSLCertificateFile	/etc/letsencrypt/live/pma.{{ configs.domain_users }}/fullchain.pem
-	#SSLCertificateKeyFile   /etc/letsencrypt/live/pma.{{ configs.domain_users }}/privkey.pem
+	SSLCertificateKeyFile  /etc/letsencrypt/live/{{ configs.domain_users }}/privkey.pem
+	SSLCertificateFile     /etc/letsencrypt/live/{{ configs.domain_users }}/fullchain.pem
 
 	ErrorLog /var/log/apache2/error.log
 

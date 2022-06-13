@@ -20,6 +20,14 @@
     path: "/etc/bind/zones.autoweb"
     state: directory
 
+- name: "Mkdir /var/lib/bind/zones.autoweb"
+  file:
+    path: "/var/lib/bind/zones.autoweb"
+    owner: root
+    group: bind
+    mode: 0775
+    state: directory
+
 - name: "Copy services conf"
   template:
     src: "templates/dns/services.j2"
@@ -41,10 +49,10 @@
 - name: "Copy pri.autoweb"
   template:
     src: "templates/dns/pri.zone.autoweb.j2"
-    dest: "/etc/bind/zones.autoweb/pri.autoweb"
+    dest: "/var/lib/bind/zones.autoweb/pri.autoweb"
     owner: root
-    group: root
-    mode: 0644
+    group: bind
+    mode: 0664
   notify: Restart bind9
 
 - name: "Mkdir /etc/bind/zones.autoweb/master.fragments"
@@ -56,6 +64,12 @@
   file:
     path: "/etc/bind/zones.autoweb/master"
     state: touch
+
+- name: "Generate HMAC key for Bind9"
+  shell:
+    cmd: "tsig-keygen -a HMAC-SHA512 letsencrypt_wildcard > /etc/bind/letsencrypt_wildcard.key"
+    creates: /etc/bind/letsencrypt_wildcard.key
+  notify: Restart bind9
 
 - name: "Start service bind9"
   service:

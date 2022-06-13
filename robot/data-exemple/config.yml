@@ -30,3 +30,7 @@ server_ipv6: ""
 
 # Captcha public key
 captcha_pubkey: ""
+
+# Email for LetEncrypt (for certificate expiration notice)
+letsencrypt_email: ""
+
