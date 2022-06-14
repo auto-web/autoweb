@@ -54,7 +54,7 @@ if (isset($user_id)) {
         }
     }
 
-    if (isset($_POST['quota']) && is_numeric($_POST['quota']) && $_POST['quota'] >= 0) {
+    if ($is_admin && isset($_POST['quota']) && is_numeric($_POST['quota']) && $_POST['quota'] >= 0) {
         if (Job::addJob("change_quota", json_encode([['user_id' => $user_id, 'quota_limit' => $_POST['quota']]]))) {
           $messages[] = ['type' => 'success', 'message' => 'Le quota est en cours de changement...'];
         } else {
