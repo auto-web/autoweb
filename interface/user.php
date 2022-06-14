@@ -22,6 +22,7 @@ if (count($admin) == 1) {
         $user_id = $admin[0]->id;
 } else {
 
+    $is_admin = false;
     $user = User::getUsers(["unix_username" => $_SERVER['PHP_AUTH_USER'], "unix_password" => $_SERVER['PHP_AUTH_PW']]);
     if (count($user) == 1) {
         $_SESSION['user'] = $user[0];
@@ -30,7 +31,7 @@ if (count($admin) == 1) {
 
 }
 
-if ($_SESSION['admin'] || $_SESSION['user']) {
+if (@$_SESSION['admin'] || $_SESSION['user']) {
     ;
 } else {
     header('WWW-Authenticate: Basic realm="AutoWeb"');

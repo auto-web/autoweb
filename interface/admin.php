@@ -14,7 +14,7 @@ $admin = User::getUsers(["unix_username" => $_SERVER['PHP_AUTH_USER'], "unix_pas
 if (count($admin) == 1) {
     $_SESSION['admin'] = $admin[0];
     $is_admin = true;
-} elseif ($_SESSION['admin']) {
+} elseif (@$_SESSION['admin']) {
     ;
 } else {
     header('WWW-Authenticate: Basic realm="AutoWeb"');
