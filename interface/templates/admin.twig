@@ -33,7 +33,7 @@
             <td>{{ user.last_name }}</td>
             <td>{{ user.description }}</td>
             <td>{{ user.email }}</td>
-            <td><a href="http://{{ user.domain_name }}">{{ user.unix_username }}</a></td>
+            <td><a href="//{{ user.domain_name }}">{{ user.unix_username }}</a></td>
             <td>{{ user.unix_password }}</td>
 	    <td>{% if user.quota.quota_used > user.quota.quota_limit %}&#x26A0;{% endif %}</td>
             <td> <a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
