@@ -22,6 +22,12 @@
     minute: "*"
     job: "php /opt/autoweb/interface/robot/robot.php"
 
+- name: "Create cron job for autoweb quotas"
+  ansible.builtin.cron:
+    name: "autoweb robot"
+    minute: "*/10"
+    job: "php /opt/autoweb/interface/robot/quotas_update.php"
+
 - name: add PATH to crontab
   ansible.builtin.cron:
     name: PATH
@@ -78,6 +84,9 @@
         $domain_name='{{ configs.domain_users }}';
         $dbPassword='{{ configs.autoweb_mysql_password }}';
         $captcha_pubkey='{{ configs.captcha_pubkey }}';
+        $quotas_enabled={{ configs.quotas_enabled }};
+        $quotas_default={{ configs.quotas_default }};
+        $quotas_root='{{ configs.fs }}';
 
 
 #TODO: create job first admin

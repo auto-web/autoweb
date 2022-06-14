@@ -55,4 +55,6 @@
     mode: 0750
 
 - name: "Set user Quota"
-  command: "/usr/sbin/quotatool -u {{ user.unix_username }} -b -l 1024M {{ configs.fs }}"
+  command: "/usr/sbin/quotatool -u {{ user.unix_username }} -b -l {{ user.quota.quota_limit }}M {{ configs.fs }}"
+  when: configs.quotas_enabled|bool == true
+

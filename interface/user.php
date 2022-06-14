@@ -7,6 +7,7 @@ $loader = new \Twig\Loader\FilesystemLoader('templates');
 $twig = new \Twig\Environment($loader);
 
 require_once 'lib/User.class.php';
+require_once 'lib/Quota.class.php';
 
 if (isset($_GET['user_id']))
     $user_id = $_GET['user_id'];
@@ -48,6 +49,14 @@ if (isset($user_id)) {
     if (isset($_POST['php_version']) && in_array($_POST['php_version'], $valid_php_versions)) {
         if (Job::addJob("change_php_version", json_encode([['user_id' => $user_id, 'php_version' => $_POST['php_version']]]))) {
           $messages[] = ['type' => 'success', 'message' => 'La version de PHP est en cours de changement...'];
+        } else {
+          $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
+        }
+    }
+
+    if (isset($_POST['quota']) && is_numeric($_POST['quota']) && $_POST['quota'] >= 0) {
+        if (Job::addJob("change_quota", json_encode([['user_id' => $user_id, 'quota_limit' => $_POST['quota']]]))) {
+          $messages[] = ['type' => 'success', 'message' => 'Le quota est en cours de changement...'];
         } else {
           $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
         }

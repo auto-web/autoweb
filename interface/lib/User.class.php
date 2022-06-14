@@ -2,6 +2,7 @@
 require_once dirname(__FILE__).'/connect.php';
 
 require_once __DIR__ . '/Config.class.php';
+require_once __DIR__ . '/Quota.class.php';
 
 class User {
 
@@ -22,9 +23,11 @@ class User {
     public $is_admin;
     public $is_active;
 
+    public $quota;
+
     private function load($id, $first_name, $last_name, $unix_username,
     $unix_password, $mysql_username, $mysql_password, $email, $domain_name, $php_version,
-    $description, $is_admin, $is_active){
+    $description, $is_admin, $is_active, $quota){
         $this->id =             $id;
         $this->first_name =     $first_name;
         $this->last_name =      $last_name;
@@ -38,11 +41,12 @@ class User {
         $this->description =    $description;
         $this->is_admin =       $is_admin;
         $this->is_active =      $is_active;
+        $this->quota =          $quota;
     }
 
     public function generate_user_password() {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	    $password = substr( str_shuffle( $chars ), 0, 16 );
+        $password = substr( str_shuffle( $chars ), 0, 16 );
 
         $this->unix_password = $password;
         $this->mysql_password = $password;
@@ -64,8 +68,8 @@ class User {
         $uid = $this->generate_uid();
 
         if (!preg_match('/^[a-z0-9]+$/', $uid)) {
-			return false;
-		}
+            return false;
+        }
 
         $tries = 1;
         while (self::getUserById($uid) && $tries < 6) {
@@ -76,15 +80,15 @@ class User {
             return false;
         }
 
-	if ($this->getUserByEmail($this->email)) {
-		return false;
-	}
+        if ($this->getUserByEmail($this->email)) {
+                return false;
+        }
 
         $this->id = $uid;
         $this->unix_username = $uid;
         $this->mysql_username = $uid;
 
-		$this->generate_user_password();
+        $this->generate_user_password();
 
         $this->domain_name = $this->unix_username . "." . Config::getValue('domain_name');
 
@@ -93,7 +97,7 @@ class User {
         $this->php_version = "7.2";
 
         return true;
-	}
+    }
 
     public function loadUserByID($id) {
         $pdo = connect();
@@ -106,6 +110,9 @@ class User {
             $stmt->execute();
             if($stmt->rowCount() == 1){
                 $result = $stmt->fetch(PDO::FETCH_OBJ);
+
+                $quota = new Quota();
+                $quota->loadQuotaByUserID($result->id);
 
                 $this->load(
                         $result->id,
@@ -120,7 +127,8 @@ class User {
                         $result->php_version,
                         $result->description,
                         $result->is_admin,
-                        $result->is_active
+                        $result->is_active,
+                        $quota
                     );
 
                 return true;
@@ -143,6 +151,9 @@ class User {
             if($stmt->rowCount() == 1){
                 $result = $stmt->fetch(PDO::FETCH_OBJ);
 
+                $quota = new Quota();
+                $quota->loadQuotaByUserID($result->id);
+
                 $this->load(
                         $result->id,
                         $result->first_name,
@@ -156,7 +167,8 @@ class User {
                         $result->php_version,
                         $result->description,
                         $result->is_admin,
-                        $result->is_active
+                        $result->is_active,
+                        $quota
                     );
 
                 return true;
@@ -168,6 +180,11 @@ class User {
     }
 
     public function storeUser() {
+
+        if ( $this->quota->storeQuota() === false ) {
+            return false;
+        }
+
         $pdo = connect();
         
         $sql = 'UPDATE autoweb_users SET first_name = :first_name, last_name = :last_name, unix_username = :unix_username,
@@ -242,10 +259,17 @@ class User {
 
         try {
             $stmt->execute();
-            return true;
         } catch (Exception $e) {
             return false;
         }
+
+        $quota = new Quota();
+        $quota->user_id = $user->id;
+        $quota->quota_used = 0;
+        $quota->quota_limit = $user->quota->quota_limit;
+        Quota::insertQuota($quota);
+
+        return true;
 
     }
 
@@ -263,6 +287,8 @@ class User {
 
             foreach ($results as $result) {
                 $user = new User();
+                $quota = new Quota();
+                $quota->loadQuotaByUserID($result->id);
                 $user->load(    $result->id,
                                 $result->first_name,
                                 $result->last_name,
@@ -275,7 +301,8 @@ class User {
                                 $result->php_version,
                                 $result->description,
                                 $result->is_admin,
-                                $result->is_active
+                                $result->is_active,
+                                $quota
                             );
 
                 $users[] = $user;
@@ -328,6 +355,8 @@ class User {
 
             foreach ($results as $result) {
                 $user = new User();
+                $quota = new Quota();
+                $quota->loadQuotaByUserID($result->id);
                 $user->load(    $result->id,
                                 $result->first_name,
                                 $result->last_name,
@@ -340,7 +369,8 @@ class User {
                                 $result->php_version,
                                 $result->description,
                                 $result->is_admin,
-                                $result->is_active
+                                $result->is_active,
+                                $quota
                             );
 
                 $users[] = $user;

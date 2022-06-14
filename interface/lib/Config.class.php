@@ -10,8 +10,12 @@ class Config {
             require(self::$config_file);
 
             self::$values = [
-                'domain_name' => $domain_name,
-                'dbPassword'  => $dbPassword,
+                'domain_name'    => $domain_name,
+                'dbPassword'     => $dbPassword,
+		'captcha_pubkey' => $captcha_pubkey,
+		'quotas_enabled' => $quotas_enabled,
+		'quotas_default' => $quotas_default,
+		'quotas_root'    => $quotas_root,
             ];
         }
     }

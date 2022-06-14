@@ -10,6 +10,7 @@ require_once dirname(__FILE__).'/../config.php';
     - repare *
     - change_password +
     - change_php_version +
+    - change_quota +
 */
 
 class Job {

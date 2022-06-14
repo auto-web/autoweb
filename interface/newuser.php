@@ -61,6 +61,8 @@ if (isset($_FILES['new_users_info'])) {
         $user->last_name = $rows[$header_indexes['last_name']];
         $user->email = $rows[$header_indexes['email']];
         $user->description = $rows[$header_indexes['description']];
+	$user->quota = new Quota();
+	$user->quota->quota_limit = Config::getValue('quotas_default');
 
         if (!$user->generate_user_info()) {
             echo 'Wrong computed UID';

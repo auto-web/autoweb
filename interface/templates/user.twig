@@ -13,12 +13,21 @@
             <td>{{ user.last_name }}</td>
         </tr>
         <tr>
-            <td>Site</td>
-            <td><a href="http://{{ user.domain_name }}">{{ user.domain_name }}</a></td>
-        </tr>
-        <tr>
             <td>Email</td>
             <td>{{ user.email }}</td>
+        </tr>
+        <tr>
+            <td>Site</td>
+            <td><a href="//{{ user.domain_name }}">{{ user.domain_name }}</a></td>
+        </tr>
+        <tr>
+            <td>Quota</td>
+            <td><form action="#" method="post">
+                <progress max="{{ user.quota.quota_limit }}" value="{{ user.quota.quota_used }}">{{ user.quota.quota_used }} Mio / {{ user.quota.quota_limit }} Mio</progress>
+                {{ user.quota.quota_used }} Mio / <input type="number" size="5" name="quota" value="{{ user.quota.quota_limit }}" /> Mio
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <input type="submit" value="Changer quota" />
+            </form></td>
         </tr>
         <tr>
             <td>Mot de passe</td>

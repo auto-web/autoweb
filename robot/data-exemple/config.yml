@@ -19,6 +19,12 @@ chroot_path: "/data/chroot"
 # Point de montage où sont configurés les quotas, par exemple /data
 fs: "/data"
 
+# Enable quota system (may be disabled to prevent robot crash on unconfigured partition)
+quotas_enabled: true
+
+# Default quota for newly created users
+quotas_default: 1024
+
 # Domaine principal sous lequel les comptes seront créés, par exemple autoweb.example.com
 domain_users: "autoweb.example.com"
 # Nom d'hôte de la machine

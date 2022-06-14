@@ -37,6 +37,9 @@ function doJob($job){
         case "change_php_version":
             change_php_version($job);
             break;
+        case "change_quota":
+            change_quota($job);
+            break;
     }
 }
 
@@ -344,6 +347,39 @@ function change_php_version($job){
     $outputs = null;
     $return_var = null;
     exec("ansible-playbook /opt/autoweb/robot/change_php_version.yml", $output, $return_var);
+
+    if($return_var != 0) {
+        $job->markAs("failed");
+        return;
+    }
+
+    foreach ($users as $user) {
+        $user->storeUser();
+    }
+
+    $job->markAs("done");
+}
+
+function change_quota($job){
+    $quota_data = json_decode($job->data);
+    $job->markAs("running");
+    $users = [];
+
+    foreach ($quota_data as $item) {
+        $user_id = $item->user_id;
+        $quota_limit = $item->quota_limit;
+
+        $user = new User();
+        $user->loadUserByID($user_id);
+        $user->quota->quota_limit = $quota_limit;
+
+        $users[] = $user;
+    }
+
+    file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
+    $outputs = null;
+    $return_var = null;
+    exec("ansible-playbook /opt/autoweb/robot/change_quota.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
