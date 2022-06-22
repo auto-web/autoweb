@@ -62,7 +62,7 @@
     password: "{{ configs.sendmailwrapper_mysql_password }}"
     host: localhost
     state: present
-    priv:  "*.*:USAGE/sendmailwrapper.throttle.*:SELECT,INSERT,UPDATE/sendmailwrapper.messages.*:INSERT"
+    priv:  "*.*:USAGE/`sendmailwrapper`.`throttle`:SELECT,INSERT,UPDATE/`sendmailwrapper`.`messages`:INSERT"
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
 
