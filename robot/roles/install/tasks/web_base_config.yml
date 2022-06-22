@@ -38,6 +38,12 @@
     dest: "/etc/apache2/mods-available/"
   notify: Restart apache2
 
+- name: "Copy fcgid.conf"
+  template:
+    src: "templates/web/mods-available/fcgid.conf.j2"
+    dest: "/etc/apache2/mods-available/fcgid.conf"
+  notify: Restart apache2
+
 - name: "Enable mods-available"
   file:
     src: '../mods-available/{{ item }}'

@@ -41,6 +41,10 @@
 		SuexecUserGroup phpmyadmin phpmyadmin
 		IPCCommTimeout  7200
 		FcgidMaxRequestLen 67108864
+		FcgidCmdOptions /var/www/fcgi-scripts/phpmyadmin/php-fcgi-starter \
+		  MinProcesses 1 \
+		  MaxProcesses 50 \
+		  ConnectTimeout 2
 	</IfModule>
 
 	# Authorize for setup
