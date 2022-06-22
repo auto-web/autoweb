@@ -18,13 +18,13 @@
 
 - name: "Create cron job for autoweb robot"
   ansible.builtin.cron:
-    name: "autoweb robot"
+    name: "autoweb main robot"
     minute: "*"
     job: "php /opt/autoweb/interface/robot/robot.php"
 
 - name: "Create cron job for autoweb quotas"
   ansible.builtin.cron:
-    name: "autoweb robot"
+    name: "autoweb quota robot"
     minute: "*/10"
     job: "php /opt/autoweb/interface/robot/quotas_update.php"
 
