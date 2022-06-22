@@ -4,6 +4,8 @@
     apache_docroot: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
     apache_logdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
     php_tmpdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
+    php_advanced_enable: {{ configs.php_advanced_enable }}
+    php_settings: {{ configs.php_settings }}
     apache_domain: "{{ user.domain_name }}"
     apache_suexec_user: "{{ user.unix_username }}"
     apache_suexec_group: "{{ user.unix_username }}"
