@@ -97,7 +97,7 @@ letsencrypt_email: ""
 # for jailed users.
 #
 limits_enable: true
-limits_peruser_memory: 2048
+limits_peruser_memory: 2097152 # = 2 GB (value in KB)
 
 #
 # ---- Apache and PHP advanced options ----

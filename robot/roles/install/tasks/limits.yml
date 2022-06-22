@@ -1,0 +1,8 @@
+- name: "Copy limits config"
+  template:
+    src: "templates/limits/autoweb-limits.conf"
+    dest: "/etc/security/limits.d/autoweb.conf"
+    owner: "root"
+    group: "root"
+    mode: 0644
+

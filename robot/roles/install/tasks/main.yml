@@ -8,6 +8,9 @@
     group: "root"
     mode: 0750
 
+- name: "include : limits"
+  include_tasks: limits.yml
+
 - name: "include : jailkit"
   include_tasks: jailkit.yml
 
