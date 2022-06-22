@@ -1,23 +1,61 @@
-# Login MySQL pour Ansible
+
+#
+# ---- Ansible ----
+#
+# Base settings for the Ansible robot
+#
+
+# MySQL login for Ansible
 ansible_mysql_login: "ansible"
-# Mot de passe MySQL pour Ansible
+
+# MySQL password for Ansible
 ansible_mysql_password: "ansiblepw"
 
-# Mot de pases MySQL pour l'interface utilisateur
+#
+# ---- Web Interface ----
+#
+# Settings for admin web interface
+#
+
+# Mot de passe MySQL pour l'interface utilisateur
 autoweb_mysql_password: "autowebpw"
 
 # Login du compte "super admin" pour MySQL et l'interface utilisateur
 admin_login: "admin"
+
 # Mot de passe du compte "super admin" pour MySQL et l'interface utilisateur
 admin_mysql_login: "admin"
 
-# Mot de passe pour le système de quota des emails (utilisé par les robots)
+# Captcha public key
+captcha_pubkey: ""
+
+#
+# ---- Mail Quota ----
+#
+# Settings for mail quota system
+#
+
+# MySQL password for mail quota plugin
 sendmailwrapper_mysql_password: "sendmailwrapperpw"
+
+#
+# ---- File System ----
+#
+# Settings for file system paths
+# such as chroot path or base path.
+#
 
 # Chemin d'accès à la racine de la jail des utilisateurs, par exemple /data/chroot
 chroot_path: "/data/chroot"
+
 # Point de montage où sont configurés les quotas, par exemple /data
 fs: "/data"
+
+#
+# ---- Quotas ----
+#
+# Settings for Unix quota system
+#
 
 # Enable quota system (may be disabled to prevent robot crash on unconfigured partition)
 quotas_enabled: true
@@ -25,18 +63,60 @@ quotas_enabled: true
 # Default quota for newly created users
 quotas_default: 1024
 
+#
+# ---- Domain, IP, and Server options ----
+#
+# Configure domain, IP, and hostname
+#
+
 # Domaine principal sous lequel les comptes seront créés, par exemple autoweb.example.com
 domain_users: "autoweb.example.com"
+
 # Nom d'hôte de la machine
 domain_hostname: "autoweb.vps.example.com"
+
 # Adresse IPv4 de la machine
 server_ipv4: "xx.xx.xx.xx"
+
 # Adresse IPv6 de la machine (facultatif, peut être vide mais doit être déclaré)
 server_ipv6: ""
 
-# Captcha public key
-captcha_pubkey: ""
+#
+# ---- LetsEncrypt SSL ----
+#
+# Configure Letsencrypt settings for SSL generation
+#
 
 # Email for LetEncrypt (for certificate expiration notice)
 letsencrypt_email: ""
+
+#
+# ---- Hard System limits ----
+#
+# These settings enforce RAM and CPU limits
+# for jailed users.
+#
+limits_enable: true
+limits_peruser_memory: 2048
+
+#
+# ---- Apache and PHP advanced options ----
+#
+# These settings can adjust advanced Apache and PHP
+# configurations such as max spawned processes,
+# PHP limits, etc
+#
+apache_advanced_enable: true
+apache_fcgid_peruser_max_processes: 4
+apache_fcgid_connect_timeout: 20
+apache_fcgid_max_request_len: 325058560 # = 310 MB (value in Bytes)
+
+php_advanced_enable: true
+php_settings:
+  memory_limit: '128M'
+  post_max_size: '300M'
+  upload_max_filesize: '300M'
+  display_errors: 'Off'
+  log_errors: 'On'
+  error_reporting: 'E_ALL & ~E_DEPRECATED & ~E_STRICT'
 
