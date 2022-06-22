@@ -14,6 +14,32 @@
       - sendmailwrapper
   notify: Refresh jail
 
+- name: Ensure group "autoweb_admins" exists
+  group:
+    name: autoweb_admins
+    state: present
+
+- name: "add {{ user.unix_username }} to autoweb_admins group"
+  user:
+    name: "{{ user.unix_username }}"
+    groups:
+      - autoweb_admins
+    append: yes
+  when: user.is_admin == 1
+  notify: Refresh jail
+
+- name: "get info from user"
+  user:
+    name: "{{ user.unix_username }}"
+    state: present
+  register: user_data
+
+- name: "remove {{ user.unix_username }} from autoweb_admins group"
+  become: true
+  command: "gpasswd -d {{ user.unix_username }} autoweb_admins"
+  when: user.is_admin == 0 and user_data.groups is defined and 'autoweb_admins' in user_data.groups
+  notify: Refresh jail
+
 - name: "add www-data to {{ user.unix_username }} group"
   user:
     name: "www-data"
