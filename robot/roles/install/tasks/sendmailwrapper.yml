@@ -66,6 +66,11 @@
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
 
+- name: "Copy config.local.ini"
+  template:
+    src: "templates/sendmailwrapper/config.local.ini.j2"
+    dest: "/opt/sendmail-wrapper/config.local.ini"
+
 - name: "Copy config.private.ini"
   template:
     src: "templates/sendmailwrapper/config.private.ini.j2"

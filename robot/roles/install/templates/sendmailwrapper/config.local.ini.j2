@@ -1,0 +1,18 @@
+[global]
+defaultTZ = Europe/Zurich
+adminTo = {{ configs.admin_email }}
+adminFrom = {{configs.admin_email }}
+
+[syslog]
+stringLengthLimit = 120
+stringCutSuffix = "..."
+
+[wrapper]
+defaultHost = {{ configs.domain_hostname }}
+syslogPrefix = sendmail-wrapper-php
+xHeaderPrefix = "X-Example-"
+
+[throttle]
+countMax = 100
+rcptMax = 100
+
