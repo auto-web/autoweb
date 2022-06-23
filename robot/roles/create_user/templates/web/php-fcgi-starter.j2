@@ -14,7 +14,7 @@ exec /usr/bin/php-cgi{{ user.php_version }} \
  -d upload_tmp_dir={{ php_tmpdir }} \
  -d session.save_path={{ php_tmpdir }} \
  -d sendmail_path="/usr/sbin/sendmail-wrapper" \
- -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \ 
+ -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \
 {% if php_advanced_enable %}{% for key, value in php_settings.items() %}
  -d {{ key }}="{{ value }}" \
 {% endfor %}$1
