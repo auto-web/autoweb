@@ -107,6 +107,7 @@ limits_peruser_memory: 2097152 # = 2 GB (value in KB)
 # PHP limits, etc
 #
 apache_advanced_enable: true
+apache_fcgid_max_processes: 150
 apache_fcgid_peruser_min_processes: 0
 apache_fcgid_peruser_max_processes: 4
 apache_fcgid_connect_timeout: 20

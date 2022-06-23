@@ -2,8 +2,7 @@
 {% if configs.apache_advanced_enable %}
   FcgidConnectTimeout {{ configs.apache_fcgid_connect_timeout }}
   FcgidMaxRequestLen {{ configs.apache_fcgid_max_request_len }}
-  FcgidMinProcessesPerClass {{ configs.apache_fcgid_peruser_min_processes }}
-  FcgidMaxProcessesPerClass {{ configs.apache_fcgid_peruser_max_processes }}
+  FcgidMaxProcesses {{ configs.apache_fcgid_max_processes }}
 {% endif %}
 
   <IfModule mod_mime.c>

@@ -33,14 +33,13 @@
 	</IfModule>
 
 	# FastCGI settings
-	IdleTimeout 300
-	ProcessLifeTime 3600
-	# MaxProcessCount 1000
-	DefaultMinClassProcessCount 0
-	DefaultMaxClassProcessCount 20
-	IPCConnectTimeout 3
-	IPCCommTimeout 600
-	BusyTimeout 3600
+	FcgidIdleTimeout 300
+	FcgidProcessLifeTime 3600
+	FcgidMinProcessesPerClass {{ configs.apache_fcgid_peruser_min_processes }}
+	FcgidMaxProcessesPerClass {{ configs.apache_fcgid_peruser_max_processes }}
+	FcgidConnectTimeout 3
+	FcgidIOTimeout 600
+	FcgidBusyTimeout 3600
 
 	ErrorLog {{ apache_logdir }}/error.log
 
@@ -92,14 +91,13 @@
 	</IfModule>
 
 	# FastCGI settings
-	IdleTimeout 300
-	ProcessLifeTime 3600
-	# MaxProcessCount 1000
-	DefaultMinClassProcessCount 0
-	DefaultMaxClassProcessCount 100
-	IPCConnectTimeout 3
-	IPCCommTimeout 600
-	BusyTimeout 3600
+	FcgidIdleTimeout 300
+	FcgidProcessLifeTime 3600
+	FcgidMinProcessesPerClass {{ configs.apache_fcgid_peruser_min_processes }}
+	FcgidMaxProcessesPerClass {{ configs.apache_fcgid_peruser_max_processes }}
+	FcgidConnectTimeout 3
+	FcgidIOTimeout 600
+	FcgidBusyTimeout 3600
 
 	ErrorLog {{ apache_logdir }}/error.log
 
