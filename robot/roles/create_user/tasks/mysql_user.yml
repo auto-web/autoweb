@@ -14,7 +14,7 @@
     password: "{{ user.mysql_password }}"
     host: localhost
     state: present
-    priv: "{{ user.mysql_username }}.*:ALL,GRANT"
+    priv: "{{ user.mysql_username }}.*:ALL"
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
 
