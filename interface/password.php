@@ -22,6 +22,10 @@ if (isset($_POST['email'])) {
         $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
       }
     }
+    
+    echo $twig->render('password.twig', ['captcha_pubkey' => Config::getValue('captcha_pubkey'), 'domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);
+}else{
+    echo 'Oops, there was an error!';
 }
 
-echo $twig->render('password.twig', ['captcha_pubkey' => Config::getValue('captcha_pubkey'), 'domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);
+
