@@ -68,6 +68,7 @@ class User {
         $uid = $this->generate_uid();
 
         if (!preg_match('/^[a-z0-9]+$/', $uid)) {
+            throw new Exception('Generated UID looks corrupted.');
             return false;
         }
 
@@ -77,10 +78,12 @@ class User {
             $uid = $this->generate_uid($tries);
         }
         if ($tries >= 6) {
+            throw new Exception('Cannot calculate an original UID after 6 attempts.');
             return false;
         }
 
         if ($this->getUserByEmail($this->email)) {
+                throw new Exception('The user email already exists in database.');
                 return false;
         }
 
