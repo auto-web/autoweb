@@ -340,9 +340,7 @@ class User {
         foreach ($filters as $filter => $value) {
             $dataType = PDO::PARAM_STR;
 
-            if($filter == 'id')
-                $dataType = PDO::PARAM_INT;
-            elseif($filter == 'is_active' || $filter == 'is_admin')
+            if($filter == 'is_active' || $filter == 'is_admin')
                 $dataType = PDO::PARAM_BOOL;
             
             $stmt->bindValue($filter, $value, $dataType);
