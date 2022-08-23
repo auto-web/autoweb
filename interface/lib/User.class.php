@@ -97,7 +97,7 @@ class User {
 
         $this->is_admin = false;
         $this->is_active = true;
-        $this->php_version = "7.2";
+        $this->php_version = "8.0";
 
         return true;
     }
