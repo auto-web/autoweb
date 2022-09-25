@@ -70,6 +70,6 @@ if (isset($user_id)) {
         die;
     }
 
-    echo $twig->render('user.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user, 'valid_php_versions' => $valid_php_versions, 'messages' => $messages, 'is_admin' => $is_admin]);
+    echo $twig->render('admin/user.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user, 'valid_php_versions' => $valid_php_versions, 'messages' => $messages, 'is_admin' => $is_admin]);
 
 }

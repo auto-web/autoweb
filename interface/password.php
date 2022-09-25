@@ -24,4 +24,4 @@ if (isset($_POST['email'])) {
     }
 }
 
-echo $twig->render('password.twig', ['captcha_pubkey' => Config::getValue('captcha_pubkey'), 'domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);
+echo $twig->render('admin/password.twig', ['captcha_pubkey' => Config::getValue('captcha_pubkey'), 'domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);

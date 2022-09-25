@@ -98,4 +98,4 @@ if (isset($_POST['first_name'])) {
     }
 }
 
-echo $twig->render('newuser.twig', ['domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);
+echo $twig->render('admin/newuser.twig', ['domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);

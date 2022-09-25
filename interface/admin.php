@@ -75,4 +75,4 @@ if (isset($_POST['action'])) {
 $active_users = User::getUsers(["is_active" => true]);
 $inactive_users = User::getUsers(["is_active" => false]);
 
-echo $twig->render('admin.twig', ['domain_name' => Config::getValue('domain_name'), 'active_users' => $active_users, 'inactive_users' => $inactive_users, 'messages' => $messages, 'is_admin' => $is_admin]);
+echo $twig->render('admin/index.twig', ['domain_name' => Config::getValue('domain_name'), 'active_users' => $active_users, 'inactive_users' => $inactive_users, 'messages' => $messages, 'is_admin' => $is_admin]);
