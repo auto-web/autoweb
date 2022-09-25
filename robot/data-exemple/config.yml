@@ -82,6 +82,15 @@ server_ipv4: "xx.xx.xx.xx"
 server_ipv6: ""
 
 #
+# ---- Admin informations ----
+#
+# Configure admin contact informations.
+#
+
+# Admin Email
+admin_email: ""
+
+#
 # ---- LetsEncrypt SSL ----
 #
 # Configure Letsencrypt settings for SSL generation
