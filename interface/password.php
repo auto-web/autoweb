@@ -16,12 +16,12 @@ if (isset($_POST['email'])) {
     $messages = [];
     $user = User::getUsers(["email" => $_POST['email']]);
     if (count($user) == 1) {
-      if (Job::addJob("change_password", json_encode([['user_id' => $user[0]->id]]))) {
-        $messages[] = ['type' => 'success', 'message' => 'Mot de passe en cours de changement...'];
+      if (Job::addJob("send_password", json_encode([['user_id' => $user[0]->id]]))) {
+        $messages[] = ['type' => 'success', 'message' => 'Mot de passe en cours d\'envoi...'];
       } else {
         $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
       }
     }
 }
 
-echo $twig->render('admin/password.twig', ['captcha_pubkey' => Config::getValue('captcha_pubkey'), 'domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);
+echo $twig->render('admin/password.twig', ['captcha_pubkey' => Config::getValue('captcha_pubkey'), 'domain_name' => Config::getValue('domain_name'), 'messages' => $messages]);

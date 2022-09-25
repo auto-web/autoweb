@@ -314,7 +314,7 @@ function send_password($job){
         $users[] = $user;
     }
 
-    $loader = new \Twig\Loader\FilesystemLoader('templates');
+    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
     $twig = new \Twig\Environment($loader);
 
     $return_var = 0;
@@ -355,7 +355,7 @@ function change_password($job){
         $users[] = $user;
     }
 
-    $loader = new \Twig\Loader\FilesystemLoader('templates');
+    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
     $twig = new \Twig\Environment($loader);
 
     foreach ($users as $user) {
