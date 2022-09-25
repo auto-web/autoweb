@@ -1,0 +1,56 @@
+{% extends "mail/_base.twig" %}
+
+{% block content %}
+<p>Bonjour {{ user.first_name }} {{ user.last_name }},</p>
+
+<p>Bienvenue sur votre espace web.</p>
+
+<h3>Accès à votre espace Web</h3>
+<ul>
+  <li>Adresse Internet : https://{{ user.domain_name }}</li>
+</ul>
+
+<p>Accès SFTP (sécurisé)</p>
+<ul>
+  <li>Hôte SFTP : {{ domain_name }}</li>
+  <li>Port de connexion : 22</li>
+  <li>Nom d'utilisateur : {{ user.unix_username }}</li>
+  <li>Mot de passe : {{ user.unix_password }}</li>
+</ul>
+
+<h3>Accès MySQL</h3>
+<ul>
+  <li>Hôte de la base de données : localhost</li>
+  <li>Nom de la base de données : {{ user.mysql_username }}</li>
+  <li>Nom d'utilisateur : {{ user.mysql_username }}</li>
+  <li>Mot de passe : {{ user.mysql_password }}</li>
+  <li>Accès phpMyAdmin : https://pma.{{ domain_name }}</li>
+</ul>
+
+
+<h3>Outils personnels</h3>
+<ul>
+  <li>Panel d'administration et FAQ : https://{{ user.domain_name }}</li>
+  <li>Modification de mot de passe, changement de version de PHP, lancement d'application Node.js : https://{{ domain_name }}/admin-details.php?uid={{ user.unix_username }}</li>
+</ul>
+
+<p>Notes :<br>
+<ul>
+  <li>N'oubliez pas de choisir un préfixe de tables différent à chaque nouvelle installation de WordPress</li>
+  <li>Veuillez ajouter une exception de certificat pour votre première connexion en HTTPS à votre espace</li>
+</ul>
+</p>
+
+<h3>Structure de votre espace</h3>
+<ul>
+  <li>/logs : Ce dossier contient les fichiers logs produits par votre espace : accès et erreurs Apache et PHP
+  <li>/tmp  : Ce dossier est un dossier temporaire, utilisé lors des uploads de fichiers ou pour le stockage des sessions PHP.<br>
+          Attention : il n'est jamais vidé automatiquement, en cas de dépassement de quota disque, pensez à consulter ce dossier.
+  </li>
+  <li>/www  : Ce dossier contient les fichiers qui seront accessibles via https://{{ user.domain_name }}<br>
+          C'est dans ce dossier que vous devez déposer vos fichiers de site Internet.
+  </li>
+</ul>
+
+{% endblock %}
+

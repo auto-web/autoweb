@@ -1,7 +1,10 @@
 <?php
 
-require_once dirname(__FILE__).'/../lib/Job.class.php';
-require_once dirname(__FILE__).'/../lib/User.class.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+require_once __DIR__ . '/../lib/Config.class.php';
+require_once __DIR__ . '/../lib/Job.class.php';
+require_once __DIR__ . '/../lib/User.class.php';
 
 $jobs = Job::getJobs(["status" => "todo"]);
 
@@ -30,6 +33,9 @@ function doJob($job){
             break;
         case "repare":
             repare($job);
+            break;
+        case "send_password":
+            send_password($job);
             break;
         case "change_password":
             change_password($job);
@@ -297,6 +303,46 @@ function repare($job){
     $job->markAs("done");
 }
 
+function send_password($job){
+    $users_data = json_decode($job->data);
+    $job->markAs("running");
+    $users = [];
+
+    foreach ($users_data as $item) {
+        $user = new User();
+        $user->loadUserByID($item->user_id);
+        $users[] = $user;
+    }
+
+    $loader = new \Twig\Loader\FilesystemLoader('templates');
+    $twig = new \Twig\Environment($loader);
+
+    $return_var = 0;
+    foreach ($users as $user) {
+        // Send password HERE
+	$from = $user->unix_username . '@' . Config::getValue('domain_name');
+	$to = $user->email;
+	$headers = [
+	    'from' => $from,
+	    'MIME-Version' => '1.0',
+	    'Content-Type' => 'text/html; charset=utf-8',
+	];
+	$message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
+	$sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
+	if (!$sent) {
+	    $return_var = 1; // An error occured for one or more mail
+	}
+    }
+
+    if($return_var != 0) {
+        $job->markAs("failed");
+        return;
+    }
+
+    $job->markAs("done");
+
+}
+
 function change_password($job){
     $users_data = json_decode($job->data);
     $job->markAs("running");
@@ -307,6 +353,22 @@ function change_password($job){
         $user->loadUserByID($item->user_id);
         $user->generate_user_password();
         $users[] = $user;
+    }
+
+    $loader = new \Twig\Loader\FilesystemLoader('templates');
+    $twig = new \Twig\Environment($loader);
+
+    foreach ($users as $user) {
+        // Send password HERE
+	$from = $user->unix_username . '@' . Config::getValue('domain_name');
+	$to = $user->email;
+	$headers = [
+	    'from' => $from,
+	    'MIME-Version' => '1.0',
+	    'Content-Type' => 'text/html; charset=utf-8',
+	];
+	$message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
+	$sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
     }
 
     file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");

@@ -63,6 +63,22 @@ if (isset($user_id)) {
         }
     }
 
+    if (isset($_POST['send_password'])) {
+      if (Job::addJob("send_password", json_encode([['user_id' => $user_id]]))) {
+          $messages[] = ['type' => 'success', 'message' => 'Le mot de passe va être envoyé...'];
+      } else {
+          $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
+      }
+    }
+
+    if (isset($_POST['change_password'])) {
+      if (Job::addJob("change_password", json_encode([['user_id' => $user_id]]))) {
+          $messages[] = ['type' => 'success', 'message' => 'Le mot de passe va être changé...'];
+      } else {
+          $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
+      }
+    }
+
     $user = new User();
     $user->loadUserByID($user_id);
     if(!$user->is_active){
