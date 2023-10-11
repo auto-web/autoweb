@@ -83,7 +83,7 @@ class User {
         }
 
         if ($this->getUserByEmail($this->email)) {
-                throw new Exception('The user email already exists in database.');
+                throw new Exception(sprintf('The user email %s already exists in database.', $this->email));
                 return false;
         }
 
