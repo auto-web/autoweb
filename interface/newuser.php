@@ -85,6 +85,8 @@ if (isset($_POST['first_name'])) {
     $user->last_name = $_POST['last_name'];
     $user->email = $_POST['email'];
     $user->description = $_POST['description'];
+    $user->quota = new Quota();
+    $user->quota->quota_limit = Config::getValue('quotas_default');
 
     if (!$user->generate_user_info()) {
         echo 'Wrong computed UID';
