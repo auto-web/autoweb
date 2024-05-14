@@ -8,7 +8,7 @@ CREATE TABLE `autoweb_users` (
     `mysql_password` VARCHAR(32) NOT NULL,
     `email` VARCHAR(255)  NOT NULL,
     `domain_name` VARCHAR(255) NOT NULL,
-    `php_version` ENUM('7.2', '7.3', '7.4', '8.0', '8.1') NOT NULL,
+    `php_version` ENUM('7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3') NOT NULL,
     `description` VARCHAR(225),
     `is_admin` BOOLEAN,
     `is_active` BOOLEAN,
