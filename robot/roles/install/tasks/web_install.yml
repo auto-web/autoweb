@@ -44,6 +44,7 @@
       - "php{{ item }}-bz2"
       - "php{{ item }}-xmlrpc"
       - "php{{ item }}-soap"
+      - "php{{ item }}-intl"
     state: present
   loop:
     - "7.2"
