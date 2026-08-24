@@ -63,7 +63,7 @@ function create_users($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
     
 
     if($return_var != 0) {
@@ -93,7 +93,7 @@ function create_admins($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $output = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
     
     echo $output;
 
@@ -111,7 +111,7 @@ function create_admins($job){
     $data = ["admins" => $users_data, "users" => $users];
 
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
-    exec("ansible-playbook /opt/autoweb/robot/grant_admin.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/grant_admin.yml", $output, $return_var);
 
     echo $output;
 
@@ -149,7 +149,7 @@ function reactivate($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -185,7 +185,7 @@ function deactivate($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/disable_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/disable_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -224,7 +224,7 @@ function remove_users($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/remove_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/remove_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -253,7 +253,7 @@ function repare_all($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -289,7 +289,7 @@ function repare($job){
     file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -374,7 +374,7 @@ function change_password($job){
     file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/change_password.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_password.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -408,7 +408,7 @@ function change_php_version($job){
     file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/change_php_version.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_php_version.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
@@ -441,7 +441,7 @@ function change_quota($job){
     file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
     $outputs = null;
     $return_var = null;
-    exec("ansible-playbook /opt/autoweb/robot/change_quota.yml", $output, $return_var);
+    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_quota.yml", $output, $return_var);
 
     if($return_var != 0) {
         $job->markAs("failed");
