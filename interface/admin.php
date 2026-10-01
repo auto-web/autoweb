@@ -38,7 +38,7 @@ if (isset($_POST['action'])) {
         }
         //echo "repare_all";
     }
-    
+
     if (isset($_POST['user_id'])) {
 
         if ($action == "repare") {

@@ -10,6 +10,14 @@ class Quota {
     public $quota_used;
     public $quota_limit;
 
+    public function __toString(): string {
+        return sprintf(
+            '%d / %d',
+            $this->quota_used,
+            $this->quota_limit
+        );
+    }
+
     private function load($user_id, $quota_used, $quota_limit) {
         $this->user_id =        $user_id;
         $this->quota_used =     $quota_used;
