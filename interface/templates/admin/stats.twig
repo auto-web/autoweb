@@ -1,0 +1,148 @@
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">CPU</div>
+
+                <div class="fs-3 fw-semibold">
+                    {{ server_stats.cpu.percent }}%
+                </div>
+
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-primary"
+                         style="width: {{ server_stats.cpu.percent }}%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">RAM</div>
+
+                <div class="fs-3 fw-semibold">
+                    {{ server_stats.ram.used_gb }}
+                    / {{ server_stats.ram.total_gb }} Go
+                </div>
+
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-info"
+                         style="width: {{ server_stats.ram.percent }}%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Charge système</div>
+
+                <div class="fs-5 fw-semibold">
+                    {{ server_stats.load['1min'] }}
+                    /
+                    {{ server_stats.load['5min'] }}
+                    /
+                    {{ server_stats.load['15min'] }}
+                </div>
+
+                <small class="text-muted">
+                    1 / 5 / 15 min
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Uptime</div>
+
+                <div class="fs-3 fw-semibold">
+                    {{ server_stats.uptime.human }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Processus utilisateurs</div>
+
+                <div class="fs-3 fw-semibold">
+                    {{ server_stats.processes.count }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">
+                    Utilisateurs connectés
+                </div>
+
+                <div class="fs-3 fw-semibold">
+                    {{ server_stats.users.count }}
+                </div>
+                {% if server_stats.users.list %}
+                    <div class="mt-2">
+			{#
+                        {% for user in server_stats.users.list %}
+                            <span class="badge text-bg-light border me-1 mb-1">
+                                {{ user.user }}
+                            </span>
+                        {% endfor %}
+			#}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-body">
+                <h5 class="card-title mb-4">
+                    Disques
+                </h5>
+
+                {% for disk in server_stats.disk %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ disk.mountpoint }}</strong>
+                            <small class="text-muted ms-2">
+                                {{ disk.used_gb }} / {{ disk.total_gb }} Go
+                            </small>
+                        </div>
+
+                        <div class="fw-semibold">
+                            {{ disk.percent }}%
+                        </div>
+
+                    </div>
+                    <div class="progress mt-2 mb-4">
+                        <div
+                            class="progress-bar
+                            {% if disk.percent >= 90 %}
+                                bg-danger
+                            {% elseif disk.percent >= 80 %}
+                                bg-warning
+                            {% else %}
+                                bg-success
+                            {% endif %}"
+                            style="width: {{ disk.percent }}%">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>

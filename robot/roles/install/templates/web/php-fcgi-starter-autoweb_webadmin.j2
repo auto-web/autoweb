@@ -10,7 +10,7 @@ export PHP_DOCUMENT_ROOT
 PHP_FCGI_MAX_REQUESTS=5000
 export PHP_FCGI_MAX_REQUESTS
 exec /usr/bin/php-cgi8.0 \
- -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:/opt/autoweb/interface" \
+ -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:/opt/autoweb/interface:/proc/stat:/proc/meminfo:/proc/uptime" \
  -d sendmail_path="/usr/sbin/sendmail-wrapper" \
  -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \ 
  -d memory_limit="64M" \ 
