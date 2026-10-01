@@ -1,6 +1,24 @@
 
+- name: "disable site config"
+  file:
+    path: "/etc/apache2/sites-enabled/{{ user.domain_name }}.conf"
+    state: absent
+  notify: Restart apache2
+
 - name: "remove site config"
   file:
     path: "/etc/apache2/sites-available/{{ user.domain_name }}.conf"
+    state: absent
+  notify: Restart apache2
+
+- name: "rm php config"
+  file:
+    path: "/var/www/fcgi-scripts/{{ user.unix_username }}/php-fcgi-starter"
+    state: absent
+  notify: Restart apache2
+
+- name: "rm /var/www/fcgi-scripts/{{ user.unix_username }}"
+  file:
+    path: "/var/www/fcgi-scripts/{{ user.unix_username }}"
     state: absent
   notify: Restart apache2

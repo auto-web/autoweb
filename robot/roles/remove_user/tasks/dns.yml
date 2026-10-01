@@ -1,0 +1,19 @@
+---
+
+- name: "rm /etc/bind/zones.autoweb/pri.{{ user.domain_name }}"
+  file:
+    path: "/etc/bind/zones.autoweb/pri.{{ user.domain_name }}"
+    state: absent
+  notify: Restart bind9
+
+- name: "rm /etc/bind/zones.autoweb/master.fragments/master.{{ user.domain_name }}"
+  file:
+    path: "/etc/bind/zones.autoweb/master.fragments/master.{{ user.domain_name }}"
+    state: absent
+  notify: Restart bind9
+
+- name: "Assemble bind9 master"
+  assemble:
+    src: "/etc/bind/zones.autoweb/master.fragments"
+    dest: "/etc/bind/zones.autoweb/master"
+  notify: Restart bind9

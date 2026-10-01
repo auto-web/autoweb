@@ -13,10 +13,20 @@
     state: absent
   notify: Refresh jail
 
+- name: "Ensure user.unix_username is safe"
+  assert:
+    that:
+      - user.unix_username is defined
+      - user.unix_username | trim | length > 0
+      - user.unix_username not in ['.', '..']
+    fail_msg: "user.unix_username empty or invalid"
+
 - name: "remove {{ configs.chroot_path }}/home/{{ user.unix_username }}"
   file:
     path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}"
     state: absent
-    owner: "{{ user.unix_username }}"
-    group: "{{ user.unix_username }}"
-    mode: 0750
+  when:
+    - user.unix_username is defined
+    - user.unix_username | trim | length > 0
+    - user.unix_username != '.'
+    - user.unix_username != '..'
