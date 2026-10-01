@@ -154,3 +154,11 @@
 .show-password > .placeholder-password {
 	display: none;
 }
+
+.admin-users-table td.email,
+.admin-users-table td.login {
+	max-width: 10em;
+	text-wrap: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}

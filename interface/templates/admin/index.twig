@@ -11,34 +11,34 @@
         <form action="#" method="post"><input type="hidden" name="action" value="repare_all"><input class="btn btn-primary float-end m-2" type="submit" value="Réparer tous les comptes"></form>
     </div>
 </div>
-<table class="table">
+<table class="table admin-users-table">
     <thead>
         <tr>
-            <th>Prénom</th>
-            <th>Nom</th>
-            <th>Description</th>
-            <th>Email</th>
-            <th>Login</th>
-            <th>Mot de passe</th>
-	    <th></th>
-            <th>Modifier</th>
-            <th>Réparer</th>
-            <th>Désactiver</th>
+            <th class="first-name">Prénom</th>
+            <th class="last-name">Nom</th>
+            <th class="description">Description</th>
+            <th class="email">Email</th>
+            <th class="username">Login</th>
+            <th class="password">Mot de passe</th>
+	    <th class="alerts"></th>
+            <th class="button-edit">Modifier</th>
+            <th class="button-fix">Réparer</th>
+            <th class="button-disable">Désactiver</th>
         </tr>
     </thead>
     <tbody>
     {% for user in active_users %}
         <tr>
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.description }}</td>
-            <td>{{ user.email }}</td>
-            <td><a href="//{{ user.domain_name }}">{{ user.unix_username }}</a></td>
-            <td><span class="hidden-password">{{ user.unix_password }}</span><span class="placeholder-password">**********</span></td>
-	    <td>{% if user.quota.quota_used > user.quota.quota_limit %}&#x26A0;{% endif %}</td>
-            <td> <a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
-            <td> <form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="repare"><input class="btn btn-primary" type="submit" value="Réparer"></form></td>
-            <td> <form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="deactivate"><input class="btn btn-primary" type="submit" value="Désactiver"></form></td>
+            <td class="first-name">{{ user.first_name }}</td>
+            <td class="last-name">{{ user.last_name }}</td>
+            <td class="description">{{ user.description }}</td>
+            <td class="email">{{ user.email }}</td>
+            <td class="username"><a href="//{{ user.domain_name }}">{{ user.unix_username }}</a></td>
+            <td class="password"><span class="hidden-password">{{ user.unix_password }}</span><span class="placeholder-password">**********</span></td>
+	    <td class="alerts">{% if user.quota.quota_used > user.quota.quota_limit %}&#x26A0;{% endif %}</td>
+            <td class="button-edit"><a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
+            <td class="button-fix"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="repare"><input class="btn btn-primary" type="submit" value="Réparer"></form></td>
+            <td class="button-disable"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="deactivate"><input class="btn btn-primary" type="submit" value="Désactiver"></form></td>
         </tr>
     {% endfor %}
     </tbody>
