@@ -139,3 +139,18 @@
 	align-items: center;
 }
 
+.hidden-password {
+	display: none;
+}
+.placeholder-password {
+	display: inline-block;
+	cursor: pointer;
+}
+
+.show-password > .hidden-password {
+	display: inline-block;
+	font-family: monospace;
+}
+.show-password > .placeholder-password {
+	display: none;
+}

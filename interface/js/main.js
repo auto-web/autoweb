@@ -7,6 +7,13 @@ var autoweb = {
     if (autoweb.is_admin) {
       autoweb.refreshJobs();
     }
+
+    jQuery('.placeholder-password').click(function() {
+      jQuery(this).parent().addClass('show-password');
+    });
+    jQuery('.hidden-password').click(function() {
+      jQuery(this).parent().removeClass('show-password');
+    });
   },
 
   refreshJobs: function() {
