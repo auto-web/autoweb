@@ -1,0 +1,14 @@
+---
+# Configuration of yamllint (https://yamllint.readthedocs.io)
+extends: relaxed
+
+ignore: |
+  interface/vendor/
+
+rules:
+  line-length:
+    max: 160
+  # One blank line is allowed at the end of files
+  empty-lines:
+    max-end: 1
+  new-line-at-end-of-file: disable

@@ -11,7 +11,7 @@
 
                 <div class="progress mt-3">
                     <div class="progress-bar bg-primary"
-                         style="width: {{ server_stats.cpu.percent }}%;">
+                        style="width: {{ server_stats.cpu.percent }}%;">
                     </div>
                 </div>
             </div>
@@ -30,7 +30,7 @@
 
                 <div class="progress mt-3">
                     <div class="progress-bar bg-info"
-                         style="width: {{ server_stats.ram.percent }}%;">
+                        style="width: {{ server_stats.ram.percent }}%;">
                     </div>
                 </div>
             </div>
@@ -93,13 +93,13 @@
                 </div>
                 {% if server_stats.users.list %}
                     <div class="mt-2">
-			{#
+            {#
                         {% for user in server_stats.users.list %}
                             <span class="badge text-bg-light border me-1 mb-1">
                                 {{ user.user }}
                             </span>
                         {% endfor %}
-			#}
+            #}
                     </div>
                 {% endif %}
             </div>

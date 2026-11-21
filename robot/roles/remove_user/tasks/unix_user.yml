@@ -1,4 +1,3 @@
-
 - name: "remove user"
   user:
     name: "{{ user.unix_username }}"

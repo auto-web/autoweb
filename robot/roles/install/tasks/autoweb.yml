@@ -45,7 +45,7 @@
   user:
     name: "www-data"
     append: yes
-    groups: 
+    groups:
       - "autoweb_webadmin"
   notify: Restart apache2
 
@@ -78,15 +78,15 @@
 
 - name: "create autoweb config"
   copy:
-      dest: "/opt/autoweb/interface/config.php"
-      content: |
-        <?php
-        $domain_name='{{ configs.domain_users }}';
-        $dbPassword='{{ configs.autoweb_mysql_password }}';
-        $captcha_pubkey='{{ configs.captcha_pubkey }}';
-        $quotas_enabled={{ configs.quotas_enabled }};
-        $quotas_default={{ configs.quotas_default }};
-        $quotas_root='{{ configs.fs }}';
+    dest: "/opt/autoweb/interface/config.php"
+    content: |
+      <?php
+      $domain_name='{{ configs.domain_users }}';
+      $dbPassword='{{ configs.autoweb_mysql_password }}';
+      $captcha_pubkey='{{ configs.captcha_pubkey }}';
+      $quotas_enabled={{ configs.quotas_enabled }};
+      $quotas_default={{ configs.quotas_default }};
+      $quotas_root='{{ configs.fs }}';
 
 
 #TODO: create job first admin

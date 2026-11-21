@@ -3,8 +3,8 @@ PHPRC="/etc/php/8.0/cgi/"
 export PHPRC
 PHP_DOCUMENT_ROOT="/opt/autoweb/interface"
 export PHP_DOCUMENT_ROOT
-# The variable PHP_FCGI_CHILDREN is onyl useful for lighty or nginx as apache 
-# mod_fcgi will control the number of childs themself and never use the additional processes.
+# The variable PHP_FCGI_CHILDREN is only useful for lighty or nginx as apache
+# mod_fcgid will control the number of children themselves and never use the additional processes.
 # PHP_FCGI_CHILDREN=8
 # export PHP_FCGI_CHILDREN
 PHP_FCGI_MAX_REQUESTS=5000
@@ -12,9 +12,9 @@ export PHP_FCGI_MAX_REQUESTS
 exec /usr/bin/php-cgi8.0 \
  -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:/opt/autoweb/interface:/proc/stat:/proc/meminfo:/proc/uptime" \
  -d sendmail_path="/usr/sbin/sendmail-wrapper" \
- -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \ 
- -d memory_limit="64M" \ 
- -d post_max_size="300M" \ 
- -d upload_max_filesize="300M" \ 
+ -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \
+ -d memory_limit="64M" \
+ -d post_max_size="300M" \
+ -d upload_max_filesize="300M" \
   $1
 

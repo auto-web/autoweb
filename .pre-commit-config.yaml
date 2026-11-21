@@ -1,0 +1,89 @@
+---
+# Configuration of the pre-commit tool (https://pre-commit.com), inspired by Dolibarr.
+#
+# Local usage:
+#   pipx install pre-commit     # or: pip install pre-commit
+#   pre-commit install          # run the hooks on each "git commit"
+#   pre-commit run --all-files  # run all the hooks on the whole repository
+#
+# The same hooks are run by the CI (.github/workflows/pre-commit.yml).
+# PHP hooks need "php" (8.2) and "phpcs" in the PATH.
+
+# Third party files (minified libs, composer dependencies) and SQL files are not checked
+exclude: |
+  (?x)^(
+    interface/vendor/.*
+    |.*\.sql
+    |interface/js/jquery-.*\.min\.js
+    |interface/js/bootstrap\.js
+    |interface/css/bootstrap\.css
+  )$
+
+repos:
+  # Miscellaneous checks and fixes (yaml syntax, line endings...)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Refuse direct commits on master (skip with: SKIP=no-commit-to-branch git commit ...)
+      - id: no-commit-to-branch
+        args: [--branch, master]
+      # Check that yaml files are parsable (--unsafe allows ansible custom tags like !vault)
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      # Same files as trim_trailing_whitespace in .editorconfig
+      - id: trailing-whitespace
+        files: \.(php|js|css|twig|ya?ml)$
+
+  # Check format of yaml files (configuration in .yamllint.yml)
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: [--strict]
+
+  # Check PHP files
+  - repo: https://github.com/mdeweerd/pre-commit-php
+    rev: v1.6.8
+    hooks:
+      # Syntax check (php -l)
+      - id: php-lint
+      # Coding style PSR2 (configuration in phpcs.xml)
+      - id: php-cs
+        files: \.php$
+        args: [--standard=phpcs.xml, --report=emacs, --no-colors]
+
+  # Check indentation: 4 spaces for Twig, PHP, JS and CSS
+  - repo: local
+    hooks:
+      # No tabs in Twig (needs "twig-cs-fixer" in the PATH, configuration in .twig-cs-fixer.dist.php;
+      # fix with: twig-cs-fixer fix interface/templates)
+      - id: twig-cs-fixer
+        name: Twig indentation without tabs (twig-cs-fixer)
+        language: system
+        entry: twig-cs-fixer lint
+        files: \.twig$
+      # twig-cs-fixer and phpcs do not check the width of every line (arrays, attributes, JS, CSS):
+      # refuse tabs and indentations that are not a multiple of 4 spaces (" * " docblock lines allowed)
+      - id: indent-width
+        name: Indentation is a multiple of 4 spaces (Twig, PHP, JS, CSS)
+        language: pygrep
+        entry: '^ *\t|^(?: {4})* {1,3}[^\s*]'
+        files: \.(twig|php|js|css)$
+
+  # Detect hardcoded secrets (passwords, api keys, tokens)
+  - repo: https://github.com/gitleaks/gitleaks.git
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # Check GitHub Actions workflows
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint

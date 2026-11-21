@@ -8,20 +8,20 @@ $twig = new \Twig\Environment($loader);
 
 require_once 'lib/User.class.php';
 
-list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
 
-$admin = User::getUsers(["unix_username" => $_SERVER['PHP_AUTH_USER'], "unix_password" => $_SERVER['PHP_AUTH_PW'], "is_admin" => true]);
+$admin = User::getUsers(['unix_username' => $_SERVER['PHP_AUTH_USER'], 'unix_password' => $_SERVER['PHP_AUTH_PW'], 'is_admin' => true]);
 
 if (count($admin) == 1) {
-	$_SESSION['admin'] = $admin[0];
+    $_SESSION['admin'] = $admin[0];
     $is_admin = true;
 } elseif ($_SESSION['admin']) {
-	;
+    ;
 } else {
-	header('WWW-Authenticate: Basic realm="AutoWeb"');
-	header('HTTP/1.0 401 Unauthorized');
-	echo 'Access denied';
-	exit();
+    header('WWW-Authenticate: Basic realm="AutoWeb"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'Access denied';
+    exit();
 }
 
 require_once 'lib/Job.class.php';
@@ -32,7 +32,7 @@ if (isset($_FILES['new_users_info'])) {
 
     $handle = fopen($_FILES['new_users_info']['tmp_name'], 'r');
     if (!$handle) {
-	    echo 'Unable to open the file.\n';
+        echo 'Unable to open the file.\n';
     }
 
     // Removes header
@@ -40,9 +40,9 @@ if (isset($_FILES['new_users_info'])) {
     $header_indexes = array_flip($header_rows);
     $required_headers = ['first_name', 'last_name', 'email', 'description'];
 
-    if(empty($header_indexes)) {
+    if (empty($header_indexes)) {
             echo 'Missing arguments in CSV (did you change the first row?)';
-	exit();
+        exit();
     }
 
     $keys = array_keys($header_indexes);
@@ -50,7 +50,7 @@ if (isset($_FILES['new_users_info'])) {
     sort($required_headers);
     if ($required_headers !== $keys) {
             echo 'Missing or extra arguments in CSV (did you change the first row?)';
-	exit();
+        exit();
     }
 
     $users = [];
@@ -61,12 +61,12 @@ if (isset($_FILES['new_users_info'])) {
         $user->last_name = $rows[$header_indexes['last_name']];
         $user->email = $rows[$header_indexes['email']];
         $user->description = $rows[$header_indexes['description']];
-	$user->quota = new Quota();
-	$user->quota->quota_limit = Config::getValue('quotas_default');
+        $user->quota = new Quota();
+        $user->quota->quota_limit = Config::getValue('quotas_default');
 
         if (!$user->generate_user_info()) {
             echo 'Wrong computed UID';
-	    exit();
+            exit();
         } else {
             $users[] = $user;
         }
@@ -90,7 +90,7 @@ if (isset($_POST['first_name'])) {
 
     if (!$user->generate_user_info()) {
         echo 'Wrong computed UID';
-	exit();
+        exit();
     }
 
     if (Job::addCreateUsersJob([$user])) {

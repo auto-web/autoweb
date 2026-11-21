@@ -1,4 +1,3 @@
-
 #
 # ---- Ansible ----
 #
@@ -82,9 +81,9 @@ server_ipv4: "xx.xx.xx.xx"
 server_ipv6: ""
 
 #
-# ---- Admin informations ----
+# ---- Admin information ----
 #
-# Configure admin contact informations.
+# Configure admin contact information.
 #
 
 # Admin Email
@@ -96,7 +95,7 @@ admin_email: ""
 # Configure Letsencrypt settings for SSL generation
 #
 
-# Email for LetEncrypt (for certificate expiration notice)
+# Email for LetsEncrypt (for certificate expiration notice)
 letsencrypt_email: ""
 
 #

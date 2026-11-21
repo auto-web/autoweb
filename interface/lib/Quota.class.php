@@ -30,10 +30,10 @@ class Quota {
         $sql = 'SELECT * FROM autoweb_quotas WHERE autoweb_quotas.user_id = :user_id';
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue('user_id', $user_id, PDO::PARAM_STR);
-        
+
         try {
             $stmt->execute();
-            if($stmt->rowCount() == 1){
+            if ($stmt->rowCount() == 1) {
                 $result = $stmt->fetch(PDO::FETCH_OBJ);
 
                 $this->load(
@@ -52,14 +52,14 @@ class Quota {
 
     public function storeQuota() {
         $pdo = connect();
-        
+
         $sql = 'UPDATE autoweb_quotas SET quota_used = :quota_used, quota_limit = :quota_limit
                 WHERE autoweb_quotas.user_id = :user_id';
         $stmt = $pdo->prepare($sql);
 
-        $stmt->bindValue('user_id',         $this->user_id,           PDO::PARAM_STR);
-        $stmt->bindValue('quota_used',      $this->quota_used,        PDO::PARAM_STR);
-        $stmt->bindValue('quota_limit',     $this->quota_limit,       PDO::PARAM_STR);
+        $stmt->bindValue('user_id', $this->user_id, PDO::PARAM_STR);
+        $stmt->bindValue('quota_used', $this->quota_used, PDO::PARAM_STR);
+        $stmt->bindValue('quota_limit', $this->quota_limit, PDO::PARAM_STR);
 
         try {
             $stmt->execute();
@@ -71,14 +71,14 @@ class Quota {
 
     public static function insertQuota($quota) {
         $pdo = connect();
-        
+
         $sql = 'INSERT INTO autoweb_quotas (user_id, quota_used, quota_limit)
                     VALUES (:user_id, :quota_used, :quota_limit)';
         $stmt = $pdo->prepare($sql);
 
-        $stmt->bindValue('user_id',         $quota->user_id,           PDO::PARAM_STR);
-        $stmt->bindValue('quota_used',      $quota->quota_used,        PDO::PARAM_STR);
-        $stmt->bindValue('quota_limit',     $quota->quota_limit,       PDO::PARAM_STR);
+        $stmt->bindValue('user_id', $quota->user_id, PDO::PARAM_STR);
+        $stmt->bindValue('quota_used', $quota->quota_used, PDO::PARAM_STR);
+        $stmt->bindValue('quota_limit', $quota->quota_limit, PDO::PARAM_STR);
 
         try {
             $stmt->execute();
@@ -94,7 +94,7 @@ class Quota {
 
         $sql = 'SELECT * FROM autoweb_quotas WHERE quota_used > quota_limit';
         $stmt = $pdo->prepare($sql);
-        
+
         try {
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -124,7 +124,7 @@ class Quota {
 
         $sql = 'SELECT * FROM autoweb_quotas';
         $stmt = $pdo->prepare($sql);
-        
+
         try {
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -157,8 +157,8 @@ class Quota {
                     WHERE autoweb_quotas.user_id = :user_id';
             $stmt = $pdo->prepare($sql);
 
-            $stmt->bindValue('user_id',         $quota->user_id,           PDO::PARAM_STR);
-            $stmt->bindValue('quota_used',      $quota->quota_used,        PDO::PARAM_STR);
+            $stmt->bindValue('user_id', $quota->user_id, PDO::PARAM_STR);
+            $stmt->bindValue('quota_used', $quota->quota_used, PDO::PARAM_STR);
 
             try {
                 $stmt->execute();

@@ -14,13 +14,13 @@ require_once 'lib/Job.class.php';
 
 if (isset($_POST['email'])) {
     $messages = [];
-    $user = User::getUsers(["email" => $_POST['email']]);
+    $user = User::getUsers(['email' => $_POST['email']]);
     if (count($user) == 1) {
-      if (Job::addJob("send_password", json_encode([['user_id' => $user[0]->id]]))) {
-        $messages[] = ['type' => 'success', 'message' => 'Mot de passe en cours d\'envoi...'];
-      } else {
-        $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
-      }
+        if (Job::addJob('send_password', json_encode([['user_id' => $user[0]->id]]))) {
+            $messages[] = ['type' => 'success', 'message' => 'Mot de passe en cours d\'envoi...'];
+        } else {
+            $messages[] = ['type' => 'danger', 'message' => 'L\'opération a rencontré une erreur.'];
+        }
     }
 }
 

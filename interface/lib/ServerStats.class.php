@@ -1,7 +1,6 @@
 <?php
 
-class ServerStats
-{
+class ServerStats {
     public const CPU = 'cpu';
     public const RAM = 'ram';
     public const DISK = 'disk';
@@ -10,8 +9,7 @@ class ServerStats
     public const PROCESSES = 'processes';
     public const CONNECTED_USERS = 'users';
 
-    public function getStat(string $stat): array
-    {
+    public function getStat(string $stat): array {
         return match ($stat) {
             self::CPU => $this->getCpu(),
             self::RAM => $this->getRam(),
@@ -24,8 +22,7 @@ class ServerStats
         };
     }
 
-    public function getAllStats(): array
-    {
+    public function getAllStats(): array {
         return [
             self::CPU => $this->getCpu(),
             self::RAM => $this->getRam(),
@@ -37,8 +34,7 @@ class ServerStats
         ];
     }
 
-    private function getCpu(): array
-    {
+    private function getCpu(): array {
         $stat1 = file('/proc/stat')[0];
         usleep(100000);
         $stat2 = file('/proc/stat')[0];
@@ -72,8 +68,7 @@ class ServerStats
         ];
     }
 
-    private function getRam(): array
-    {
+    private function getRam(): array {
         $memInfo = file('/proc/meminfo');
         $mem = [];
 
@@ -97,8 +92,7 @@ class ServerStats
         ];
     }
 
-    private function getStorage(): array
-    {
+    private function getStorage(): array {
         $disks = [];
 
         $lines = explode(
@@ -134,8 +128,7 @@ class ServerStats
         return $disks;
     }
 
-    private function getLoad(): array
-    {
+    private function getLoad(): array {
         $load = sys_getloadavg();
 
         return [
@@ -145,8 +138,7 @@ class ServerStats
         ];
     }
 
-    private function getUptime(): array
-    {
+    private function getUptime(): array {
         $uptime = (int) explode(
             ' ',
             trim(file_get_contents('/proc/uptime'))
@@ -167,8 +159,7 @@ class ServerStats
         ];
     }
 
-    private function getProcess(): array
-    {
+    private function getProcess(): array {
         $count = (int) trim(shell_exec(
             "ps -eo pid --no-headers | awk '\$1 >= 1000' | wc -l"
         ));
@@ -178,8 +169,7 @@ class ServerStats
         ];
     }
 
-    private function getConnectedUsers(): array
-    {
+    private function getConnectedUsers(): array {
         $output = trim(shell_exec('who'));
 
         if (empty($output)) {

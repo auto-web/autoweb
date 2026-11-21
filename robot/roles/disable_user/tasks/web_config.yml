@@ -1,4 +1,3 @@
-
 - name: "disable site config"
   file:
     path: '/etc/apache2/sites-enabled/100-{{ user.domain_name }}.conf'

@@ -2,7 +2,7 @@
 #     - password
 #     - shell
 #     -notify jailkit
-# -diasble mysql login
+# -disable mysql login
 #
 
 

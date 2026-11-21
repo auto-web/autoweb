@@ -1,4 +1,3 @@
-
 - name: "Setting template variables"
   set_fact:
     apache_docroot: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"

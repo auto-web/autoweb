@@ -3,8 +3,8 @@ PHPRC="/etc/php/{{ user.php_version }}/cgi/"
 export PHPRC
 PHP_DOCUMENT_ROOT="{{ apache_docroot }}"
 export PHP_DOCUMENT_ROOT
-# The variable PHP_FCGI_CHILDREN is onyl useful for lighty or nginx as apache 
-# mod_fcgi will control the number of childs themself and never use the additional processes.
+# The variable PHP_FCGI_CHILDREN is only useful for lighty or nginx as apache
+# mod_fcgid will control the number of children themselves and never use the additional processes.
 # PHP_FCGI_CHILDREN=8
 # export PHP_FCGI_CHILDREN
 PHP_FCGI_MAX_REQUESTS=5000

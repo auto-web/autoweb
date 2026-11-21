@@ -1,4 +1,3 @@
-
 - name: "rm /etc/bind/zones.autoweb/pri.{{ user.domain_name }}"
   file:
     path: "/etc/bind/zones.autoweb/pri.{{ user.domain_name }}"

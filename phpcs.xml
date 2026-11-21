@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PHP_CodeSniffer ruleset for AutoWeb.
+  Usage (from the repository root):
+    phpcs     check the code
+    phpcbf    auto-fix what can be fixed
+
+  Based on PSR2, with these differences:
+    - opening braces always on the same line (class X {, function f() {, if (...) {)
+    - blank lines are left as they are
+    - function calls/declarations are not forced to one argument per line
+    - strings without variables must use single quotes
+-->
+<ruleset name="AutoWeb">
+    <description>AutoWeb coding standard (PSR2 with braces on the same line)</description>
+
+    <file>interface</file>
+    <exclude-pattern>interface/vendor/*</exclude-pattern>
+
+    <arg name="extensions" value="php"/>
+    <arg value="sp"/>
+
+    <!-- PHP version used by the interface -->
+    <config name="php_version" value="80200"/>
+    <!-- Warnings (line length, side effects) are displayed but do not fail the check -->
+    <config name="ignore_warnings_on_exit" value="1"/>
+
+    <rule ref="PSR2">
+        <!-- The code does not use namespaces -->
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+        <!-- Existing methods use snake_case (e.g. User::generate_uid) -->
+        <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps"/>
+
+        <!-- Opening braces of classes and functions on the same line (replaced below) -->
+        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration"/>
+
+        <!-- Do not split function calls into one argument per line -->
+        <exclude name="PSR2.Methods.FunctionCallSignature.ContentAfterOpenBracket"/>
+        <exclude name="PSR2.Methods.FunctionCallSignature.MultipleArguments"/>
+        <exclude name="PSR2.Methods.FunctionCallSignature.CloseBracketLine"/>
+        <exclude name="PSR2.Methods.FunctionCallSignature.Indent"/>
+        <exclude name="PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket"/>
+
+        <!-- Leave blank lines as they are -->
+        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines"/>
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing"/>
+        <exclude name="PSR2.ControlStructures.ControlStructureSpacing"/>
+        <exclude name="PSR2.Methods.FunctionClosingBrace"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
+        <exclude name="PSR2.Files.EndFileNewline"/>
+        <exclude name="PSR2.Namespaces.UseDeclaration"/>
+    </rule>
+
+    <!-- Opening brace on the same line: class X {, function f() { -->
+    <rule ref="Generic.Classes.OpeningBraceSameLine"/>
+    <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+
+    <!-- "abc" => 'abc' when the string contains no variable -->
+    <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
+</ruleset>

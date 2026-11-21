@@ -24,14 +24,14 @@
             <td>Quota</td>
             <td><form action="#" method="post">
                 <progress max="{{ user.quota.quota_limit }}" value="{{ user.quota.quota_used }}">{{ user.quota.quota_used }} Mio / {{ user.quota.quota_limit }} Mio</progress>
-                {{ user.quota.quota_used }} Mio / 
-		{% if is_admin %}
-		<input type="number" size="5" name="quota" value="{{ user.quota.quota_limit }}" /> Mio
+                {{ user.quota.quota_used }} Mio /
+        {% if is_admin %}
+        <input type="number" size="5" name="quota" value="{{ user.quota.quota_limit }}" /> Mio
                 <input type="hidden" name="user_id" value="{{ user.id }}">
                 <input type="submit" value="Changer quota" />
-		{% else %}
-		{{ user.quota.quota_limit }} Mio
-		{% endif %}
+        {% else %}
+        {{ user.quota.quota_limit }} Mio
+        {% endif %}
             </form></td>
         </tr>
         <tr>
@@ -39,7 +39,7 @@
             <td><form action="#" method="post">
             <input type="submit" class="btn btn-primary" name="send_password" value="Renvoyer le mot de passe" />
             <input type="submit" class="btn btn-primary" name="change_password" value="Changer le mot de passe" />
-	    </form></td>
+        </form></td>
         </tr>
         <tr>
             <td>Version PHP</td>

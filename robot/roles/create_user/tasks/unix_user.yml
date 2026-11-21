@@ -9,7 +9,7 @@
     shell: "/usr/sbin/jk_chrootsh"
     create_home: yes
     state: present
-    groups: 
+    groups:
       - jailkit
       - sendmailwrapper
   notify: Refresh jail
@@ -44,7 +44,7 @@
   user:
     name: "www-data"
     append: yes
-    groups: 
+    groups:
       - "{{ user.unix_username }}"
   notify: Restart apache2
 

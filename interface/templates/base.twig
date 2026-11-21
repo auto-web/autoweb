@@ -10,13 +10,13 @@
             <link href="css/style.css" type="text/css" rel="stylesheet"/>
             <link href='//fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
             <script src="js/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-	    <script src="js/bootstrap.js"></script>
+        <script src="js/bootstrap.js"></script>
             <script type="text/javascript" src="js/main.js"></script>
-		{% if is_admin %}
-		<script type="text/javascript">
-		  autoweb.is_admin = true;
-		</script>
-		{% endif %}
+        {% if is_admin %}
+        <script type="text/javascript">
+            autoweb.is_admin = true;
+        </script>
+        {% endif %}
         {% endblock %}
     </head>
     <body>
@@ -42,7 +42,7 @@
                     <div class="btn-group">
                         <a href="user.php" class="btn btn-primary m-2 rounded">Outils Utilisateur</a>
                         <a href="admin.php" class="btn btn-secondary m-2 rounded">Administration</a>
-			<div id="jobs-notify"><div class="content"></div><div id="jobs-tooltip"></div></div>
+            <div id="jobs-notify"><div class="content"></div><div id="jobs-tooltip"></div></div>
                     </div>
                 </div>
             </div>

@@ -9,7 +9,7 @@
   user:
     name: "www-data"
     append: yes
-    groups: 
+    groups:
       - "phpmyadmin"
   notify: Restart apache2
 
@@ -72,4 +72,3 @@
     mode: u=rwX,g=r
   notify: Restart apache2
 
-    

@@ -1,0 +1,54 @@
+---
+# Run the pre-commit hooks (defined in .pre-commit-config.yaml): yaml lint, php lint, PSR2 coding style...
+name: pre-commit
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: pre-commit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # PHP version used by the interface, with phpcs for the php-cs hook
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+          tools: phpcs
+
+      # twig-cs-fixer for the twig-cs-fixer hook
+      - name: Install twig-cs-fixer
+        env:
+          TWIG_CS_FIXER_VERSION: 4.1.2
+        run: |
+          sudo curl -sSfL -o /usr/local/bin/twig-cs-fixer \
+            "https://github.com/VincentLanglet/Twig-CS-Fixer/releases/download/${TWIG_CS_FIXER_VERSION}/twig-cs-fixer.phar"
+          sudo chmod +x /usr/local/bin/twig-cs-fixer
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pre-commit
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit/
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run pre-commit hooks
+        env:
+          # no-commit-to-branch makes no sense in the CI (it would fail on push to master)
+          SKIP: no-commit-to-branch
+        run: pre-commit run --show-diff-on-failure --color=always --all-files

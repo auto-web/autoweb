@@ -6,99 +6,101 @@ require_once __DIR__ . '/../lib/Config.class.php';
 require_once __DIR__ . '/../lib/Job.class.php';
 require_once __DIR__ . '/../lib/User.class.php';
 
-$jobs = Job::getJobs(["status" => "todo"]);
+$jobs = Job::getJobs(['status' => 'todo']);
 
-foreach($jobs as $job)
+foreach ($jobs as $job) {
     doJob($job);
+}
 
-function doJob($job){
+function doJob($job) {
     switch ($job->operation) {
-        case "create_users":
+        case 'create_users':
             create_users($job);
             break;
-        case "create_admins":
+        case 'create_admins':
             create_admins($job);
             break;
-        case "reactivate":
+        case 'reactivate':
             reactivate($job);
             break;
-        case "deactivate":
+        case 'deactivate':
             deactivate($job);
             break;
-        case "remove_users":
+        case 'remove_users':
             remove_users($job);
             break;
-        case "repare_all":
+        case 'repare_all':
             repare_all($job);
             break;
-        case "repare":
+        case 'repare':
             repare($job);
             break;
-        case "send_password":
+        case 'send_password':
             send_password($job);
             break;
-        case "change_password":
+        case 'change_password':
             change_password($job);
             break;
-        case "change_php_version":
+        case 'change_php_version':
             change_php_version($job);
             break;
-        case "change_quota":
+        case 'change_quota':
             change_quota($job);
             break;
     }
 }
 
-function create_users($job){
+function create_users($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
-    
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $job->markAs('running');
+
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users_data, "admins" => $admins];
-    
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    $data = ['users' => $users_data, 'admins' => $admins];
+
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
-    
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
-    foreach ($users_data as $user)
+    foreach ($users_data as $user) {
         User::insertUser($user);
+    }
 
-    $job->markAs("done");
+    $job->markAs('done');
 
 }
 
-function create_admins($job){
+function create_admins($job) {
     $users_data = json_decode($job->data);
 
-    $job->markAs("running");
+    $job->markAs('running');
 
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users_data, "admins" => $admins];
+    $data = ['users' => $users_data, 'admins' => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $output = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
-    
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml', $output, $return_var);
+
     echo $output;
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -108,28 +110,29 @@ function create_admins($job){
         $users[] = ['mysql_username' => $full_user->mysql_username];
     }
 
-    $data = ["admins" => $users_data, "users" => $users];
+    $data = ['admins' => $users_data, 'users' => $users];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/grant_admin.yml", $output, $return_var);
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/grant_admin.yml', $output, $return_var);
 
     echo $output;
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
-    foreach ($users_data as $user)
+    foreach ($users_data as $user) {
         User::insertUser($user);
+    }
 
-    $job->markAs("done");
+    $job->markAs('done');
 
 }
 
-function reactivate($job){
+function reactivate($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
@@ -139,20 +142,20 @@ function reactivate($job){
         $users[] = $user;
     }
 
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users, "admins" => $admins];
+    $data = ['users' => $users, 'admins' => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -160,12 +163,12 @@ function reactivate($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
-function deactivate($job){
+function deactivate($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
@@ -175,20 +178,20 @@ function deactivate($job){
         $users[] = $user;
     }
 
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users, "admins" => $admins];
+    $data = ['users' => $users, 'admins' => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/disable_user.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/disable_user.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -196,38 +199,38 @@ function deactivate($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
-function remove_users($job){
+function remove_users($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
         $user = new User();
         $user->loadUserByID($item->user_id);
         $users[] = $user;
-        if($user->is_active) {
-            $job->markAs("failed");
+        if ($user->is_active) {
+            $job->markAs('failed');
             return;
         }
     }
 
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users, "admins" => $admins];
+    $data = ['users' => $users, 'admins' => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/remove_user.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/remove_user.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -235,28 +238,28 @@ function remove_users($job){
         $user->removeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
-function repare_all($job){
-    $job->markAs("running");
+function repare_all($job) {
+    $job->markAs('running');
 
-    $users = User::getUsers(["is_active" => true]);
+    $users = User::getUsers(['is_active' => true]);
 
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users, "admins" => $admins];
+    $data = ['users' => $users, 'admins' => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -264,12 +267,12 @@ function repare_all($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
-function repare($job){
+function repare($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
@@ -279,20 +282,20 @@ function repare($job){
         $users[] = $user;
     }
 
-    $full_admins = User::getUsers(["is_admin" => true]);
+    $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ["users" => $users, "admins" => $admins];
+    $data = ['users' => $users, 'admins' => $admins];
 
-    file_write(json_encode($data), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/create_user.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -300,12 +303,12 @@ function repare($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
-function send_password($job){
+function send_password($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
@@ -320,32 +323,32 @@ function send_password($job){
     $return_var = 0;
     foreach ($users as $user) {
         // Send password HERE
-	$from = $user->unix_username . '@' . Config::getValue('domain_name');
-	$to = $user->email;
-	$headers = [
-	    'from' => $from,
-	    'MIME-Version' => '1.0',
-	    'Content-Type' => 'text/html; charset=utf-8',
-	];
-	$message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
-	$sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
-	if (!$sent) {
-	    $return_var = 1; // An error occured for one or more mail
-	}
+        $from = $user->unix_username . '@' . Config::getValue('domain_name');
+        $to = $user->email;
+        $headers = [
+        'from' => $from,
+        'MIME-Version' => '1.0',
+        'Content-Type' => 'text/html; charset=utf-8',
+        ];
+        $message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
+        $sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
+        if (!$sent) {
+            $return_var = 1; // An error occurred for one or more mails
+        }
     }
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 
 }
 
-function change_password($job){
+function change_password($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
@@ -360,24 +363,24 @@ function change_password($job){
 
     foreach ($users as $user) {
         // Send password HERE
-	$from = $user->unix_username . '@' . Config::getValue('domain_name');
-	$to = $user->email;
-	$headers = [
-	    'from' => $from,
-	    'MIME-Version' => '1.0',
-	    'Content-Type' => 'text/html; charset=utf-8',
-	];
-	$message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
-	$sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
+        $from = $user->unix_username . '@' . Config::getValue('domain_name');
+        $to = $user->email;
+        $headers = [
+        'from' => $from,
+        'MIME-Version' => '1.0',
+        'Content-Type' => 'text/html; charset=utf-8',
+        ];
+        $message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
+        $sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
     }
 
-    file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode(['users' => $users]), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_password.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_password.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -385,13 +388,13 @@ function change_password($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 
 }
 
-function change_php_version($job){
+function change_php_version($job) {
     $users_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($users_data as $item) {
@@ -405,13 +408,13 @@ function change_php_version($job){
         $users[] = $user;
     }
 
-    file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode(['users' => $users]), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_php_version.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_php_version.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -419,12 +422,12 @@ function change_php_version($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
-function change_quota($job){
+function change_quota($job) {
     $quota_data = json_decode($job->data);
-    $job->markAs("running");
+    $job->markAs('running');
     $users = [];
 
     foreach ($quota_data as $item) {
@@ -438,13 +441,13 @@ function change_quota($job){
         $users[] = $user;
     }
 
-    file_write(json_encode(["users" => $users]), "/opt/autoweb/robot/data/args.json");
+    file_write(json_encode(['users' => $users]), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
     $return_var = null;
-    exec("/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_quota.yml", $output, $return_var);
+    exec('/opt/ansible/bin/ansible-playbook /opt/autoweb/robot/change_quota.yml', $output, $return_var);
 
-    if($return_var != 0) {
-        $job->markAs("failed");
+    if ($return_var != 0) {
+        $job->markAs('failed');
         return;
     }
 
@@ -452,7 +455,7 @@ function change_quota($job){
         $user->storeUser();
     }
 
-    $job->markAs("done");
+    $job->markAs('done');
 }
 
 function file_write($data, $file) {

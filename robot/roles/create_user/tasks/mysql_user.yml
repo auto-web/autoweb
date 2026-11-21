@@ -26,6 +26,6 @@
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
   with_items:
-     - "{{ admins }}"
+    - "{{ admins }}"
   loop_control:
     loop_var: admin

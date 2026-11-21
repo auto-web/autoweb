@@ -12,10 +12,10 @@ class Config {
             self::$values = [
                 'domain_name'    => $domain_name,
                 'dbPassword'     => $dbPassword,
-		'captcha_pubkey' => $captcha_pubkey,
-		'quotas_enabled' => $quotas_enabled,
-		'quotas_default' => $quotas_default,
-		'quotas_root'    => $quotas_root,
+            'captcha_pubkey' => $captcha_pubkey,
+            'quotas_enabled' => $quotas_enabled,
+            'quotas_default' => $quotas_default,
+            'quotas_root'    => $quotas_root,
             ];
         }
     }

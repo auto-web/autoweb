@@ -1,4 +1,3 @@
-
 - name: "change unix password"
   user:
     name: "{{ user.unix_username }}"

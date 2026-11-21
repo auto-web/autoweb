@@ -2,10 +2,10 @@
 require_once dirname(__FILE__).'/../config.php';
 
 function connect() {
-    $dbUsername = "autoweb";
+    $dbUsername = 'autoweb';
     global $dbPassword;
-    $dbName = "autoweb";
-    $dbHost = "localhost";
+    $dbName = 'autoweb';
+    $dbHost = 'localhost';
 
     try {
         $dsn = 'mysql:host=' . $dbHost . ';dbname=' . $dbName . ';charset=utf8';

@@ -2,7 +2,7 @@
 
 - name: "Refresh jail"
   command: autoweb_refresh_jail
-  
+
 - name: "Restart apache2"
   service:
     name: apache2

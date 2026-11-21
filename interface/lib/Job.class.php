@@ -21,7 +21,7 @@ class Job {
     public $data;
     public $status;
 
-    private function load($id, $timestamp, $operation, $data, $status){
+    private function load($id, $timestamp, $operation, $data, $status) {
         $this->id =         $id;
         $this->timestamp =  $timestamp;
         $this->operation =  $operation;
@@ -31,12 +31,12 @@ class Job {
 
     public function markAs($status) {
         $pdo = connect();
-        
+
         $sql = 'UPDATE autoweb_jobs SET status = :status WHERE autoweb_jobs.id = :id';
         $stmt = $pdo->prepare($sql);
 
-        $stmt->bindValue('id',      $this->id,  PDO::PARAM_INT);
-        $stmt->bindValue('status',  $status,    PDO::PARAM_STR);
+        $stmt->bindValue('id', $this->id, PDO::PARAM_INT);
+        $stmt->bindValue('status', $status, PDO::PARAM_STR);
 
         try {
             $stmt->execute();
@@ -47,13 +47,13 @@ class Job {
 
     }
 
-    public static function addJob($op, $data){
+    public static function addJob($op, $data) {
         $pdo = connect();
 
         $sql = 'INSERT INTO autoweb_jobs (timestamp, operation, data, status) VALUES (NOW(), :operation, :data, "todo")';
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue('operation',   $op, PDO::PARAM_STR);
-        $stmt->bindValue('data',        $data, PDO::PARAM_STR);
+        $stmt->bindValue('operation', $op, PDO::PARAM_STR);
+        $stmt->bindValue('data', $data, PDO::PARAM_STR);
 
         try {
             $stmt->execute();
@@ -64,9 +64,9 @@ class Job {
         }
     }
 
-    public static function addCreateUsersJob($users){
+    public static function addCreateUsersJob($users) {
         $json = json_encode($users);
-        return Job::addJob("create_users", $json);
+        return Job::addJob('create_users', $json);
     }
 
     public static function getJobs($filters) {
@@ -75,24 +75,26 @@ class Job {
 
         $sql = 'SELECT * FROM autoweb_jobs WHERE ';
         foreach ($filters as $filter => $value) {
-            if ($filter === array_key_first($filters))
+            if ($filter === array_key_first($filters)) {
                 $sql .= 'autoweb_jobs.' . $filter . ' = :' .$filter;
-            else
+            } else {
                 $sql .= ' AND autoweb_jobs.' . $filter . ' = :' .$filter;
+            }
         }
 
         $stmt = $pdo->prepare($sql);
         foreach ($filters as $filter => $value) {
             $dataType = PDO::PARAM_STR;
 
-            if($filter == 'id')
+            if ($filter == 'id') {
                 $dataType = PDO::PARAM_INT;
-            elseif($filter == 'data')
+            } elseif ($filter == 'data') {
                 return false;
-            
+            }
+
             $stmt->bindValue($filter, $value, $dataType);
         }
-        
+
         try {
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -103,7 +105,7 @@ class Job {
                 $job->load(     $result->id,
                                 $result->timestamp,
                                 $result->operation,
-                                $result->data, 
+                                $result->data,
                                 $result->status
                             );
 

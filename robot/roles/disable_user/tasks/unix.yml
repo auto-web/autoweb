@@ -1,5 +1,4 @@
-
-- name: "diasble user"
+- name: "disable user"
   user:
     name: "{{ user.unix_username }}"
     password: "!"

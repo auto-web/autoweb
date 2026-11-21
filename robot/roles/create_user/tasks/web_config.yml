@@ -1,4 +1,4 @@
---- 
+---
 
 - name: "Setting template variables"
   set_fact:

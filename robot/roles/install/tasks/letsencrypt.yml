@@ -33,6 +33,9 @@
 
 - name: "Generate letsencrypt wildcard certificate"
   command:
-    cmd: "certbot certonly --non-interactive --agree-tos -m {{ configs.letsencrypt_email }} --dns-rfc2136 --dns-rfc2136-credentials /etc/letsencrypt/secrets/rfc2136-credentials.ini -d {{ configs.domain_users }} -d *.{{ configs.domain_users }}"
+    cmd: >-
+      certbot certonly --non-interactive --agree-tos -m {{ configs.letsencrypt_email }}
+      --dns-rfc2136 --dns-rfc2136-credentials /etc/letsencrypt/secrets/rfc2136-credentials.ini
+      -d {{ configs.domain_users }} -d *.{{ configs.domain_users }}
     creates: /etc/letsencrypt/live/{{ configs.domain_users }}
 
