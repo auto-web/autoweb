@@ -36,7 +36,7 @@ jobs:
       - name: Install the tools
         run: .github/scripts/setup-debian.sh pre-commit
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/pre-commit/
           key: pre-commit-trixie-${{ hashFiles('.pre-commit-config.yaml') }}
