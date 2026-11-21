@@ -3,7 +3,7 @@
         "php": ">=8.2",
         "twig/twig": "^3.0",
         "twbs/bootstrap": "^5.3",
-        "components/jquery": "^3.7",
+        "components/jquery": "^4.0",
         "robmorgan/phinx": "^0.16"
     },
     "config": {
