@@ -15,6 +15,9 @@
         file: "data/args.json"
         name: args
 
+    - name: "validate args"
+      include_tasks: tasks/validate_args.yml
+
     - name: "looping role create_user"
       include_role:
         name: create_user

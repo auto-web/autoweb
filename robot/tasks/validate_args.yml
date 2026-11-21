@@ -1,0 +1,30 @@
+---
+# Validation of data/args.json (written by interface/robot/robot.php from the database) before the playbooks
+# use it as root in paths, commands and config files: a wrong value (e.g. "../" in a login) stops the playbook
+# before anything is changed. Same rules as the interface (interface/lib/User.class.php).
+
+- name: "Validate the accounts of args.json"
+  assert:
+    that:
+      # Logins: lowercase letters and digits only (no "/", "..", spaces...)
+      - item.unix_username is not defined or item.unix_username is match('^[a-z0-9]{1,32}$')
+      - item.mysql_username is not defined or item.mysql_username is match('^[a-z0-9]{1,32}$')
+      # Domain: a host name under the users domain (vhost and DNS file names)
+      - >-
+        item.domain_name is not defined
+        or (item.domain_name is match('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-]+$')
+            and item.domain_name is search('\.' ~ (configs.domain_users | regex_escape) ~ '$'))
+      # PHP version: in /usr/bin/php-cgi<version> and /etc/php/<version>/
+      - item.php_version is not defined or (item.php_version | string) is match('^[0-9]+\.[0-9]+$')
+      # Quota (MB): in the quotatool command
+      - >-
+        item.quota is not defined or item.quota is none or item.quota.quota_limit is not defined
+        or (item.quota.quota_limit | string) is match('^[0-9]+$')
+      # Name: in the comment field of /etc/passwd
+      - item.first_name is not defined or (item.first_name | string) is not search('[:\n\r]')
+      - item.last_name is not defined or (item.last_name | string) is not search('[:\n\r]')
+    fail_msg: "Invalid account in data/args.json: {{ item.unix_username | default(item.mysql_username | default('?')) }}"
+    quiet: true
+  loop: "{{ (args.users | default([])) + (args.admins | default([])) }}"
+  loop_control:
+    label: "{{ item.unix_username | default(item.mysql_username | default('?')) }}"

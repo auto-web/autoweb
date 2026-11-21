@@ -1,0 +1,24 @@
+# Cases of tests/validate_args.sh, one per line: <ok|fail> | <description> | <args.json content>
+# ok: accepted by tasks/validate_args.yml, fail: refused (malicious or invalid value)
+ok   | account as written by robot.php        | {"users":[{"unix_username":"jdupont","mysql_username":"jdupont","domain_name":"jdupont.autoweb.example.org","php_version":"8.2","quota":{"user_id":"jdupont","quota_limit":1024},"first_name":"Jean","last_name":"Du Pont"}],"admins":[{"mysql_username":"admin"}]}
+ok   | no quota                               | {"users":[{"unix_username":"a1","quota":null}]}
+ok   | grant_admin (mysql_username only)      | {"users":[{"mysql_username":"u1"}],"admins":[{"mysql_username":"admin"}]}
+ok   | no users                               | {"users":[],"admins":[]}
+fail | login with ../                         | {"users":[{"unix_username":"../etc"}]}
+fail | login with /                           | {"users":[{"unix_username":"a/b"}]}
+fail | login with uppercase                   | {"users":[{"unix_username":"JDupont"}]}
+fail | login too long (33)                    | {"users":[{"unix_username":"abcdefghijklmnopqrstuvwxyz0123456"}]}
+fail | empty login                            | {"users":[{"unix_username":""}]}
+fail | login with space and option            | {"users":[{"unix_username":"a -o"}]}
+fail | mysql_username with ;                  | {"users":[{"mysql_username":"x;DROP"}]}
+fail | admin mysql_username with quote        | {"users":[],"admins":[{"mysql_username":"a'b"}]}
+fail | domain outside domain_users            | {"users":[{"unix_username":"a","domain_name":"a.evil.com"}]}
+fail | domain ending like domain_users        | {"users":[{"unix_username":"a","domain_name":"a.evilautoweb.example.org"}]}
+fail | domain with /                          | {"users":[{"unix_username":"a","domain_name":"x/../a.autoweb.example.org"}]}
+fail | domain equal to domain_users           | {"users":[{"unix_username":"a","domain_name":"autoweb.example.org"}]}
+fail | php_version with command               | {"users":[{"unix_username":"a","php_version":"8.2; rm -rf /"}]}
+fail | php_version with path                  | {"users":[{"unix_username":"a","php_version":"../../bin"}]}
+fail | quota with option                      | {"users":[{"unix_username":"a","quota":{"quota_limit":"1 -x"}}]}
+fail | negative quota                         | {"users":[{"unix_username":"a","quota":{"quota_limit":-1}}]}
+fail | first_name with :                      | {"users":[{"unix_username":"a","first_name":"a:b"}]}
+fail | last_name with newline                 | {"users":[{"unix_username":"a","last_name":"a\nroot::0:0::/:/bin/sh"}]}

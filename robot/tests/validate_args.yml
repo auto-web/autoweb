@@ -1,0 +1,12 @@
+---
+# Test of tasks/validate_args.yml, run by tests/validate_args.sh with: -e '{"args": <case>}'
+
+- name: "validate_args test"
+  hosts: localhost
+  gather_facts: no
+  vars:
+    configs:
+      domain_users: "autoweb.example.org"
+  tasks:
+    - name: "validate args"
+      include_tasks: ../tasks/validate_args.yml

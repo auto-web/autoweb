@@ -47,6 +47,32 @@ jobs:
           SKIP: no-commit-to-branch
         run: pre-commit run --show-diff-on-failure --color=always --all-files
 
+  # Ansible playbooks: syntax, and validation of the robot arguments (tasks/validate_args.yml)
+  ansible:
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    defaults:
+      run:
+        shell: bash
+        working-directory: robot
+    steps:
+      # ansible of Debian trixie (with the community.general and community.mysql collections)
+      - name: Install Ansible
+        working-directory: /
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git ansible
+
+      - uses: actions/checkout@v5
+
+      - name: Check the syntax of the playbooks
+        run: |
+          for playbook in *.yml tests/*.yml; do
+              ansible-playbook --syntax-check "$playbook"
+          done
+
+      # Valid accounts must pass, malicious values ("../", ";", ":", newlines...) must be refused
+      - name: Test the validation of the robot arguments
+        run: tests/validate_args.sh
+
   # Composer dependencies (twig, bootstrap, jquery, phinx) and Phinx migrations of the interface
   interface:
     runs-on: ubuntu-latest

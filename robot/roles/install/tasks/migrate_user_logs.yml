@@ -13,6 +13,13 @@
   changed_when: false
   check_mode: false
 
+# Same checks as the robot playbooks, as these values are used in paths and vhosts
+- name: "Validate the autoweb users"
+  include_tasks: "{{ playbook_dir }}/tasks/validate_args.yml"
+  vars:
+    args:
+      users: "{{ migrate_users.query_result[0] }}"
+
 - name: "Check the users homes"
   stat:
     path: "{{ configs.chroot_path }}/home/{{ item.unix_username }}"
