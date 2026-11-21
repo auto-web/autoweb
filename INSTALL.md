@@ -1,11 +1,11 @@
-# Installation d'AutoWeb
+# Installing AutoWeb
 
-Le serveur et les tests tournent sous **Debian 13 (trixie)**.
-Toutes les commandes s'exécutent en `root`.
+The server and the tests run on **Debian 13 (trixie)**.
+All the commands are run as `root`.
 
-Les dépôts apt (PHP de [Sury](https://packages.sury.org/php/)) suivent la version de Debian installée : Ansible la lit dans `ansible_facts.distribution_release`.
+The apt repositories (PHP from [Sury](https://packages.sury.org/php/)) follow the installed Debian release: Ansible reads it from `ansible_facts.distribution_release`.
 
-## 1. Paquets de base
+## 1. Base packages
 
 ```bash
 apt install git python3-venv mariadb-server mariadb-client quota
@@ -13,7 +13,7 @@ apt install git python3-venv mariadb-server mariadb-client quota
 
 ## 2. Ansible
 
-Il est installé dans un environnement virtuel `/opt/ansible`, chemin qu'utilise le robot (`interface/robot/robot.php`). Sous trixie, `pip` est bloqué en dehors d'un environnement virtuel (PEP 668).
+Ansible is installed in the virtual environment `/opt/ansible`, the path used by the robot (`interface/robot/robot.php`). On trixie, `pip` is blocked outside of a virtual environment (PEP 668).
 
 ```bash
 python3 -m venv /opt/ansible
@@ -27,7 +27,7 @@ mariadb-secure-installation
 mariadb
 ```
 
-Puis, dans le client `mariadb`, créer l'utilisateur d'Ansible. Il doit correspondre à `ansible_mysql_login` et `ansible_mysql_password` de la configuration (étape 6).
+Then, in the `mariadb` client, create the Ansible user. It must match `ansible_mysql_login` and `ansible_mysql_password` in the configuration (step 6).
 
 ```sql
 CREATE USER 'ansible'@'localhost' IDENTIFIED BY '....';
@@ -36,14 +36,14 @@ GRANT ALL PRIVILEGES ON *.* TO 'ansible'@'localhost' WITH GRANT OPTION;
 
 ## 4. Quotas
 
-La partition indiquée par `fs` dans la configuration (par exemple `/data`) doit être montée avec l'option `usrquota` dans `/etc/fstab`. Ensuite :
+The partition set in `fs` in the configuration (for example `/data`) must be mounted with the `usrquota` option in `/etc/fstab`. Then:
 
 ```bash
 quotacheck -cum /data
 quotaon -a
 ```
 
-Sans quotas, mettre `quotas_enabled: false` dans la configuration.
+Without quotas, set `quotas_enabled: false` in the configuration.
 
 ## 5. Code
 
@@ -58,47 +58,47 @@ cp -r /opt/autoweb/robot/data-exemple /opt/autoweb/robot/data
 editor /opt/autoweb/robot/data/config.yml
 ```
 
-Le dossier `robot/data/` n'est pas versionné. Ansible le réserve à `root` (0750), car il contient les mots de passe.
+The `robot/data/` directory is not versioned. Ansible restricts it to `root` (0750), as it contains the passwords.
 
-Le premier admin de l'interface est créé avec `admin_login` (lettres minuscules et chiffres, 32 caractères maximum) et `admin_email`. Laisser `admin_password` vide : ce mot de passe est donné à l'installation (étape 7) et n'est donc pas stocké sur le disque.
+The first admin of the web interface is created with `admin_login` (lowercase letters and digits, 32 characters max) and `admin_email`. Leave `admin_password` empty: this password is given at install time (step 7), so it is not stored on disk.
 
 ## 7. Installation
 
 ```bash
 cd /opt/autoweb/robot
-read -rs ADMIN_PASSWORD   # mot de passe du premier admin, sans le laisser dans l'historique du shell
+read -rs ADMIN_PASSWORD   # password of the first admin, kept out of the shell history
 /opt/ansible/bin/ansible-playbook install.yml -e admin_password="$ADMIN_PASSWORD"
 unset ADMIN_PASSWORD
 ```
 
-Le playbook installe et configure Apache, PHP 8.2 à 8.5, la jail, le DNS, les certificats Let's Encrypt, phpMyAdmin, SFTP/FTP et sendmail-wrapper. Pour l'interface web, il :
+The playbook installs and configures Apache, PHP 8.2 to 8.5, the jail, DNS, the Let's Encrypt certificates, phpMyAdmin, SFTP/FTP and sendmail-wrapper. For the web interface, it:
 
-- installe les dépendances avec Composer (Twig, Bootstrap, jQuery, Phinx), aux versions de `interface/composer.lock` ;
-- crée la base `autoweb` et son schéma avec les migrations Phinx (voir « Base de données ») ;
-- crée le premier admin s'il n'y en a aucun : login `admin_login`, e-mail `admin_email`, et le mot de passe passé en `-e admin_password=…`. Si le mot de passe manque, ou si le login ou l'e-mail sont invalides, l'installation s'arrête avec un message ;
-- installe les crons du robot (`robot.php` toutes les minutes, `quotas_update.php` toutes les 10 minutes).
+- installs the dependencies with Composer (Twig, Bootstrap, jQuery, Phinx), at the versions of `interface/composer.lock`;
+- creates the `autoweb` database and its schema with the Phinx migrations (see "Database");
+- creates the first admin if there is none: login `admin_login`, email `admin_email`, and the password given with `-e admin_password=…`. If the password is missing, or if the login or the email is invalid, the installation stops with a message;
+- installs the cron jobs of the robot (`robot.php` every minute, `quotas_update.php` every 10 minutes).
 
-Les logs Apache de chaque site sont écrits dans `/var/log/apache2/autoweb/<login>/`, et l'utilisateur les voit en lecture seule dans `~/logs` (montage bind déclaré dans `/etc/fstab`). Il ne peut ni les supprimer ni les modifier, ce qui empêcherait Apache de redémarrer.
+The Apache logs of each site are written in `/var/log/apache2/autoweb/<login>/`, and the user sees them read-only in `~/logs` (bind mount declared in `/etc/fstab`). The user can neither delete nor modify them, which would prevent Apache from restarting.
 
-L'interface d'administration est ensuite accessible sur `https://<domain_users>/admin.php`, avec `admin_login` et ce mot de passe. Les comptes utilisateurs se créent depuis l'interface : le robot lance les playbooks `create_user.yml` et suivants.
+The admin interface is then available at `https://<domain_users>/admin.php`, with `admin_login` and this password. User accounts are created from the interface: the robot runs the `create_user.yml` playbook and the others.
 
-## Mise à jour
+## Upgrade
 
-Voir [upgrade.md](upgrade.md) : mise à jour du serveur, passages partiels avec les tags, et opérations ponctuelles à faire après certaines mises à jour.
+See [UPGRADE.md](UPGRADE.md): upgrading the server, partial runs with tags, and one-time operations to do after some upgrades.
 
-## Base de données
+## Database
 
-Le schéma de la base `autoweb` est géré par [Phinx](https://phinx.org). Les migrations sont dans `interface/db/migrations/`, la configuration dans `interface/phinx.php`, et la table `phinxlog` garde la liste des migrations appliquées.
+The schema of the `autoweb` database is managed by [Phinx](https://phinx.org). The migrations are in `interface/db/migrations/`, the configuration in `interface/phinx.php`, and the `phinxlog` table keeps the list of the applied migrations.
 
-Les migrations sont appliquées automatiquement à chaque passage d'`install.yml`, avec une sauvegarde préalable (voir [upgrade.md](upgrade.md)).
+The migrations are applied automatically on each run of `install.yml`, after a backup (see [UPGRADE.md](UPGRADE.md)).
 
-### Ajouter une migration
+### Adding a migration
 
-Dans un environnement de développement, voir `interface/README.md` :
+In a development environment (see `interface/README.md`):
 
 ```bash
 cd interface
-vendor/bin/phinx create NomDuChangement -c phinx.php
+vendor/bin/phinx create MyChange -c phinx.php
 ```
 
-On écrit `up()` et `down()` dans le fichier créé sous `db/migrations/`, on commite, puis on déploie avec la procédure de mise à jour.
+Write `up()` and `down()` in the file created in `db/migrations/`, commit, then deploy with the upgrade procedure.

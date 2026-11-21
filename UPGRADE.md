@@ -1,91 +1,91 @@
-# Mise à jour d'AutoWeb
+# Upgrading AutoWeb
 
-Le serveur et les tests tournent sous **Debian 13 (trixie)**. Pour l'installation, voir [install.md](install.md).
-Toutes les commandes s'exécutent en `root`.
+The server and the tests run on **Debian 13 (trixie)**. For the installation, see [INSTALL.md](INSTALL.md).
+All the commands are run as `root`.
 
-## Procédure
+## Procedure
 
-Le playbook d'installation est idempotent : pour mettre à jour, on le rejoue.
+The install playbook is idempotent: to upgrade, run it again.
 
 ```bash
 cd /opt/autoweb
-git pull                                   # ou : git checkout <tag>
+git pull                                   # or: git checkout <tag>
 cd robot
-/opt/ansible/bin/ansible-playbook install.yml --check --diff   # voir ce qui changerait
+/opt/ansible/bin/ansible-playbook install.yml --check --diff   # see what would change
 /opt/ansible/bin/ansible-playbook install.yml
 ```
 
-Ensuite, consulter [Opérations ponctuelles](#opérations-ponctuelles) et faire celles qui ne l'ont pas encore été sur ce serveur.
+Then, read [One-time operations](#one-time-operations) and do the ones not yet done on this server.
 
-Le paramètre `admin_password` n'est nécessaire que tant qu'il n'existe aucun admin.
+The `admin_password` parameter is only needed as long as there is no admin.
 
-## Passages partiels (tags)
+## Partial runs (tags)
 
-Pour ne rejouer qu'une partie, on utilise `--tags`. Par exemple, après une modification de l'interface seule :
+To run only a part of the playbook, use `--tags`. For example, after a change of the web interface only:
 
 ```bash
 /opt/ansible/bin/ansible-playbook install.yml --tags interface
 ```
 
-| Tag | Contenu |
+| Tag | Content |
 |---|---|
-| `system` | limites RAM/CPU, logrotate |
-| `jail` | jailkit (relance `jk_init` quand `jk_init.ini` change) |
+| `system` | RAM/CPU limits, logrotate |
+| `jail` | jailkit (runs `jk_init` again when `jk_init.ini` changes) |
 | `dns` | bind9 |
-| `tls` | certificats Let's Encrypt |
-| `web` | Apache, PHP (dépôt Sury), vhosts |
+| `tls` | Let's Encrypt certificates |
+| `web` | Apache, PHP (Sury repository), vhosts |
 | `phpmyadmin` | phpMyAdmin |
-| `interface` | interface web : Composer, config, base de données, premier admin, crons, vhost |
+| `interface` | web interface: Composer, config, database, first admin, cron jobs, vhost |
 | `sftp` | SFTP / pure-ftpd |
 | `mail` | sendmail-wrapper |
 
-Un tag ne gère pas les dépendances : `--tags interface` suppose par exemple que `web` (PHP 8.2) a déjà été appliqué.
+A tag does not handle dependencies: for example, `--tags interface` assumes that `web` (PHP 8.2) has already been applied.
 
-Les tags des opérations ponctuelles (ci-dessous) ne s'exécutent jamais lors d'un passage normal : seulement si on les demande avec `--tags`.
+The tags of the one-time operations (below) never run during a normal run: only when they are given with `--tags`.
 
-## Base de données
+## Database
 
-À chaque passage d'`install.yml` (tag `interface`), Ansible vérifie s'il y a des migrations Phinx en attente (`interface/db/migrations/`). Si oui, il sauvegarde la base dans `/var/backups/autoweb/autoweb-<date>.sql`, puis applique les migrations. Sinon, il ne change rien.
+On each run of `install.yml` (tag `interface`), Ansible checks for pending Phinx migrations (`interface/db/migrations/`). If there are some, it backs up the database to `/var/backups/autoweb/autoweb-<date>.sql`, then applies the migrations. Otherwise, it changes nothing.
 
-Sur un serveur installé avant Phinx, le premier passage enregistre le schéma existant comme point de départ, sans le modifier, puis applique les migrations suivantes.
+On a server installed before Phinx, the first run records the existing schema as the starting point, without changing it, then applies the next migrations.
 
-En cas de problème après une migration, on restaure la sauvegarde :
+If something goes wrong after a migration, restore the backup:
 
 ```bash
 mariadb autoweb < /var/backups/autoweb/autoweb-<date>.sql
 ```
 
-## Opérations ponctuelles
+## One-time operations
 
-Ce sont des actions à faire une seule fois, après la mise à jour qui les introduit, sur les serveurs installés avant celle-ci. Elles sont sans effet sur une installation neuve, et peuvent être relancées sans risque.
+These actions are done only once, after the upgrade that introduces them, on the servers installed before it. They have no effect on a new installation, and can safely be run again.
 
-### Logs Apache des utilisateurs hors de leur home
+### Apache logs of the users outside of their home
 
-**Pourquoi.** Les logs de chaque site étaient écrits dans `~/logs`, un dossier que l'utilisateur pouvait modifier. Apache ouvre ces fichiers en root : si l'utilisateur supprimait ce dossier, Apache s'arrêtait au reload suivant (logrotate en fait un chaque nuit) pour tous les sites, et un lien symbolique permettait de faire écrire root n'importe où.
+**Why.** The logs of each site were written in `~/logs`, a directory the user could modify. Apache opens these files as root: if the user deleted this directory, Apache stopped on the next reload (logrotate does one every night) for every site, and a symlink let the user make root write anywhere.
 
-Les logs sont maintenant dans `/var/log/apache2/autoweb/<login>/`, et l'utilisateur les voit en lecture seule dans `~/logs` (montage bind déclaré dans `/etc/fstab`). Les comptes créés ou réparés après la mise à jour écrivent déjà leurs logs au nouvel endroit. En revanche, tant que l'opération n'est pas faite, leur `~/logs` reste l'ancien dossier, et l'utilisateur n'y voit pas les nouveaux logs.
+The logs are now in `/var/log/apache2/autoweb/<login>/`, and the user sees them read-only in `~/logs` (bind mount declared in `/etc/fstab`). The accounts created or repaired after the upgrade already write their logs to the new place. However, until this operation is done, their `~/logs` is still the old directory, and the user does not see the new logs there.
 
-**Commande**, après la mise à jour normale :
+**Command**, after the normal upgrade:
 
 ```bash
 cd /opt/autoweb/robot
 /opt/ansible/bin/ansible-playbook install.yml --tags migrate-user-logs
 ```
 
-Pour chaque compte de la base, l'ancien `~/logs` est renommé en `~/logs-old`, que l'utilisateur garde avec ses anciens logs. Puis :
-- comptes actifs : leur vhost est régénéré vers le nouveau chemin, et `~/logs` est monté ;
-- comptes désactivés : seul `~/logs` est monté, et leur site reste désactivé.
+For each account of the database, the old `~/logs` is renamed to `~/logs-old`, which the user keeps with the old logs. Then:
+- active accounts: their vhost is generated again with the new path, and `~/logs` is mounted;
+- disabled accounts: only `~/logs` is mounted, and their site stays disabled.
 
-**Vérification :**
+**Check:**
 
 ```bash
-findmnt -t none -o TARGET,SOURCE,OPTIONS | grep /logs   # un montage ro par compte
-systemctl status apache2                                # active (running)
+findmnt -l -o TARGET,SOURCE,OPTIONS | grep '/logs ' # one ro mount per account
+systemctl status apache2                           # active (running)
 ```
 
-### Dossier `/opt/autoweb/data` vide
+### Empty `/opt/autoweb/data` directory
 
-L'ancienne tâche de droits créait `/opt/autoweb/data`, alors que la configuration est dans `/opt/autoweb/robot/data`. S'il existe et qu'il est vide :
+The former permissions task created `/opt/autoweb/data`, whereas the configuration is in `/opt/autoweb/robot/data`. If it exists and is empty:
 
 ```bash
 rmdir /opt/autoweb/data
