@@ -1,5 +1,5 @@
 #!/bin/sh
-PHPRC="/etc/php/8.0/cgi/"
+PHPRC="/etc/php/8.2/cgi/"
 export PHPRC
 PHP_DOCUMENT_ROOT="/opt/autoweb/interface"
 export PHP_DOCUMENT_ROOT
@@ -9,7 +9,7 @@ export PHP_DOCUMENT_ROOT
 # export PHP_FCGI_CHILDREN
 PHP_FCGI_MAX_REQUESTS=5000
 export PHP_FCGI_MAX_REQUESTS
-exec /usr/bin/php-cgi8.0 \
+exec /usr/bin/php-cgi8.2 \
  -d open_basedir="/usr/share/php:/tmp:/var/www/sendmail-wrapper:/opt/autoweb/interface:/proc/stat:/proc/meminfo:/proc/uptime" \
  -d sendmail_path="/usr/sbin/sendmail-wrapper" \
  -d auto_prepend_file="/var/www/sendmail-wrapper/prepend.php" \
