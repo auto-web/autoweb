@@ -4,14 +4,6 @@
 <div class="faq">
     <dl>
         <h2 class="mt-4">AutoWeb</h2>
-        <dt>Erreur de certificat : page non sécurisée</dt>
-        <dd>Accepter le certificat autosigné pour continuer.
-            <ul>
-                <li>Sous Firefox : <pre>Je comprends les risques</pre> puis <pre>Ajouter une exception</pre></li>
-                <li>Sous Chrome : <pre>Continuer vers le site (dangereux)</pre></li>
-            </ul>
-        </dd>
-
         <dt>Je souhaite changer de mot de passe / Je me suis fait voler mes accès</dt>
         <dd><ul><li>Vous pouvez effectuer un rappel de mot de passe à partir du bouton "Renvoi du mot de passe"</li>
         <li>Vous pouvez effectuer une demande de changement de mot de passe à partir de votre interface utilisateur : bouton "Outils utilisateur" puis "Changer le mot de passe".
@@ -90,7 +82,7 @@
         <h2>Ligne de commande / SSH</h2>
         <dt>Comment se connecter ?</dt>
         <dd>Il est possible de se connecter en SSH au serveur, sur le port 22 (standard).
-        <ul><li>Via Linux avec la ligne de commande : <pre>ssh login@autoweb.example.com</pre> (acceptez le certificat la première fois)</li>
+        <ul><li>Via Linux avec la ligne de commande : <pre>ssh login@autoweb.example.com</pre> (à la première connexion, acceptez l'empreinte de la clé du serveur)</li>
         <li>Via Windows avec un client SSH comme <a href="http://www.putty.org/">Putty</a>.</li></ul>
         </dd>
 
