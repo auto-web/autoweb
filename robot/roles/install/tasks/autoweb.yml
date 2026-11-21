@@ -39,9 +39,18 @@
     env: yes
     job: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
+# Group created explicitly: without "group", the user module relies on USERGROUPS_ENAB (/etc/login.defs),
+# and puts the user in the default group if a group of the same name already exists
+- name: "create autoweb_webadmin group"
+  group:
+    name: "autoweb_webadmin"
+    system: yes
+    state: present
+
 - name: "create autoweb_webadmin user"
   user:
     name: "autoweb_webadmin"
+    group: "autoweb_webadmin"
     system: yes
     create_home: no
     state: present
@@ -80,18 +89,53 @@
     group: root
     mode: 0755
 
-# Runs on each play: installs exactly the versions of composer.lock (twig, bootstrap, jquery)
+# Composer does not run as root: system user "autoweb_system" owns the dependencies (interface/vendor).
+# autoweb_webadmin (the web interface) can read them but not modify them.
+- name: "create autoweb_system group"
+  group:
+    name: "autoweb_system"
+    system: yes
+    state: present
+
+# No home: composer runs with --no-cache
+- name: "create autoweb_system user (composer)"
+  user:
+    name: "autoweb_system"
+    group: "autoweb_system"
+    system: yes
+    home: "/nonexistent"
+    create_home: no
+    shell: /usr/sbin/nologin
+    state: present
+
+# become_user below needs sudo (also installed by sendmailwrapper.yml, but with another tag)
+- name: "Install sudo"
+  apt:
+    name: sudo
+    state: present
+
+# Also gives back to autoweb_system a vendor/ created by root by the former composer task
+- name: "Mkdir /opt/autoweb/interface/vendor"
+  file:
+    path: "/opt/autoweb/interface/vendor"
+    state: directory
+    owner: "autoweb_system"
+    group: "autoweb_system"
+    recurse: yes
+
+# Runs on each play: installs exactly the versions of composer.lock (twig, bootstrap, jquery, phinx)
 - name: "Install autoweb dependencies (with composer)"
   community.general.composer:
     command: install
     working_dir: "/opt/autoweb/interface"
     no_dev: true
     optimize_autoloader: true
-    arguments: "--no-plugins --no-scripts"
+    arguments: "--no-plugins --no-scripts --no-cache"
     executable: /usr/bin/php8.2
     composer_executable: /usr/local/bin/composer
-  environment:
-    COMPOSER_ALLOW_SUPERUSER: "1"
+  become: true
+  become_user: "autoweb_system"
+  become_method: sudo
 
 - name: "create autoweb config"
   copy:
