@@ -16,15 +16,24 @@
       - ftpcopy
     state: present
 
+# Same Debian release as the server (ansible_facts.distribution_release), e.g. trixie
 - name: "Add PHP repo. source"
   copy:
     dest: "/etc/apt/sources.list.d/php.list"
-    content: "deb https://packages.sury.org/php/ bullseye main"
+    content: "deb https://packages.sury.org/php/ {{ ansible_facts.distribution_release }} main"
+  register: php_repo_source
 
 - name: "Add PHP repo. key"
   get_url:
     url: "https://packages.sury.org/php/apt.gpg"
     dest: "/etc/apt/trusted.gpg.d/php.gpg"
+  register: php_repo_key
+
+# cache_valid_time below would skip the update right after the repository is added or changed
+- name: "Update apt cache for the PHP repo."
+  apt:
+    update_cache: yes
+  when: php_repo_source.changed or php_repo_key.changed
 
 - name: "Install PHP versions"
   apt:

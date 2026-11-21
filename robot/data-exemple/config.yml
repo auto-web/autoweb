@@ -20,10 +20,13 @@ ansible_mysql_password: "ansiblepw"
 autoweb_mysql_password: "autowebpw"
 
 # Login du compte "super admin" pour MySQL et l'interface utilisateur
+# (lettres minuscules et chiffres, 32 caractères maximum)
 admin_login: "admin"
 
-# Mot de passe du compte "super admin" pour MySQL et l'interface utilisateur
-admin_mysql_login: "admin"
+# Mot de passe du compte "super admin" pour MySQL et l'interface utilisateur.
+# Laisser vide et le passer à l'installation pour ne pas le stocker sur le disque :
+#   ansible-playbook install.yml -e admin_password='...'
+admin_password: ""
 
 # Captcha public key
 captcha_pubkey: ""
@@ -86,7 +89,7 @@ server_ipv6: ""
 # Configure admin contact information.
 #
 
-# Admin Email
+# Admin Email (contact de sendmail-wrapper, et e-mail du premier admin de l'interface)
 admin_email: ""
 
 #

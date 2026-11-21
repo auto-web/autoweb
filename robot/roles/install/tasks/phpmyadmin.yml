@@ -30,21 +30,23 @@
     mode: 0550
   notify: Restart apache2
 
-- name: "Add backport repo. source"
-  copy:
-    dest: "/etc/apt/sources.list.d/backports.list"
-    content: "deb http://deb.debian.org/debian bullseye-backports main"
+# phpMyAdmin is in Debian main (trixie and later): the bullseye-backports repo is no longer used
+- name: "Remove backport repo. source"
+  file:
+    path: "/etc/apt/sources.list.d/backports.list"
+    state: absent
+  register: backports_repo
 
+# Forced when the backports repo is removed, so that apt forgets its packages
 - name: apt update
   apt:
     update_cache: yes
-    cache_valid_time: 3600
+    cache_valid_time: "{{ 0 if backports_repo.changed else 3600 }}"
 
 - name: install phpmyadmin
   apt:
     name: phpmyadmin
     state: latest
-    default_release: bullseye-backports
   notify: Restart apache2
 
 - name: set /usr/share/phpmyadmin permissions

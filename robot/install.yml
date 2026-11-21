@@ -2,7 +2,10 @@
 
 - name: "install Playbook"
   hosts: localhost
-  gather_facts: no
+  # Only the minimal facts: distribution_release gives the Debian release for the apt repositories
+  gather_facts: yes
+  gather_subset:
+    - min
   # Replay this playbook to update the server (it is idempotent).
   # Partial run, e.g. the web interface only: ansible-playbook install.yml --tags interface
   # Tags: system, jail, dns, tls, web, phpmyadmin, interface, sftp, mail

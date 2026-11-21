@@ -1,5 +1,7 @@
 ---
 # Run the pre-commit hooks (defined in .pre-commit-config.yaml): yaml lint, php lint, PSR2 coding style...
+# and the checks of the interface (Composer dependencies, database migrations).
+# All the jobs run on Debian trixie, like the server.
 name: pre-commit
 
 on:
@@ -18,34 +20,26 @@ permissions:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+    container: debian:trixie
+    defaults:
+      run:
+        # bash -eo pipefail (the default sh of the container has no pipefail)
+        shell: bash
     steps:
+      # git before the checkout: without it, actions/checkout gets the files without .git (needed by pre-commit)
+      - name: Install git
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git
+
       - uses: actions/checkout@v5
 
-      # PHP version used by the interface, with phpcs for the php-cs hook
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          coverage: none
-          tools: phpcs
-
-      # twig-cs-fixer for the twig-cs-fixer hook
-      - name: Install twig-cs-fixer
-        env:
-          TWIG_CS_FIXER_VERSION: 4.1.2
-        run: |
-          sudo curl -sSfL -o /usr/local/bin/twig-cs-fixer \
-            "https://github.com/VincentLanglet/Twig-CS-Fixer/releases/download/${TWIG_CS_FIXER_VERSION}/twig-cs-fixer.phar"
-          sudo chmod +x /usr/local/bin/twig-cs-fixer
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - run: python -m pip install pre-commit
+      # PHP 8.2 (php hooks), phpcs and twig-cs-fixer, pre-commit
+      - name: Install the tools
+        run: .github/scripts/setup-debian.sh pre-commit
 
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit/
-          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: pre-commit-trixie-${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Run pre-commit hooks
         env:
@@ -53,20 +47,36 @@ jobs:
           SKIP: no-commit-to-branch
         run: pre-commit run --show-diff-on-failure --color=always --all-files
 
-  # Composer dependencies of the interface (twig, bootstrap, jquery)
-  composer:
+  # Composer dependencies (twig, bootstrap, jquery, phinx) and Phinx migrations of the interface
+  interface:
     runs-on: ubuntu-latest
+    container: debian:trixie
+    services:
+      # MariaDB of Debian trixie
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      # Used by interface/phinx.php instead of config.php
+      AUTOWEB_DB_HOST: mariadb
+      AUTOWEB_DB_PASSWORD: autowebpw
     defaults:
       run:
+        shell: bash
         working-directory: interface
     steps:
+      - name: Install git
+        working-directory: /
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git
+
       - uses: actions/checkout@v5
 
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          coverage: none
-          tools: composer:v2
+      - name: Install the tools
+        run: ../.github/scripts/setup-debian.sh mariadb-client
 
       # --no-check-publish: the interface is not a published package (name, description, license)
       - name: Validate composer.json and composer.lock
@@ -83,3 +93,47 @@ jobs:
 
       - name: Check for security advisories
         run: composer audit --locked
+
+      # Same DB and user as robot/roles/install/tasks/autoweb.yml
+      - name: Create the autoweb DB
+        run: |
+          mariadb -h mariadb -uroot -proot -e "
+            CREATE DATABASE autoweb;
+            CREATE USER autoweb IDENTIFIED BY '${AUTOWEB_DB_PASSWORD}';
+            GRANT ALL ON autoweb.* TO autoweb WITH GRANT OPTION;"
+
+      - name: New install - migrations
+        run: vendor/bin/phinx migrate -c phinx.php -e production
+
+      - name: New install - a second run applies nothing, nothing is pending
+        run: |
+          vendor/bin/phinx migrate -c phinx.php -e production | tee migrate.log
+          ! grep -q ' migrated ' migrate.log
+          vendor/bin/phinx status -c phinx.php -e production
+
+      - name: New install - php_version is a VARCHAR
+        run: |
+          test "$(mariadb -h mariadb -uautoweb -p"$AUTOWEB_DB_PASSWORD" -N -e "
+            SELECT COLUMN_TYPE FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = 'autoweb' AND TABLE_NAME = 'autoweb_users' AND COLUMN_NAME = 'php_version'")" = "varchar(8)"
+
+      # Existing server: tables of 2024-05-14 (php_version ENUM) created by hand, no phinxlog
+      - name: Existing server - prepare the 2024-05-14 database
+        run: |
+          mariadb -h mariadb -uroot -proot -e "DROP DATABASE autoweb; CREATE DATABASE autoweb;"
+          vendor/bin/phinx migrate -c phinx.php -e production -t 20240514000000
+          mariadb -h mariadb -uroot -proot autoweb -e "
+            DROP TABLE phinxlog;
+            INSERT INTO autoweb_users VALUES ('user1', 'u', 'u', 'user1', 'pw', 'user1', 'pw',
+              'user1@example.com', 'user1.example.com', '8.3', '', 0, 1);"
+
+      # InitialSchema is recorded without changing anything (tables exist), PhpVersionVarchar is applied
+      - name: Existing server - baseline recorded, php_version becomes a VARCHAR, data are kept
+        run: |
+          vendor/bin/phinx migrate -c phinx.php -e production | tee migrate.log
+          test "$(grep -c ' migrated ' migrate.log)" = 2
+          vendor/bin/phinx status -c phinx.php -e production
+          test "$(mariadb -h mariadb -uautoweb -p"$AUTOWEB_DB_PASSWORD" autoweb -N -e "
+            SELECT CONCAT(php_version, ' ', COLUMN_TYPE) FROM autoweb_users, information_schema.COLUMNS
+            WHERE id = 'user1' AND TABLE_SCHEMA = 'autoweb' AND TABLE_NAME = 'autoweb_users'
+            AND COLUMN_NAME = 'php_version'")" = "8.3 varchar(8)"

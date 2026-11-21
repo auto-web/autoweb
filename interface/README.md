@@ -10,5 +10,11 @@
 - install dependencies:
     `$ ./composer.phar install`
 
+- create or update the database (MariaDB `autoweb` database and user, password in `config.php`):
+    `$ vendor/bin/phinx migrate -c phinx.php`
+
+- add a database change (then write `up()` and `down()` in the new file of `db/migrations/`):
+    `$ vendor/bin/phinx create MyChange -c phinx.php`
+
 - start dev server:
     `$ php -S localhost:8080`

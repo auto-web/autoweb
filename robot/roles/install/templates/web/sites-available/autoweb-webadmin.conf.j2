@@ -23,9 +23,13 @@
 	</Directory>
 
 	# Internal files are never served: code, templates, dependencies, robot, SQL and project files
-	<FilesMatch "^(composer\.(json|lock)|config\.php|.*\.(sql|md|twig)|\..*)$">
+	<FilesMatch "^(composer\.(json|lock)|config\.php|phinx\.php|.*\.(sql|md|twig)|\..*)$">
 		Require all denied
 	</FilesMatch>
+
+	<Directory /opt/autoweb/interface/db>
+		Require all denied
+	</Directory>
 
 	<Directory /opt/autoweb/interface/lib>
 		Require all denied

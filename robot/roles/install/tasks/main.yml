@@ -1,8 +1,9 @@
 ---
 
-- name: "change /opt/autoweb/data permission"
+# Configuration of the playbooks (data/config.yml) and arguments written by robot.php (data/args.json)
+- name: "change /opt/autoweb/robot/data permission"
   file:
-    path: "/opt/autoweb/data"
+    path: "/opt/autoweb/robot/data"
     state: directory
     owner: "root"
     group: "root"
