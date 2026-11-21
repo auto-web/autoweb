@@ -20,9 +20,31 @@
       - user.unix_username not in ['.', '..']
     fail_msg: "user.unix_username empty or invalid"
 
+# Before removing the home: ~/logs is a read-only bind mount (roles/create_user/tasks/logs.yml),
+# also removed from /etc/fstab
+- name: "Unmount {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+  ansible.posix.mount:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    state: absent
+  when:
+    - user.unix_username is defined
+    - user.unix_username | trim | length > 0
+    - user.unix_username != '.'
+    - user.unix_username != '..'
+
 - name: "remove {{ configs.chroot_path }}/home/{{ user.unix_username }}"
   file:
     path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}"
+    state: absent
+  when:
+    - user.unix_username is defined
+    - user.unix_username | trim | length > 0
+    - user.unix_username != '.'
+    - user.unix_username != '..'
+
+- name: "remove /var/log/apache2/autoweb/{{ user.unix_username }}"
+  file:
+    path: "/var/log/apache2/autoweb/{{ user.unix_username }}"
     state: absent
   when:
     - user.unix_username is defined

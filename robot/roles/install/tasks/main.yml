@@ -54,3 +54,8 @@
 - name: "import : sendmailwrapper"
   import_tasks: sendmailwrapper.yml
   tags: mail
+
+# One-time migration of the users logs (upgrade.md): "never" = only run with --tags migrate-user-logs
+- name: "import : migrate_user_logs"
+  import_tasks: migrate_user_logs.yml
+  tags: [never, migrate-user-logs]

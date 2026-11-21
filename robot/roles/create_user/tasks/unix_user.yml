@@ -56,14 +56,6 @@
     group: "{{ user.unix_username }}"
     mode: 0750
 
-- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
-  file:
-    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
-    state: directory
-    owner: "root"
-    group: "{{ user.unix_username }}"
-    mode: 0750
-
 - name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
   file:
     path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"

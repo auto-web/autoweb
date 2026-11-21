@@ -1,7 +1,10 @@
-{{ configs.chroot_path }}/home/*/logs/access.log {
+# Apache logs of the users (roles/create_user/tasks/logs.yml), shown read-only in their ~/logs
+/var/log/apache2/autoweb/*/access.log {
 	daily
 	missingok
 	rotate 14
+	# Also rotated when bigger, but only when logrotate runs (logrotate.timer: daily on Debian)
+	maxsize 100M
 	compress
 	delaycompress
 	notifempty
@@ -19,10 +22,12 @@
 	endscript
 }
 
-{{ configs.chroot_path }}/home/*/logs/error.log {
+/var/log/apache2/autoweb/*/error.log {
 	daily
 	missingok
 	rotate 14
+	# Also rotated when bigger, but only when logrotate runs (logrotate.timer: daily on Debian)
+	maxsize 100M
 	compress
 	delaycompress
 	notifempty

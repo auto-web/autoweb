@@ -3,7 +3,8 @@
 - name: "Setting template variables"
   set_fact:
     apache_docroot: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/www"
-    apache_logdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    # Outside of the home: see logs.yml
+    apache_logdir: "/var/log/apache2/autoweb/{{ user.unix_username }}"
     php_tmpdir: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
     php_advanced_enable: "{{ configs.php_advanced_enable }}"
     php_settings: "{{ configs.php_settings }}"
@@ -35,13 +36,9 @@
     group: "{{ user.unix_username }}"
     mode: 0750
 
-- name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
-  file:
-    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
-    state: directory
-    owner: "{{ user.unix_username }}"
-    group: "{{ user.unix_username }}"
-    mode: 0750
+# Static import: also run by install.yml --tags migrate-user-logs (include_role with apply tags)
+- name: "import : logs"
+  import_tasks: logs.yml
 
 - name: "Mkdir {{ configs.chroot_path }}/home/{{ user.unix_username }}/tmp"
   file:

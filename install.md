@@ -78,55 +78,19 @@ Le playbook installe et configure Apache, PHP 8.2 à 8.5, la jail, le DNS, les c
 - crée le premier admin s'il n'y en a aucun : login `admin_login`, e-mail `admin_email`, et le mot de passe passé en `-e admin_password=…`. Si le mot de passe manque, ou si le login ou l'e-mail sont invalides, l'installation s'arrête avec un message ;
 - installe les crons du robot (`robot.php` toutes les minutes, `quotas_update.php` toutes les 10 minutes).
 
+Les logs Apache de chaque site sont écrits dans `/var/log/apache2/autoweb/<login>/`, et l'utilisateur les voit en lecture seule dans `~/logs` (montage bind déclaré dans `/etc/fstab`). Il ne peut ni les supprimer ni les modifier, ce qui empêcherait Apache de redémarrer.
+
 L'interface d'administration est ensuite accessible sur `https://<domain_users>/admin.php`, avec `admin_login` et ce mot de passe. Les comptes utilisateurs se créent depuis l'interface : le robot lance les playbooks `create_user.yml` et suivants.
 
 ## Mise à jour
 
-Le playbook d'installation est idempotent : pour mettre à jour, on le rejoue.
-
-```bash
-cd /opt/autoweb
-git pull                                   # ou : git checkout <tag>
-cd robot
-/opt/ansible/bin/ansible-playbook install.yml --check --diff   # voir ce qui changerait
-/opt/ansible/bin/ansible-playbook install.yml
-```
-
-Le paramètre `admin_password` n'est nécessaire que tant qu'il n'existe aucun admin.
-
-Pour ne rejouer qu'une partie, on utilise `--tags`. Par exemple, après une modification de l'interface seule :
-
-```bash
-/opt/ansible/bin/ansible-playbook install.yml --tags interface
-```
-
-| Tag | Contenu |
-|---|---|
-| `system` | limites RAM/CPU, logrotate |
-| `jail` | jailkit (relance `jk_init` quand `jk_init.ini` change) |
-| `dns` | bind9 |
-| `tls` | certificats Let's Encrypt |
-| `web` | Apache, PHP (dépôt Sury), vhosts |
-| `phpmyadmin` | phpMyAdmin |
-| `interface` | interface web : Composer, config, base de données, premier admin, crons, vhost |
-| `sftp` | SFTP / pure-ftpd |
-| `mail` | sendmail-wrapper |
-
-Un tag ne gère pas les dépendances : `--tags interface` suppose par exemple que `web` (PHP 8.2) a déjà été appliqué.
+Voir [upgrade.md](upgrade.md) : mise à jour du serveur, passages partiels avec les tags, et opérations ponctuelles à faire après certaines mises à jour.
 
 ## Base de données
 
 Le schéma de la base `autoweb` est géré par [Phinx](https://phinx.org). Les migrations sont dans `interface/db/migrations/`, la configuration dans `interface/phinx.php`, et la table `phinxlog` garde la liste des migrations appliquées.
 
-À chaque passage d'`install.yml` (tag `interface`), Ansible vérifie s'il y a des migrations en attente. Si oui, il sauvegarde la base dans `/var/backups/autoweb/autoweb-<date>.sql`, puis applique les migrations. Sinon, il ne change rien.
-
-Sur un serveur installé avant Phinx, le premier passage enregistre le schéma existant comme point de départ, sans le modifier, puis applique les migrations suivantes.
-
-En cas de problème après une migration, on restaure la sauvegarde :
-
-```bash
-mariadb autoweb < /var/backups/autoweb/autoweb-<date>.sql
-```
+Les migrations sont appliquées automatiquement à chaque passage d'`install.yml`, avec une sauvegarde préalable (voir [upgrade.md](upgrade.md)).
 
 ### Ajouter une migration
 

@@ -1,0 +1,66 @@
+---
+# Apache logs of the user, outside of the user's home.
+
+# 0711: traversable, but the users cannot list each other
+- name: "Mkdir /var/log/apache2/autoweb"
+  file:
+    path: "/var/log/apache2/autoweb"
+    state: directory
+    owner: root
+    group: root
+    mode: 0711
+
+- name: "Mkdir /var/log/apache2/autoweb/{{ user.unix_username }}"
+  file:
+    path: "/var/log/apache2/autoweb/{{ user.unix_username }}"
+    state: directory
+    owner: root
+    group: "{{ user.unix_username }}"
+    mode: 0750
+
+- name: "Check {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+  stat:
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    follow: false
+  register: user_logs
+
+- name: "Check if {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs is mounted"
+  command:
+    cmd: "mountpoint -q {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+  register: user_logs_mounted
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  when: user_logs.stat.isdir | default(false)
+
+- name: "Check if {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs is empty"
+  find:
+    paths: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    file_type: any
+    hidden: true
+  register: user_logs_content
+  when: user_logs.stat.isdir | default(false)
+
+# Mounted only on a missing or empty real directory (never on a symlink: root would mount where the user wants).
+# An old ~/logs (files, symlink) is moved away by: ansible-playbook install.yml --tags migrate-user-logs
+- name: "Set mount condition for {{ user.unix_username }} logs"
+  set_fact:
+    user_logs_can_mount: >-
+      {{ not user_logs.stat.exists
+         or (user_logs.stat.isdir and (user_logs_mounted.rc == 0 or user_logs_content.matched == 0)) }}
+
+- name: "Mount /var/log/apache2/autoweb/{{ user.unix_username }} read-only on ~/logs"
+  ansible.posix.mount:
+    src: "/var/log/apache2/autoweb/{{ user.unix_username }}"
+    path: "{{ configs.chroot_path }}/home/{{ user.unix_username }}/logs"
+    fstype: none
+    opts: bind,ro
+    state: mounted
+  when: user_logs_can_mount | bool
+
+- name: "Old ~/logs of {{ user.unix_username }} not migrated"
+  debug:
+    msg: >-
+      {{ configs.chroot_path }}/home/{{ user.unix_username }}/logs is an old logs directory: the new logs are
+      not shown to the user until: ansible-playbook install.yml --tags migrate-user-logs
+  when: not (user_logs_can_mount | bool)
