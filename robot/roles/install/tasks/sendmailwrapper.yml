@@ -12,6 +12,7 @@
     cmd: "git clone https://github.com/onlime/sendmail-wrapper.git sendmail-wrapper"
     chdir: "/opt"
     creates: "/opt/sendmail-wrapper"
+  notify: Install sendmail-wrapper
 
 - name: "create sendmail user"
   user:
@@ -26,16 +27,12 @@
     line: "PHP_AUTO_PREPEND=/var/www/sendmail-wrapper/prepend.php"
     regexp: '^PHP_AUTO_PREPEND='
     state: present
+  notify: Install sendmail-wrapper
 
 - name: "Mkdir /var/www/sendmail-wrapper/"
   file:
     path: "/var/www/sendmail-wrapper/"
     state: directory
-
-- name: "Install sendmail-wrapper"
-  command:
-    cmd: "./install.sh"
-    chdir: "/opt/sendmail-wrapper"
 
 - name: "add www-data and %sendmailwrapper to sudoers"
   lineinfile:
@@ -47,7 +44,17 @@
     - "www-data"
     - "%sendmailwrapper"
 
+- name: "Create mysql sendmailwrapper DB"
+  mysql_db:
+    name: "sendmailwrapper"
+    state: present
+    login_user: "{{ configs.ansible_mysql_login }}"
+    login_password: "{{ configs.ansible_mysql_password }}"
+  register: sendmailwrapper_db
+
+# Only when the DB has just been created: the schema starts with DROP TABLE (throttle, messages)
 - name: add schema.mysql.sql
+  when: sendmailwrapper_db.changed
   mysql_db:
     name: all
     state: import
@@ -70,8 +77,10 @@
   template:
     src: "templates/sendmailwrapper/config.local.ini.j2"
     dest: "/opt/sendmail-wrapper/config.local.ini"
+  notify: Install sendmail-wrapper
 
 - name: "Copy config.private.ini"
   template:
     src: "templates/sendmailwrapper/config.private.ini.j2"
     dest: "/opt/sendmail-wrapper/config.private.ini"
+  notify: Install sendmail-wrapper

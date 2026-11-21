@@ -29,6 +29,7 @@
 - name: "Install PHP versions"
   apt:
     update_cache: yes
+    cache_valid_time: 3600
     name:
       - "php{{ item }}"
       - "php{{ item }}-cgi"

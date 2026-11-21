@@ -14,6 +14,7 @@
   shell:
     cmd: "grep 'secret' /etc/bind/letsencrypt_wildcard.key | awk -F'\"' '{print $2}'"
   register: letsencrypt_wildcard_key
+  changed_when: false
 
 - name: "Mkdir /etc/letsencrypt/secrets"
   file:

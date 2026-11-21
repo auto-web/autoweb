@@ -54,6 +54,7 @@
     owner: root
     group: root
     mode: '0644'
+  register: jk_init_ini
 
 - name: "Jailkit mkdir {{ configs.chroot_path }}"
   file:
@@ -63,10 +64,18 @@
     group: root
     mode: '0755'
 
+- name: "Check if the jail is initialized"
+  stat:
+    path: "{{ configs.chroot_path }}/bin"
+  register: jail_bin
+
+# On the first install, and each time jk_init.ini changes (new PHP versions, paths...):
+# jk_update (autoweb_refresh_jail) only updates the files already in the jail
 - name: "Jailkit jk_init -j {{ configs.chroot_path }}/ autoweb"
   command:
     cmd: "jk_init -j {{ configs.chroot_path }}/ autoweb"
-    creates: "{{ configs.chroot_path }}/bin"
+  when: jk_init_ini.changed or not jail_bin.stat.exists
+  notify: Refresh jail
 
 - name: "Copy autoweb_refresh_jail"
   template:

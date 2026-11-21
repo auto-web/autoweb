@@ -1,0 +1,15 @@
+---
+# Weekly updates of the dependencies (https://docs.github.com/code-security/dependabot)
+version: 2
+updates:
+  # twig, bootstrap and jquery of the interface
+  - package-ecosystem: composer
+    directory: /interface
+    schedule:
+      interval: weekly
+
+  # Actions of .github/workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

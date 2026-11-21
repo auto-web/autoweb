@@ -52,3 +52,34 @@ jobs:
           # no-commit-to-branch makes no sense in the CI (it would fail on push to master)
           SKIP: no-commit-to-branch
         run: pre-commit run --show-diff-on-failure --color=always --all-files
+
+  # Composer dependencies of the interface (twig, bootstrap, jquery)
+  composer:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: interface
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+          tools: composer:v2
+
+      # --no-check-publish: the interface is not a published package (name, description, license)
+      - name: Validate composer.json and composer.lock
+        run: composer validate --no-check-publish
+
+      - name: Install the locked dependencies
+        run: composer install --no-dev --no-plugins --no-scripts --no-progress
+
+      - name: Check that the front-end files served by Apache exist
+        run: >-
+          ls vendor/twbs/bootstrap/dist/css/bootstrap.min.css
+          vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js
+          vendor/components/jquery/jquery.min.js
+
+      - name: Check for security advisories
+        run: composer audit --locked

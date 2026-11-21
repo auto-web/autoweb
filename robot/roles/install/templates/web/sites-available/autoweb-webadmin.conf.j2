@@ -22,6 +22,39 @@
 
 	</Directory>
 
+	# Internal files are never served: code, templates, dependencies, robot, SQL and project files
+	<FilesMatch "^(composer\.(json|lock)|config\.php|.*\.(sql|md|twig)|\..*)$">
+		Require all denied
+	</FilesMatch>
+
+	<Directory /opt/autoweb/interface/lib>
+		Require all denied
+	</Directory>
+
+	<Directory /opt/autoweb/interface/robot>
+		Require all denied
+	</Directory>
+
+	<Directory /opt/autoweb/interface/templates>
+		Require all denied
+	</Directory>
+
+	<Directory /opt/autoweb/interface/vendor>
+		Require all denied
+	</Directory>
+
+	# Front-end libraries installed by Composer: only their dist files are served
+	# (a <Directory> with a longer path is merged last, so it reopens access)
+	Alias /assets/bootstrap /opt/autoweb/interface/vendor/twbs/bootstrap/dist
+	<Directory /opt/autoweb/interface/vendor/twbs/bootstrap/dist>
+		Require all granted
+	</Directory>
+
+	Alias /assets/jquery /opt/autoweb/interface/vendor/components/jquery
+	<Directory /opt/autoweb/interface/vendor/components/jquery>
+		Require all granted
+	</Directory>
+
 	<IfModule mod_fcgid.c>
 		SuexecUserGroup autoweb_webadmin autoweb_webadmin
 		IPCCommTimeout  7200

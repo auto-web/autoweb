@@ -3,13 +3,17 @@
 - name: "install Playbook"
   hosts: localhost
   gather_facts: no
-  tasks:
+  # Replay this playbook to update the server (it is idempotent).
+  # Partial run, e.g. the web interface only: ansible-playbook install.yml --tags interface
+  # Tags: system, jail, dns, tls, web, phpmyadmin, interface, sftp, mail
+  pre_tasks:
 
+    # Always loaded, even with --tags, as all the tasks use it
     - name: "load configs"
       include_vars:
         file: data/config.yml
         name: configs
+      tags: always
 
-    - name: "include role install"
-      include_role:
-        name: install
+  roles:
+    - install

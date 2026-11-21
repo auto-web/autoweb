@@ -9,14 +9,11 @@
 # The same hooks are run by the CI (.github/workflows/pre-commit.yml).
 # PHP hooks need "php" (8.2) and "phpcs" in the PATH.
 
-# Third party files (minified libs, composer dependencies) and SQL files are not checked
+# Composer dependencies and SQL files are not checked
 exclude: |
   (?x)^(
     interface/vendor/.*
     |.*\.sql
-    |interface/js/jquery-.*\.min\.js
-    |interface/js/bootstrap\.js
-    |interface/css/bootstrap\.css
   )$
 
 repos:

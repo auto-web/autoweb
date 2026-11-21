@@ -11,6 +11,8 @@
     src: "templates/web/sites-available/autoweb-webadmin.conf.j2"
     dest: "/etc/apache2/sites-available/autoweb-webadmin.conf"
   notify: Restart apache2
+  # Also deployed with --tags interface (Alias of the Composer front-end libraries)
+  tags: interface
 
 - name: "Copy phpmyadmin.conf"
   template:

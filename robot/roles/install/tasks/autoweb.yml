@@ -16,17 +16,22 @@
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
 
+- name: "Use PHP 8.2 as the default php command line"
+  community.general.alternatives:
+    name: php
+    path: /usr/bin/php8.2
+
 - name: "Create cron job for autoweb robot"
   ansible.builtin.cron:
     name: "autoweb main robot"
     minute: "*"
-    job: "php /opt/autoweb/interface/robot/robot.php"
+    job: "/usr/bin/php8.2 /opt/autoweb/interface/robot/robot.php"
 
 - name: "Create cron job for autoweb quotas"
   ansible.builtin.cron:
     name: "autoweb quota robot"
     minute: "*/10"
-    job: "php /opt/autoweb/interface/robot/quotas_update.php"
+    job: "/usr/bin/php8.2 /opt/autoweb/interface/robot/quotas_update.php"
 
 - name: add PATH to crontab
   ansible.builtin.cron:
@@ -65,16 +70,28 @@
     group: "autoweb_webadmin"
     mode: 0550
 
+# Composer is pinned and checked (the Debian package would pull its own PHP version)
 - name: "Install composer"
-  apt:
-    name: composer
-    state: present
+  get_url:
+    url: "https://getcomposer.org/download/2.11.2/composer.phar"
+    checksum: "sha256:dd158c0afd41d15fac89e1b4e47b5d42911fe316c3687cd5edac98319b25d028"
+    dest: "/usr/local/bin/composer"
+    owner: root
+    group: root
+    mode: 0755
 
+# Runs on each play: installs exactly the versions of composer.lock (twig, bootstrap, jquery)
 - name: "Install autoweb dependencies (with composer)"
-  command: "composer install --no-plugins --no-scripts"
-  args:
-    chdir: "/opt/autoweb/interface/"
-    creates: "/opt/autoweb/interface/vendor"
+  community.general.composer:
+    command: install
+    working_dir: "/opt/autoweb/interface"
+    no_dev: true
+    optimize_autoloader: true
+    arguments: "--no-plugins --no-scripts"
+    executable: /usr/bin/php8.2
+    composer_executable: /usr/local/bin/composer
+  environment:
+    COMPOSER_ALLOW_SUPERUSER: "1"
 
 - name: "create autoweb config"
   copy:

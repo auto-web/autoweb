@@ -1,5 +1,12 @@
 ---
 
+# Sets the owners and permissions of the configs (config.private.ini: 440 root:sendmailwrapper),
+# so it runs after the configs are copied, and before Restart apache2 (prepend.php)
+- name: "Install sendmail-wrapper"
+  command:
+    cmd: "./install.sh"
+    chdir: "/opt/sendmail-wrapper"
+
 - name: "Restart apache2"
   service:
     name: apache2
@@ -19,6 +26,10 @@
   service:
     name: pure-ftpd
     state: restarted
+
+# Rebuilds the users of the jail (etc/passwd, etc/group) after jk_init, then jk_update
+- name: "Refresh jail"
+  command: /usr/local/sbin/autoweb_refresh_jail
 
 - name: "Restart bind9"
   service:
