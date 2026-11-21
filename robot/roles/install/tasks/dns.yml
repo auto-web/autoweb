@@ -65,10 +65,35 @@
     path: "/etc/bind/zones.autoweb/master"
     state: touch
 
+# TSIG key used by certbot (letsencrypt.yml) to update the _acme-challenge records
+- name: "Read HMAC key for Bind9"
+  slurp:
+    src: /etc/bind/letsencrypt_wildcard.key
+  register: bind_letsencrypt_key
+  failed_when: false
+
+# Generated when missing or without secret (a failed "tsig-keygen > file" used to leave an empty file).
+# Through a temporary file: the key file is only replaced by a valid key.
 - name: "Generate HMAC key for Bind9"
   shell:
-    cmd: "tsig-keygen -a HMAC-SHA512 letsencrypt_wildcard > /etc/bind/letsencrypt_wildcard.key"
-    creates: /etc/bind/letsencrypt_wildcard.key
+    cmd: |
+      set -e
+      umask 077
+      tsig-keygen -a hmac-sha512 letsencrypt_wildcard > /etc/bind/letsencrypt_wildcard.key.tmp
+      grep -q 'secret "' /etc/bind/letsencrypt_wildcard.key.tmp
+      mv /etc/bind/letsencrypt_wildcard.key.tmp /etc/bind/letsencrypt_wildcard.key
+  when: >-
+    bind_letsencrypt_key.content is not defined
+    or (bind_letsencrypt_key.content | b64decode) is not search('secret "[^"]+"')
+  notify: Restart bind9
+
+# Readable by named (user bind), not by everyone
+- name: "Set HMAC key for Bind9 permissions"
+  file:
+    path: /etc/bind/letsencrypt_wildcard.key
+    owner: root
+    group: bind
+    mode: 0640
   notify: Restart bind9
 
 - name: "Start service bind9"
