@@ -14,9 +14,17 @@
     creates: "/opt/sendmail-wrapper"
   notify: Install sendmail-wrapper
 
+# Group created explicitly (see the autoweb_webadmin user in autoweb.yml)
+- name: "create sendmailwrapper group"
+  group:
+    name: "sendmailwrapper"
+    system: yes
+    state: present
+
 - name: "create sendmail user"
   user:
     name: "sendmailwrapper"
+    group: "sendmailwrapper"
     system: yes
     create_home: no
     state: present

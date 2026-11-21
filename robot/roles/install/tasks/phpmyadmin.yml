@@ -1,6 +1,14 @@
+# Group created explicitly (see the autoweb_webadmin user in autoweb.yml)
+- name: "create phpmyadmin group"
+  group:
+    name: "phpmyadmin"
+    system: yes
+    state: present
+
 - name: "create phpmyadmin user"
   user:
     name: "phpmyadmin"
+    group: "phpmyadmin"
     system: yes
     create_home: no
     state: present
