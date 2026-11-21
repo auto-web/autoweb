@@ -18,7 +18,7 @@ while IFS='|' read -r expected description args; do
     count=$((count + 1))
 
     # "fail" only when refused by the validation itself (not by a broken case or playbook)
-    if output=$("$PLAYBOOK" "$DIR/validate_args.yml" -e "{\"args\": $args}" 2>&1); then
+    if output=$("$PLAYBOOK" "$DIR/validate_args.yml" -e "{\"robot_args\": $args}" 2>&1); then
         result=ok
     elif echo "$output" | grep -q 'Invalid account in data/args.json'; then
         result=fail

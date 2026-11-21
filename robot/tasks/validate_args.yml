@@ -25,6 +25,6 @@
       - item.last_name is not defined or (item.last_name | string) is not search('[:\n\r]')
     fail_msg: "Invalid account in data/args.json: {{ item.unix_username | default(item.mysql_username | default('?')) }}"
     quiet: true
-  loop: "{{ (args.users | default([])) + (args.admins | default([])) }}"
+  loop: "{{ (robot_args.users | default([])) + (robot_args.admins | default([])) }}"
   loop_control:
     label: "{{ item.unix_username | default(item.mysql_username | default('?')) }}"

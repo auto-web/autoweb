@@ -12,7 +12,7 @@
     - name: "load args"
       include_vars:
         file: "data/args.json"
-        name: args
+        name: robot_args
 
     - name: "validate args"
       include_tasks: tasks/validate_args.yml
@@ -22,6 +22,6 @@
         name: grant_admin
       vars:
         admin: "{{ item }}"
-        users: "{{ args.users }}"
+        users: "{{ robot_args.users }}"
       with_items:
-        - "{{ args.admins }}"
+        - "{{ robot_args.admins }}"

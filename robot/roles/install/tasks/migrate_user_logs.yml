@@ -17,7 +17,7 @@
 - name: "Validate the autoweb users"
   include_tasks: "{{ playbook_dir }}/tasks/validate_args.yml"
   vars:
-    args:
+    robot_args:
       users: "{{ migrate_users.query_result[0] }}"
 
 - name: "Check the users homes"

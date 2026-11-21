@@ -1,5 +1,5 @@
 ---
-# Test of tasks/validate_args.yml, run by tests/validate_args.sh with: -e '{"args": <case>}'
+# Test of tasks/validate_args.yml, run by tests/validate_args.sh with: -e '{"robot_args": <case>}'
 
 - name: "validate_args test"
   hosts: localhost
