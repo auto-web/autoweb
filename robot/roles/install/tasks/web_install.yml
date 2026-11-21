@@ -16,24 +16,33 @@
       - ftpcopy
     state: present
 
+# Signing key of the Sury repositories (/usr/share/keyrings/debsuryorg-archive-keyring.gpg)
+- name: "Install PHP repo. key"
+  apt:
+    deb: "https://packages.sury.org/debsuryorg-archive-keyring.deb"
+  register: php_repo_key
+
+# Former key, trusted for all the repositories: replaced by the signed-by keyring above
+- name: "Remove former PHP repo. key"
+  file:
+    path: "/etc/apt/trusted.gpg.d/php.gpg"
+    state: absent
+  register: php_repo_old_key
+
 # Same Debian release as the server (ansible_facts.distribution_release), e.g. trixie
 - name: "Add PHP repo. source"
   copy:
     dest: "/etc/apt/sources.list.d/php.list"
-    content: "deb https://packages.sury.org/php/ {{ ansible_facts.distribution_release }} main"
+    content: >
+      deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg]
+      https://packages.sury.org/php/ {{ ansible_facts.distribution_release }} main
   register: php_repo_source
-
-- name: "Add PHP repo. key"
-  get_url:
-    url: "https://packages.sury.org/php/apt.gpg"
-    dest: "/etc/apt/trusted.gpg.d/php.gpg"
-  register: php_repo_key
 
 # cache_valid_time below would skip the update right after the repository is added or changed
 - name: "Update apt cache for the PHP repo."
   apt:
     update_cache: yes
-  when: php_repo_source.changed or php_repo_key.changed
+  when: php_repo_source.changed or php_repo_key.changed or php_repo_old_key.changed
 
 - name: "Install PHP versions"
   apt:

@@ -19,8 +19,10 @@ apt-get update
 apt-get install -y --no-install-recommends ca-certificates curl git unzip
 
 # PHP of the interface, from the same repository as the server
-curl -sSfL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-echo "deb https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list
+curl -sSfL -o /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+dpkg -i /tmp/debsuryorg-archive-keyring.deb
+echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ ${VERSION_CODENAME} main" \
+    > /etc/apt/sources.list.d/php.list
 apt-get update
 apt-get install -y --no-install-recommends "php${PHP_VERSION}-cli" "php${PHP_VERSION}-mysql" \
     "php${PHP_VERSION}-mbstring" "php${PHP_VERSION}-xml" "php${PHP_VERSION}-zip" "$@"
