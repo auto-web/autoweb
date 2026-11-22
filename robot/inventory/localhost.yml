@@ -1,0 +1,11 @@
+---
+
+# The playbooks always run on the AutoWeb server itself (hosts: localhost), without SSH.
+# Used by default from robot/ (ansible.cfg) and by interface/robot/robot.php (-i).
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+      # Python of the Ansible venv (/opt/ansible), as the implicit localhost: it has PyMySQL for
+      # ansible.mysql, the system python3 has not
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
