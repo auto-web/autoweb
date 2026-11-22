@@ -31,11 +31,13 @@
       # Logins: lowercase letters and digits only (no "/", "..", spaces...)
       - item.unix_username is not defined or item.unix_username is match('^[a-z0-9]{1,32}$')
       - item.mysql_username is not defined or item.mysql_username is match('^[a-z0-9]{1,32}$')
-      # Existing unix user: only an AutoWeb account (jailed shell, UID >= 1000, not in the sudo group),
-      # as for a repair or a reactivation; never root, a system user or an admin of the server
+      # Existing unix user: only an AutoWeb account, as for a repair, a reactivation or a removal: home in the
+      # jail as made by roles/create_user, jailed shell (or /bin/false once disabled by roles/disable_user),
+      # UID >= 1000, not in the sudo group. Never root, a system user or an admin of the server.
       - >-
         item.unix_username is not defined or item.unix_username not in getent_passwd
-        or (getent_passwd[item.unix_username][5] == '/usr/sbin/jk_chrootsh'
+        or (getent_passwd[item.unix_username][4] == configs.chroot_path ~ '/./home/' ~ item.unix_username
+            and getent_passwd[item.unix_username][5] in ['/usr/sbin/jk_chrootsh', '/bin/false']
             and (getent_passwd[item.unix_username][1] | int) >= 1000
             and item.unix_username not in sudoers)
       - item.mysql_username is not defined or item.mysql_username not in reserved_mysql_names

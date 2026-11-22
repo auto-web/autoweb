@@ -33,6 +33,9 @@ fail | mysql_username of the interface        | {"users":[{"mysql_username":"aut
 fail | database mysql                         | {"users":[{"unix_username":"mysql2","mysql_username":"mysql"}]}
 fail | mysql_username of phpMyAdmin           | {"users":[{"mysql_username":"phpmyadmin"}]}
 fail | admin mysql_username root              | {"users":[],"admins":[{"mysql_username":"root"}]}
-ok@cijailed   | existing AutoWeb account (repair)      | {"users":[{"unix_username":"cijailed","mysql_username":"cijailed"}]}
-fail@cishell  | existing user with a normal shell      | {"users":[{"unix_username":"cishell"}]}
-fail@cisudoer | jailed account in the sudo group       | {"users":[{"unix_username":"cisudoer"}]}
+ok@cijailed     | existing AutoWeb account (repair)      | {"users":[{"unix_username":"cijailed","mysql_username":"cijailed"}]}
+ok@cidisabled   | disabled AutoWeb account (reactivate)  | {"users":[{"unix_username":"cidisabled","mysql_username":"cidisabled"}]}
+fail@cishell    | existing user with a normal shell      | {"users":[{"unix_username":"cishell"}]}
+fail@cisudoer   | jailed account in the sudo group       | {"users":[{"unix_username":"cisudoer"}]}
+fail@cinologin  | /bin/false account outside the jail    | {"users":[{"unix_username":"cinologin"}]}
+fail@cijailhome | jailed shell, home outside the jail    | {"users":[{"unix_username":"cijailhome"}]}

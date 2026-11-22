@@ -73,13 +73,18 @@ jobs:
               /opt/ansible/bin/ansible-playbook --syntax-check "$playbook"
           done
 
-      # Users of the "<ok|fail>@<user>" cases of tests/validate_args.cases (in this container only):
-      # an AutoWeb account, a user with a normal shell, and a jailed account in the sudo group
+      # Users of the "<ok|fail>@<user>" cases of tests/validate_args.cases (in this container only), homes
+      # as made by roles/create_user (chroot_path of tests/validate_args.yml): an AutoWeb account, a disabled
+      # one, a user with a normal shell, a jailed account in the sudo group, a /bin/false account outside
+      # the jail, and a jailed shell with a home outside the jail
       - name: Create the system users of the test cases
         run: |
-          useradd --uid 2001 --shell /usr/sbin/jk_chrootsh cijailed
+          useradd --uid 2001 --shell /usr/sbin/jk_chrootsh --home-dir /data/chroot/./home/cijailed cijailed
+          useradd --uid 2004 --shell /bin/false --home-dir /data/chroot/./home/cidisabled cidisabled
           useradd --uid 2002 --shell /bin/bash cishell
-          useradd --uid 2003 --shell /usr/sbin/jk_chrootsh --groups sudo cisudoer
+          useradd --uid 2003 --shell /usr/sbin/jk_chrootsh --home-dir /data/chroot/./home/cisudoer --groups sudo cisudoer
+          useradd --uid 2005 --shell /bin/false cinologin
+          useradd --uid 2006 --shell /usr/sbin/jk_chrootsh cijailhome
 
       # Valid accounts must pass, malicious values ("../", ";", ":", newlines, root, system users...)
       # must be refused

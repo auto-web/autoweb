@@ -8,6 +8,7 @@
     configs:
       domain_users: "autoweb.example.org"
       ansible_mysql_login: "ansible"
+      chroot_path: "/data/chroot"
   tasks:
     - name: "validate args"
       include_tasks: ../tasks/validate_args.yml
