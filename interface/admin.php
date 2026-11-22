@@ -77,14 +77,13 @@ require_once 'lib/ServerStats.class.php';
 $stats = new ServerStats();
 $server_stats = $stats->getAllStats();
 
-$active_users = User::getUsers(['is_active' => true]);
-$inactive_users = User::getUsers(['is_active' => false]);
+// Active and inactive accounts: filtered, sorted and displayed by js/main.js (autoweb.usersTable)
+$users = User::getAllUsers();
 
 echo $twig->render('admin/index.twig', [
     'domain_name' => Config::getValue('domain_name'),
     'server_stats' => $server_stats,
-    'active_users' => $active_users,
-    'inactive_users' => $inactive_users,
+    'users' => $users,
     'messages' => $messages,
     'is_admin' => $is_admin]
 );

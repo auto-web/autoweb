@@ -30,7 +30,7 @@
 
 <div class="row mt-4">
     <div class="col-sm-6">
-        <h3 class="m-2">Utilisateurs actifs</h3>
+        <h3 class="m-2">Utilisateurs</h3>
     </div>
     <div class="col-sm-6">
         <a href="newuser.php" class="btn btn-primary float-end m-2">Créer un compte</a>
@@ -38,62 +38,105 @@
         <form action="#" method="post"><input type="hidden" name="action" value="repare_all"><input class="btn btn-primary float-end m-2" type="submit" value="Réparer tous les comptes"></form>
     </div>
 </div>
-<table class="table admin-users-table">
+
+{# Filters, sort and columns: done in the browser by autoweb.usersTable (js/main.js) #}
+<div class="users-toolbar row g-2 align-items-center m-1">
+    <div class="col-md-4">
+        <input type="search" class="form-control" id="users-search" placeholder="Rechercher (nom, e-mail, login, description...)" aria-label="Rechercher">
+    </div>
+    <div class="col-auto">
+        <select class="form-select" id="users-status" aria-label="Statut">
+            <option value="active" selected>Actifs</option>
+            <option value="inactive">Inactifs</option>
+            <option value="">Tous les statuts</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select class="form-select" id="users-php" aria-label="Version PHP">
+            <option value="" selected>Toutes les versions PHP</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="users-quota-exceeded">
+            <label class="form-check-label" for="users-quota-exceeded">Quota dépassé</label>
+        </div>
+    </div>
+    <div class="col-auto">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                Colonnes
+            </button>
+            <ul class="dropdown-menu" id="users-columns"></ul>
+        </div>
+    </div>
+    <div class="col-auto ms-auto">
+        <span class="text-muted" id="users-count"></span>
+    </div>
+</div>
+
+{# Horizontal scroll when the shown columns are wider than the page #}
+<div class="table-responsive">
+<table class="table admin-users-table" id="users-table">
     <thead>
         <tr>
-            <th class="first-name">Prénom</th>
-            <th class="last-name">Nom</th>
-            <th class="description">Description</th>
-            <th class="email">Email</th>
-            <th class="username">Login</th>
-            <th class="password">Mot de passe</th>
-            <th class="alerts"></th>
+            {# data-col: column key (shown/hidden), data-sort: sort type (text or number) #}
+            <th data-col="first-name" data-sort="text">Prénom</th>
+            <th data-col="last-name" data-sort="text">Nom</th>
+            <th data-col="description" data-sort="text">Description</th>
+            <th data-col="email" data-sort="text">Email</th>
+            <th data-col="username" data-sort="text">Login</th>
+            <th data-col="password">Mot de passe</th>
+            <th data-col="php" data-sort="number">PHP</th>
+            <th data-col="quota" data-sort="number">Quota</th>
+            <th data-col="status" data-sort="text">Statut</th>
             <th class="button-edit">Modifier</th>
             <th class="button-fix">Réparer</th>
             <th class="button-disable">Désactiver</th>
         </tr>
     </thead>
     <tbody>
-    {% for user in active_users %}
-        <tr>
-            <td class="first-name">{{ user.first_name }}</td>
-            <td class="last-name">{{ user.last_name }}</td>
-            <td class="description">{{ user.description }}</td>
-            <td class="email">{{ user.email }}</td>
-            <td class="username"><a href="//{{ user.domain_name }}">{{ user.unix_username }}</a></td>
-            <td class="password"><span class="hidden-password">{{ user.unix_password }}</span><span class="placeholder-password">**********</span></td>
-            <td class="alerts">{% if user.quota.quota_used > user.quota.quota_limit %}&#x26A0;{% endif %}</td>
-            <td class="button-edit"><a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
-            <td class="button-fix"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="repare"><input class="btn btn-primary" type="submit" value="Réparer"></form></td>
-            <td class="button-disable"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="deactivate"><input class="btn btn-primary" type="submit" value="Désactiver"></form></td>
+    {% for user in users %}
+        {% set quota_exceeded = user.quota.quota_limit is not null and user.quota.quota_used > user.quota.quota_limit %}
+        <tr data-status="{{ user.is_active ? 'active' : 'inactive' }}"
+            data-php="{{ user.php_version }}"
+            data-quota-exceeded="{{ quota_exceeded ? '1' : '0' }}">
+            <td data-col="first-name">{{ user.first_name }}</td>
+            <td data-col="last-name">{{ user.last_name }}</td>
+            <td data-col="description">{{ user.description }}</td>
+            <td data-col="email">{{ user.email }}</td>
+            <td data-col="username"><a href="//{{ user.domain_name }}">{{ user.unix_username }}</a></td>
+            <td data-col="password"><span class="hidden-password">{{ user.unix_password }}</span><span class="placeholder-password">**********</span></td>
+            <td data-col="php">{{ user.php_version }}</td>
+            {# Bar: green, red from 90 % of the quota, and alert icon when exceeded; data-value: sort value (percentage used, -1 without quota) #}
+            {% set quota_used = user.quota.quota_used ?? 0 %}
+            {% set quota_percent = user.quota.quota_limit > 0 ? quota_used * 100 / user.quota.quota_limit : 100 %}
+            <td data-col="quota" data-value="{{ user.quota.quota_limit is not null ? quota_percent|round(1) : -1 }}">
+                {% if user.quota.quota_limit is not null %}
+                    <div class="d-flex align-items-center gap-1">
+                        <div class="progress quota-bar flex-grow-1" role="progressbar" aria-label="Quota" aria-valuemin="0" aria-valuemax="{{ user.quota.quota_limit }}" aria-valuenow="{{ quota_used }}" title="{{ quota_used }} / {{ user.quota.quota_limit }} Mo ({{ quota_percent|round }} %)">
+                            <div class="progress-bar {{ quota_percent >= 90 ? 'bg-danger' : 'bg-success' }}" style="width: {{ min(quota_percent, 100)|round }}%"></div>
+                        </div>
+                        {% if quota_exceeded %}<span title="Quota dépassé">&#x26A0;<span class="visually-hidden">Quota dépassé</span></span>{% endif %}
+                    </div>
+                {% else %}-{% endif %}
+            </td>
+            <td data-col="status">
+                {% if user.is_active %}<span class="badge text-bg-success">Actif</span>{% else %}<span class="badge text-bg-secondary">Inactif</span>{% endif %}
+            </td>
+            {% if user.is_active %}
+                <td class="button-edit"><a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
+                <td class="button-fix"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="repare"><input class="btn btn-primary" type="submit" value="Réparer"></form></td>
+                <td class="button-disable"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="deactivate"><input class="btn btn-primary" type="submit" value="Désactiver"></form></td>
+            {% else %}
+                <td class="button-edit"></td>
+                <td class="button-fix"></td>
+                <td class="button-disable"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="reactivate"><input class="btn btn-primary" type="submit" value="Réactiver"></form></td>
+            {% endif %}
         </tr>
     {% endfor %}
     </tbody>
 </table>
-
-<h3 class="m-2 mt-4">Utilisateurs inactifs</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Prénom</th>
-            <th>Nom</th>
-            <th>Description</th>
-            <th>Email</th>
-            <th>Login</th>
-            <th>Réactiver</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for user in inactive_users %}
-        <tr>
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.description }}</td>
-            <td>{{ user.email }}</td>
-            <td><a href="http://{{ user.domain_name }}">{{ user.unix_username }}</a></td>
-            <td> <form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="reactivate"><input class="btn btn-primary" type="submit" value="Réactiver"></form></td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+</div>
+<p class="text-muted m-2 d-none" id="users-empty">Aucun compte ne correspond aux filtres.</p>
 {% endblock %}

@@ -155,6 +155,36 @@
     display: none;
 }
 
+/* Sortable columns of the users list (autoweb.usersTable in js/main.js) */
+.admin-users-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.admin-users-table th.sortable::after {
+    content: " \2195";
+    opacity: 0.3;
+}
+
+.admin-users-table th.sorted-asc::after {
+    content: " \25B2";
+    opacity: 1;
+}
+
+.admin-users-table th.sorted-desc::after {
+    content: " \25BC";
+    opacity: 1;
+}
+
+/* Quota bar of the users list: details in its title (tooltip) */
+.admin-users-table .quota-bar {
+    min-width: 6em;
+    height: 1em;
+}
+
+.admin-users-table td[data-col="email"],
+.admin-users-table td[data-col="username"],
 .admin-users-table td.email,
 .admin-users-table td.login {
     max-width: 10em;
