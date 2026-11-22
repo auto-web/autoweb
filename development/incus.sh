@@ -185,17 +185,27 @@ check() {
 
 # Account created by the robot from the interface, as an admin does: job, unix user, PHP site, logs
 check_account() {
-    local email csv status login domain php tries=0
+    local stamp email csv last_job job status login domain php tries=0
 
-    email="ci.$(date +%s)@example.com"
+    # Unique name and email: the check can be run again on the same machine
+    stamp=$(date +%s)
+    email="ci.$stamp@example.com"
     csv=$(mktemp)
-    printf 'first_name,last_name,email,description\nCi,Test,%s,Account of incus.sh check-account\n' "$email" > "$csv"
+    printf 'first_name,last_name,email,description\nCi,Test%s,%s,Account of incus.sh check-account\n' \
+        "$stamp" "$email" > "$csv"
+    last_job=$(run mariadb -N autoweb -e "SELECT COALESCE(MAX(id), 0) FROM autoweb_jobs")
     curl_site "$DOMAIN" -u "admin:$ADMIN_PASSWORD" -o /dev/null -F "new_users_info=@$csv;type=text/csv" "$URL/newuser.php"
     rm -f "$csv"
+    job=$(run mariadb -N autoweb -e \
+        "SELECT MIN(id) FROM autoweb_jobs WHERE operation = 'create_users' AND id > $last_job")
+    if [ -z "$job" ] || [ "$job" = "NULL" ]; then
+        fail "newuser.php: no create_users job added (see /var/log/apache2/error.log in the machine)"
+        return
+    fi
 
     # The robot (cron, every minute) runs create_user.yml
     while :; do
-        status=$(run mariadb -N autoweb -e "SELECT status FROM autoweb_jobs WHERE operation = 'create_users' ORDER BY id DESC LIMIT 1")
+        status=$(run mariadb -N autoweb -e "SELECT status FROM autoweb_jobs WHERE id = $job")
         if [ "$status" = "done" ] || [ "$status" = "failed" ]; then
             break
         fi

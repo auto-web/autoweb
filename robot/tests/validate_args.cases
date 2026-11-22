@@ -22,3 +22,17 @@ fail | quota with option                      | {"users":[{"unix_username":"a","
 fail | negative quota                         | {"users":[{"unix_username":"a","quota":{"quota_limit":-1}}]}
 fail | first_name with :                      | {"users":[{"unix_username":"a","first_name":"a:b"}]}
 fail | last_name with newline                 | {"users":[{"unix_username":"a","last_name":"a\nroot::0:0::/:/bin/sh"}]}
+# Existing system users and reserved MariaDB names (issue #10)
+fail | login root ("R" "Oot")                  | {"users":[{"unix_username":"root","mysql_username":"root"}]}
+fail | unix login root only                   | {"users":[{"unix_username":"root"}]}
+fail | system user daemon                     | {"users":[{"unix_username":"daemon"}]}
+fail | system user nobody                     | {"users":[{"unix_username":"nobody"}]}
+fail | mysql_username root                    | {"users":[{"mysql_username":"root"}]}
+fail | mysql_username of Ansible              | {"users":[{"mysql_username":"ansible"}]}
+fail | mysql_username of the interface        | {"users":[{"mysql_username":"autoweb"}]}
+fail | database mysql                         | {"users":[{"unix_username":"mysql2","mysql_username":"mysql"}]}
+fail | mysql_username of phpMyAdmin           | {"users":[{"mysql_username":"phpmyadmin"}]}
+fail | admin mysql_username root              | {"users":[],"admins":[{"mysql_username":"root"}]}
+ok@cijailed   | existing AutoWeb account (repair)      | {"users":[{"unix_username":"cijailed","mysql_username":"cijailed"}]}
+fail@cishell  | existing user with a normal shell      | {"users":[{"unix_username":"cishell"}]}
+fail@cisudoer | jailed account in the sudo group       | {"users":[{"unix_username":"cisudoer"}]}

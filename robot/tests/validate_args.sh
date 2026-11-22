@@ -1,6 +1,8 @@
 #!/bin/sh
 # Runs tasks/validate_args.yml on each case of validate_args.cases: the "ok" cases must pass,
 # the "fail" cases (malicious or invalid values) must be refused.
+# "<ok|fail>@<user>": case skipped when this system user does not exist (created by the CI, see
+# .github/workflows/pre-commit.yml).
 # Usage (from anywhere): robot/tests/validate_args.sh [ansible-playbook]
 set -u
 
@@ -15,6 +17,16 @@ while IFS='|' read -r expected description args; do
         ''|'#'*) continue ;;
     esac
     description=$(echo "$description" | sed 's/^ *//; s/ *$//')
+    case "$expected" in
+        *@*)
+            needed=${expected#*@}
+            expected=${expected%@*}
+            if ! getent passwd "$needed" > /dev/null; then
+                echo "SKIP  $expected  $description (no user $needed)"
+                continue
+            fi
+            ;;
+    esac
     count=$((count + 1))
 
     # "fail" only when refused by the validation itself (not by a broken case or playbook)

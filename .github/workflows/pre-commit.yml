@@ -73,7 +73,16 @@ jobs:
               /opt/ansible/bin/ansible-playbook --syntax-check "$playbook"
           done
 
-      # Valid accounts must pass, malicious values ("../", ";", ":", newlines...) must be refused
+      # Users of the "<ok|fail>@<user>" cases of tests/validate_args.cases (in this container only):
+      # an AutoWeb account, a user with a normal shell, and a jailed account in the sudo group
+      - name: Create the system users of the test cases
+        run: |
+          useradd --uid 2001 --shell /usr/sbin/jk_chrootsh cijailed
+          useradd --uid 2002 --shell /bin/bash cishell
+          useradd --uid 2003 --shell /usr/sbin/jk_chrootsh --groups sudo cisudoer
+
+      # Valid accounts must pass, malicious values ("../", ";", ":", newlines, root, system users...)
+      # must be refused
       - name: Test the validation of the robot arguments
         run: tests/validate_args.sh /opt/ansible/bin/ansible-playbook
 

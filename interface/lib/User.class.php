@@ -6,6 +6,10 @@ require_once __DIR__ . '/Quota.class.php';
 
 class User {
 
+    // Logins never given to a new account (issue #10): the MariaDB accounts and databases of the server (the
+    // login is also the name of the MySQL user and of its database; "ansible" is the default ansible_mysql_login)
+    const RESERVED_LOGINS = ['root', 'mysql', 'sys', 'autoweb', 'phpmyadmin', 'sendmailwrapper', 'ansible'];
+
     public $id;
     public $first_name;
     public $last_name;
@@ -52,6 +56,12 @@ class User {
         $this->mysql_password = $password;
     }
 
+    // Reserved login (RESERVED_LOGINS), or existing system user (root, daemon, admin of the server...).
+    // The robot checks it again before running Ansible (robot/tasks/validate_args.yml).
+    private static function isReservedLogin($uid) {
+        return in_array($uid, self::RESERVED_LOGINS, true) || posix_getpwnam($uid) !== false;
+    }
+
     private function generate_uid($first_name_length = 1) {
         $uid = preg_replace('/[^a-z0-9]/', '',
         strtolower(
@@ -73,7 +83,7 @@ class User {
         }
 
         $tries = 1;
-        while (self::getUserById($uid) && $tries < 6) {
+        while ((self::getUserById($uid) || self::isReservedLogin($uid)) && $tries < 6) {
             $tries++;
             $uid = $this->generate_uid($tries);
         }

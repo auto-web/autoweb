@@ -3,12 +3,42 @@
 # use it as root in paths, commands and config files: a wrong value (e.g. "../" in a login) stops the playbook
 # before anything is changed. Same rules as the interface (interface/lib/User.class.php).
 
+# System users and groups (facts getent_passwd and getent_group): a login must never be the one of root,
+# of a system user or of an admin of the server (issue #10)
+- name: "Read the system users"
+  getent:
+    database: passwd
+
+- name: "Read the system groups"
+  getent:
+    database: group
+
 - name: "Validate the accounts of args.json"
+  vars:
+    # MariaDB accounts and databases of the server: the login is also the name of the MySQL user and of
+    # its database (roles/create_user/tasks/mysql_user.yml)
+    reserved_mysql_names:
+      - root
+      - mysql
+      - sys
+      - autoweb
+      - phpmyadmin
+      - sendmailwrapper
+      - "{{ configs.ansible_mysql_login }}"
+    sudoers: "{{ (getent_group['sudo'] | default(['', '', '']))[2].split(',') }}"
   assert:
     that:
       # Logins: lowercase letters and digits only (no "/", "..", spaces...)
       - item.unix_username is not defined or item.unix_username is match('^[a-z0-9]{1,32}$')
       - item.mysql_username is not defined or item.mysql_username is match('^[a-z0-9]{1,32}$')
+      # Existing unix user: only an AutoWeb account (jailed shell, UID >= 1000, not in the sudo group),
+      # as for a repair or a reactivation; never root, a system user or an admin of the server
+      - >-
+        item.unix_username is not defined or item.unix_username not in getent_passwd
+        or (getent_passwd[item.unix_username][5] == '/usr/sbin/jk_chrootsh'
+            and (getent_passwd[item.unix_username][1] | int) >= 1000
+            and item.unix_username not in sudoers)
+      - item.mysql_username is not defined or item.mysql_username not in reserved_mysql_names
       # Domain: a host name under the users domain (vhost and DNS file names)
       - >-
         item.domain_name is not defined

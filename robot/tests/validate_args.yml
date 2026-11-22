@@ -7,6 +7,7 @@
   vars:
     configs:
       domain_users: "autoweb.example.org"
+      ansible_mysql_login: "ansible"
   tasks:
     - name: "validate args"
       include_tasks: ../tasks/validate_args.yml
