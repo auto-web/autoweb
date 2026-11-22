@@ -1,46 +1,13 @@
 ---
 
-- name: "Install Jailkit Dependencies"
+# Debian package (same paths as the former build from the sources: /usr/sbin/jk_*, /etc/jailkit/).
+# On a server where jailkit was built with make install, the package replaces these files;
+# /etc/jailkit/jk_init.ini is then copied below. force-confold: the other .ini files are kept.
+- name: "Install Jailkit"
   apt:
-    name:
-      - gcc
-      - make
+    name: jailkit
     state: present
-
-- name: "Check if Jailkit is Installed"
-  command: jk_check --help
-  ignore_errors: true
-  changed_when: false
-  register: Jailkit_is_found
-
-- when: Jailkit_is_found.failed
-  block:
-    - name: "Download Jailkit"
-      get_url:
-        url: "https://olivier.sessink.nl/jailkit/jailkit-2.21.tar.gz"
-        dest: "/tmp/jailkit.tar.gz"
-        checksum: "md5:d316dc22b9f3ab7464c8bd73c2539304"
-
-    - name: "Unarchive Jailkit"
-      unarchive:
-        src: "/tmp/jailkit.tar.gz"
-        dest: "/tmp"
-        remote_src: yes
-
-    - name: "Jailkit ./configure"
-      command:
-        cmd: "./configure"
-        chdir: "/tmp/jailkit-2.21/"
-
-    - name: "Jailkit make"
-      command:
-        cmd: "make"
-        chdir: "/tmp/jailkit-2.21/"
-
-    - name: "Jailkit make install"
-      command:
-        cmd: "make install"
-        chdir: "/tmp/jailkit-2.21/"
+    dpkg_options: "force-confdef,force-confold"
 
 - name: Ensure group "jailkit" exists
   group:
