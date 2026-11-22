@@ -1,0 +1,63 @@
+#
+# Configuration of the dev machine (development/incus.sh): copy of robot/data-exemple/config.yml
+# with local values. Never use these passwords on a server.
+#
+
+# ---- Ansible ----
+ansible_mysql_login: "ansible"
+ansible_mysql_password: "ansiblepw"
+
+# ---- Web Interface ----
+autoweb_mysql_password: "autowebpw"
+admin_login: "admin"
+# Given by development/incus.sh: -e admin_password=admin
+admin_password: ""
+captcha_pubkey: ""
+
+# ---- Mail Quota ----
+sendmailwrapper_mysql_password: "sendmailwrapperpw"
+
+# ---- File System ----
+chroot_path: "/data/chroot"
+fs: "/data"
+
+# ---- Quotas ----
+# No partition with usrquota in the container
+quotas_enabled: false
+quotas_default: 1024
+
+# ---- Domain, IP, and Server options ----
+# *.localhost resolves to 127.0.0.1 in the browsers; same domain as DOMAIN in development/incus.sh
+domain_users: "autoweb.localhost"
+domain_hostname: "dev.autoweb.localhost"
+server_ipv4: "127.0.0.1"
+server_ipv6: ""
+# Not 22, left to the admin SSH of the machine
+sftp_port: 2222
+
+# ---- Admin information ----
+admin_email: "admin@autoweb.localhost"
+
+# ---- LetsEncrypt SSL ----
+letsencrypt_email: "admin@autoweb.localhost"
+
+# ---- Hard System limits ----
+limits_enable: true
+limits_peruser_memory: 2097152 # = 2 GB (value in KB)
+
+# ---- Apache and PHP advanced options ----
+apache_advanced_enable: true
+apache_fcgid_max_processes: 150
+apache_fcgid_peruser_min_processes: 0
+apache_fcgid_peruser_max_processes: 4
+apache_fcgid_connect_timeout: 20
+apache_fcgid_max_request_len: 325058560 # = 310 MB (value in Bytes)
+
+php_advanced_enable: true
+php_settings:
+  memory_limit: '128M'
+  post_max_size: '300M'
+  upload_max_filesize: '300M'
+  display_errors: 'On'
+  log_errors: 'On'
+  error_reporting: 'E_ALL'
