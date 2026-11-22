@@ -4,7 +4,7 @@
 # shown read-only in ~/logs (roles/create_user/tasks/logs.yml). The old ~/logs is kept as ~/logs-old.
 
 - name: "Read the autoweb users"
-  mysql_query:
+  ansible.mysql.mysql_query:
     login_db: autoweb
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"

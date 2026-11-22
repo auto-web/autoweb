@@ -1,7 +1,7 @@
 ---
 
 - name: "Create mysql user DB"
-  mysql_db:
+  ansible.mysql.mysql_db:
     name: "{{ user.mysql_username }}"
     state: present
     login_user: "{{ configs.ansible_mysql_login }}"
@@ -9,7 +9,7 @@
 
 - name: "Create mysql user"
   no_log: true
-  mysql_user:
+  ansible.mysql.mysql_user:
     name: "{{ user.mysql_username }}"
     password: "{{ user.mysql_password }}"
     host: localhost
@@ -19,7 +19,7 @@
     login_password: "{{ configs.ansible_mysql_password }}"
 
 - name: "Give mysql admin SELECT,SHOW VIEW"
-  mysql_user:
+  ansible.mysql.mysql_user:
     name: "{{ admin.mysql_username }}"
     priv: "{{ user.mysql_username }}.*:SELECT,SHOW VIEW"
     append_privs: yes

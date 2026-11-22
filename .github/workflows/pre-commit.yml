@@ -56,22 +56,26 @@ jobs:
         shell: bash
         working-directory: robot
     steps:
-      # ansible of Debian trixie (with the community.general and community.mysql collections)
+      # Same installation as the server (INSTALL.md): ansible >= 15 from pip in /opt/ansible,
+      # for the ansible.mysql collection (not in the ansible package of Debian trixie)
       - name: Install Ansible
         working-directory: /
-        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git ansible
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends ca-certificates git python3-venv
+          python3 -m venv /opt/ansible
+          /opt/ansible/bin/pip install 'ansible>=15' PyMySQL
 
       - uses: actions/checkout@v5
 
       - name: Check the syntax of the playbooks
         run: |
           for playbook in *.yml tests/*.yml; do
-              ansible-playbook --syntax-check "$playbook"
+              /opt/ansible/bin/ansible-playbook --syntax-check "$playbook"
           done
 
       # Valid accounts must pass, malicious values ("../", ";", ":", newlines...) must be refused
       - name: Test the validation of the robot arguments
-        run: tests/validate_args.sh
+        run: tests/validate_args.sh /opt/ansible/bin/ansible-playbook
 
   # Composer dependencies (twig, bootstrap, jquery, phinx) and Phinx migrations of the interface
   interface:

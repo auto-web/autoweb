@@ -1,5 +1,5 @@
 - name: "Give mysql admin SELECT,SHOW VIEW"
-  mysql_user:
+  ansible.mysql.mysql_user:
     name: "{{ admin.mysql_username }}"
     priv: "{{ user.mysql_username }}.*:SELECT,SHOW VIEW"
     append_privs: yes

@@ -13,11 +13,11 @@ apt install git python3-venv mariadb-server mariadb-client quota
 
 ## 2. Ansible
 
-Ansible is installed in the virtual environment `/opt/ansible`, the path used by the robot (`interface/robot/robot.php`). On trixie, `pip` is blocked outside of a virtual environment (PEP 668).
+Ansible is installed in the virtual environment `/opt/ansible`, the path used by the robot (`interface/robot/robot.php`). On trixie, `pip` is blocked outside of a virtual environment (PEP 668). Version 15 or later is needed for the `ansible.mysql` collection, which is not in the `ansible` package of Debian.
 
 ```bash
 python3 -m venv /opt/ansible
-/opt/ansible/bin/pip install ansible PyMySQL
+/opt/ansible/bin/pip install 'ansible>=15' PyMySQL
 ```
 
 ## 3. MariaDB

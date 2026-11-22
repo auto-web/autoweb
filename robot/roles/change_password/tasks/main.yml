@@ -5,7 +5,7 @@
 
 - name: "change mysql password"
   no_log: true
-  mysql_user:
+  ansible.mysql.mysql_user:
     name: "{{ user.mysql_username }}"
     password: "{{ user.mysql_password }}"
     host: localhost

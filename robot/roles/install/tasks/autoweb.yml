@@ -1,5 +1,5 @@
 - name: "Create mysql autoweb DB"
-  mysql_db:
+  ansible.mysql.mysql_db:
     name: "autoweb"
     state: present
     login_user: "{{ configs.ansible_mysql_login }}"
@@ -7,7 +7,7 @@
 
 - name: "Create mysql autoweb"
   no_log: true
-  mysql_user:
+  ansible.mysql.mysql_user:
     name: "autoweb"
     password: "{{ configs.autoweb_mysql_password }}"
     host: localhost
@@ -189,7 +189,7 @@
 # First admin of the web interface, only when there is none.
 # Its password is given at install time: ansible-playbook install.yml -e admin_password='...'
 - name: "Count autoweb admins"
-  mysql_query:
+  ansible.mysql.mysql_query:
     login_db: autoweb
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
@@ -225,7 +225,7 @@
 
 - name: "Create the first autoweb admin"
   no_log: true
-  mysql_query:
+  ansible.mysql.mysql_query:
     login_db: autoweb
     login_user: "{{ configs.ansible_mysql_login }}"
     login_password: "{{ configs.ansible_mysql_password }}"
