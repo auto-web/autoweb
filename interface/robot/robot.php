@@ -330,7 +330,11 @@ function send_password($job) {
         'MIME-Version' => '1.0',
         'Content-Type' => 'text/html; charset=utf-8',
         ];
-        $message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
+        $message = $twig->render('mail/password.twig', [
+            'domain_name' => Config::getValue('domain_name'),
+            'sftp_port' => Config::getValue('sftp_port'),
+            'user' => $user,
+        ]);
         $sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
         if (!$sent) {
             $return_var = 1; // An error occurred for one or more mails
@@ -370,7 +374,11 @@ function change_password($job) {
         'MIME-Version' => '1.0',
         'Content-Type' => 'text/html; charset=utf-8',
         ];
-        $message = $twig->render('mail/password.twig', ['domain_name' => Config::getValue('domain_name'), 'user' => $user]);
+        $message = $twig->render('mail/password.twig', [
+            'domain_name' => Config::getValue('domain_name'),
+            'sftp_port' => Config::getValue('sftp_port'),
+            'user' => $user,
+        ]);
         $sent = mail($to, 'Votre mot de passe pour ' . $user->domain_name, $message, $headers);
     }
 

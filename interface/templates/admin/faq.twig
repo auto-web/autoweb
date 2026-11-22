@@ -81,8 +81,8 @@
 
         <h2>Ligne de commande / SSH</h2>
         <dt>Comment se connecter ?</dt>
-        <dd>Il est possible de se connecter en SSH au serveur, sur le port 22 (standard).
-        <ul><li>Via Linux avec la ligne de commande : <pre>ssh login@autoweb.example.com</pre> (à la première connexion, acceptez l'empreinte de la clé du serveur)</li>
+        <dd>Il est possible de se connecter en SSH au serveur, sur le port {{ sftp_port }}.
+        <ul><li>Via Linux avec la ligne de commande : <pre>ssh {% if sftp_port != 22 %}-p {{ sftp_port }} {% endif %}login@autoweb.example.com</pre> (à la première connexion, acceptez l'empreinte de la clé du serveur)</li>
         <li>Via Windows avec un client SSH comme <a href="http://www.putty.org/">Putty</a>.</li></ul>
         </dd>
 

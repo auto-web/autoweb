@@ -16,6 +16,7 @@ class Config {
             'quotas_enabled' => $quotas_enabled,
             'quotas_default' => $quotas_default,
             'quotas_root'    => $quotas_root,
+            'sftp_port'      => $sftp_port ?? 22,
             ];
         }
     }

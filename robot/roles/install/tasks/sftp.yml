@@ -38,48 +38,23 @@
   notify: Restart pure-ftpd
 
 - name: "Copy sftp.conf"
-  copy:
-    src: "files/ssh-ftp/sftp/sshd_config"
+  template:
+    src: "templates/ssh-ftp/sftp.conf.j2"
     dest: "/etc/ssh/sftp.conf"
     owner: root
     group: root
     mode: 0600
   notify: Restart sftp
 
+# Local unit: /etc/systemd/system, enabled by systemd itself (multi-user.target.wants link)
 - name: "Copy sftp.service"
   copy:
     src: "files/ssh-ftp/systemd/sftp.service"
-    dest: "/lib/systemd/system/sftp.service"
-    owner: root
-    group: root
-    mode: 0644
-  notify: Restart sftp
-
-- name: "Link /etc/systemd/system/sftp.service"
-  file:
-    src: "/lib/systemd/system/sftp.service"
     dest: "/etc/systemd/system/sftp.service"
-    state: link
     owner: root
     group: root
     mode: 0644
   notify: Restart sftp
-
-- name: "Link /etc/systemd/system/multi-user.target.wants/sftp.service"
-  file:
-    src: "/lib/systemd/system/sftp.service"
-    dest: "/etc/systemd/system/multi-user.target.wants/sftp.service"
-    state: link
-    owner: root
-    group: root
-    mode: 0644
-  notify: Restart sftp
-
-#- name: "Start ssh"
-#  service:
-#    name: ssh
-#    state: started
-#    enabled: yes
 
 - name: "Start pure-ftpd"
   service:
@@ -87,8 +62,28 @@
     state: started
     enabled: yes
 
+# sftp_port must be free (or already used by the sftp service itself): typically, the admin SSH
+# (service ssh) must not listen on it. Checked here to fail with a clear message, not "Address already in use".
+- name: "Check that port {{ configs.sftp_port | default(22) }} is free for sftp"
+  shell:
+    cmd: |
+      port={{ configs.sftp_port | default(22) | int }}
+      sftp_pid=$(systemctl show -p MainPID --value sftp 2>/dev/null || echo 0)
+      ss -Hltnp "sport = :$port" | grep -v "pid=$sftp_pid," || true
+  register: sftp_port_users
+  changed_when: false
+  check_mode: false
+
+- name: "Fail if port {{ configs.sftp_port | default(22) }} is used by another service"
+  fail:
+    msg: >-
+      Port {{ configs.sftp_port | default(22) }} (sftp_port in data/config.yml) is already used:
+      {{ sftp_port_users.stdout }}. Move the admin SSH (/etc/ssh/sshd_config) to another port, or choose another sftp_port.
+  when: sftp_port_users.stdout | length > 0
+
 - name: "Start sftp"
-  service:
+  systemd:
     name: sftp
     state: started
     enabled: yes
+    daemon_reload: yes

@@ -60,6 +60,8 @@ editor /opt/autoweb/robot/data/config.yml
 
 The `robot/data/` directory is not versioned. Ansible restricts it to `root` (0750), as it contains the passwords.
 
+The users connect with SSH/SFTP to a dedicated, chrooted sshd (service `sftp`) on `sftp_port` (22 by default). With 22, the admin SSH of the server (service `ssh`, `/etc/ssh/sshd_config`) must listen on another port **before** the installation, otherwise the installation stops: port 22 must be free. To keep the admin SSH on port 22, choose another `sftp_port` (for example 2222). This port is shown to the users in the emails and the FAQ.
+
 The first admin of the web interface is created with `admin_login` (lowercase letters and digits, 32 characters max) and `admin_email`. Leave `admin_password` empty: this password is given at install time (step 7), so it is not stored on disk.
 
 ## 7. Installation

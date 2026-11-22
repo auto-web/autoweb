@@ -148,6 +148,7 @@
       $quotas_enabled={{ configs.quotas_enabled }};
       $quotas_default={{ configs.quotas_default }};
       $quotas_root='{{ configs.fs }}';
+      $sftp_port={{ configs.sftp_port | default(22) | int }};
 
 # Database schema: Phinx migrations of interface/db/migrations (configuration in interface/phinx.php)
 # Exit code of "phinx status": 0 = up to date, 3 = pending migrations, other = error

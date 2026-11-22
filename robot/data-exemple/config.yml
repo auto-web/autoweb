@@ -83,6 +83,13 @@ server_ipv4: "xx.xx.xx.xx"
 # Adresse IPv6 de la machine (facultatif, peut être vide mais doit être déclaré)
 server_ipv6: ""
 
+# Port SSH/SFTP des utilisateurs (sshd dédié et chrooté : /etc/ssh/sftp.conf, service sftp).
+# ATTENTION : le port 22 doit être libre. Le SSH d'administration du serveur (service ssh,
+# /etc/ssh/sshd_config) doit alors écouter sur un autre port AVANT l'installation, sinon le service
+# sftp ne démarre pas. Pour garder le SSH d'administration sur le 22, choisir un autre port ici (par
+# exemple 22000). Ce port est indiqué aux utilisateurs dans les e-mails et la FAQ de l'interface.
+sftp_port: 22
+
 #
 # ---- Admin information ----
 #

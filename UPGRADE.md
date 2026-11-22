@@ -83,6 +83,10 @@ findmnt -l -o TARGET,SOURCE,OPTIONS | grep '/logs ' # one ro mount per account
 systemctl status apache2                           # active (running)
 ```
 
+### SSH/SFTP port of the users (`sftp_port`)
+
+The port of the users sshd (service `sftp`) is now set by `sftp_port` in `robot/data/config.yml`. Without this key, port 22 is kept, as before: nothing to do. To use another port, add it (see `robot/data-exemple/config.yml`), run `install.yml`, and open the port in the firewall. The installation stops if the port is already used by another service.
+
 ### Empty `/opt/autoweb/data` directory
 
 The former permissions task created `/opt/autoweb/data`, whereas the configuration is in `/opt/autoweb/robot/data`. If it exists and is empty:
