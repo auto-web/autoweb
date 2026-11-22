@@ -178,7 +178,7 @@
 }
 
 /* Users list wider than the page: shadow on each side that still has hidden columns
-   (classes set by autoweb.usersTable.updateScroll in js/main.js) */
+    (classes set by autoweb.usersTable.updateScroll in js/main.js) */
 .users-table-scroll {
     position: relative;
     margin-bottom: 1rem;
