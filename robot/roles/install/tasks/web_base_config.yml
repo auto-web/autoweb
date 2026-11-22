@@ -34,12 +34,6 @@
     - { src: autoweb-webadmin.conf, dest: 010-autoweb-webadmin.conf }
   notify: Restart apache2
 
-- name: "Copy mods-available"
-  copy:
-    src: "files/web/mods-available/"
-    dest: "/etc/apache2/mods-available/"
-  notify: Restart apache2
-
 - name: "Copy fcgid.conf"
   template:
     src: "templates/web/mods-available/fcgid.conf.j2"
