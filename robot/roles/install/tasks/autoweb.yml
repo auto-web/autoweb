@@ -231,9 +231,9 @@
     login_password: "{{ configs.ansible_mysql_password }}"
     query: >-
       INSERT INTO autoweb_users (id, first_name, last_name, unix_username, unix_password, mysql_username,
-      mysql_password, email, domain_name, php_version, description, is_admin, is_active)
+      mysql_password, email, domain_name, php_version, description, is_admin, status)
       VALUES (%(login)s, %(login)s, %(login)s, %(login)s, %(password)s, %(login)s,
-      %(password)s, %(email)s, %(domain)s, '8.2', 'admin', 1, 1)
+      %(password)s, %(email)s, %(domain)s, '8.2', 'admin', 1, 'active')
     named_args:
       login: "{{ first_admin.login }}"
       password: "{{ first_admin.password }}"

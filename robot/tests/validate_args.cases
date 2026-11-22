@@ -22,7 +22,7 @@ fail | quota with option                      | {"users":[{"unix_username":"a","
 fail | negative quota                         | {"users":[{"unix_username":"a","quota":{"quota_limit":-1}}]}
 fail | first_name with :                      | {"users":[{"unix_username":"a","first_name":"a:b"}]}
 fail | last_name with newline                 | {"users":[{"unix_username":"a","last_name":"a\nroot::0:0::/:/bin/sh"}]}
-# Existing system users and reserved MariaDB names (issue #10)
+# Existing system users and reserved MariaDB names
 fail | login root ("R" "Oot")                  | {"users":[{"unix_username":"root","mysql_username":"root"}]}
 fail | unix login root only                   | {"users":[{"unix_username":"root"}]}
 fail | system user daemon                     | {"users":[{"unix_username":"daemon"}]}

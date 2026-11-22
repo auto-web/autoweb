@@ -83,8 +83,9 @@ if (isset($user_id)) {
 
     $user = new User();
     $user->loadUserByID($user_id);
-    if (!$user->is_active) {
-        echo 'disabled user.';
+    // Disabled account, or pending one (not created on the system yet: "Réparer" in the admin page)
+    if ($user->status !== User::STATUS_ACTIVE) {
+        echo 'disabled or pending user.';
         die;
     }
 

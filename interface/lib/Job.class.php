@@ -64,11 +64,6 @@ class Job {
         }
     }
 
-    public static function addCreateUsersJob($users) {
-        $json = json_encode($users);
-        return Job::addJob('create_users', $json);
-    }
-
     public static function getJobs($filters) {
 
         $pdo = connect();

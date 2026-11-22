@@ -4,7 +4,7 @@
 # before anything is changed. Same rules as the interface (interface/lib/User.class.php).
 
 # System users and groups (facts getent_passwd and getent_group): a login must never be the one of root,
-# of a system user or of an admin of the server (issue #10)
+# of a system user or of an admin of the server
 - name: "Read the system users"
   getent:
     database: passwd

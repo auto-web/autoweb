@@ -24,7 +24,8 @@ if (count($admin) == 1) {
     exit();
 }
 
-$active_users = User::getUsers(['is_active' => true]);
+// Not the pending accounts: their password is not valid on the system yet
+$active_users = User::getUsers(['status' => User::STATUS_ACTIVE]);
 $filename = 'active_users_' . date('Y-m-d') . '.csv';
 
 header('Content-Type: text/csv; charset=UTF-8');

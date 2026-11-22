@@ -36,6 +36,10 @@
         <a href="newuser.php" class="btn btn-primary float-end m-2">Créer un compte</a>
         <a href="export.php" class="btn btn-primary float-end m-2">Exporter (sauf admins et inactifs)</a>
         <form action="#" method="post"><input type="hidden" name="action" value="repare_all"><input class="btn btn-primary float-end m-2" type="submit" value="Réparer tous les comptes"></form>
+        {% set pending_count = users|filter(user => user.status == 'pending')|length %}
+        {% if pending_count > 0 %}
+            <form action="#" method="post"><input type="hidden" name="action" value="create_retry_all"><input class="btn btn-warning float-end m-2" type="submit" value="Relancer les créations en attente ({{ pending_count }})"></form>
+        {% endif %}
     </div>
 </div>
 
@@ -48,6 +52,7 @@
         <select class="form-select" id="users-status" aria-label="Statut">
             <option value="active" selected>Actifs</option>
             <option value="inactive">Inactifs</option>
+            <option value="pending">En création</option>
             <option value="">Tous les statuts</option>
         </select>
     </div>
@@ -101,7 +106,7 @@
     <tbody>
     {% for user in users %}
         {% set quota_exceeded = user.quota.quota_limit is not null and user.quota.quota_used > user.quota.quota_limit %}
-        <tr data-status="{{ user.is_active ? 'active' : 'inactive' }}"
+        <tr data-status="{{ user.status }}"
             data-php="{{ user.php_version }}"
             data-quota-exceeded="{{ quota_exceeded ? '1' : '0' }}">
             <td data-col="first-name">{{ user.first_name }}</td>
@@ -125,12 +130,19 @@
                 {% else %}-{% endif %}
             </td>
             <td data-col="status">
-                {% if user.is_active %}<span class="badge text-bg-success">Actif</span>{% else %}<span class="badge text-bg-secondary">Inactif</span>{% endif %}
+                {% if user.status == 'active' %}<span class="badge text-bg-success">Actif</span>
+                {% elseif user.status == 'pending' %}<span class="badge text-bg-warning" title="Pas encore créé sur le serveur : en attente du robot, ou à reprendre avec Relancer la création">En création</span>
+                {% else %}<span class="badge text-bg-secondary">Inactif</span>{% endif %}
             </td>
-            {% if user.is_active %}
+            {% if user.status == 'active' %}
                 <td class="button-edit"><a href="user.php?user_id={{ user.id }}" class="btn btn-primary">Modifier</a></td>
                 <td class="button-fix"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="repare"><input class="btn btn-primary" type="submit" value="Réparer"></form></td>
                 <td class="button-disable"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="deactivate"><input class="btn btn-primary" type="submit" value="Désactiver"></form></td>
+            {% elseif user.status == 'pending' %}
+                {# Not created on the system yet: new create_users job #}
+                <td class="button-edit"></td>
+                <td class="button-fix"><form action="#" method="post"><input type="hidden" name="user_id" value="{{ user.id }}"><input type="hidden" name="action" value="create_retry"><input class="btn btn-warning" type="submit" value="Relancer la création"></form></td>
+                <td class="button-disable"></td>
             {% else %}
                 <td class="button-edit"></td>
                 <td class="button-fix"></td>

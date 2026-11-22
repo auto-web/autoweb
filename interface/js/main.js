@@ -162,7 +162,9 @@ var autoweb = {
                     return row.children('[data-col="' + column + '"]').text();
                 }).join(' ');
                 var visible = (search === '' || table.normalize(text).indexOf(search) !== -1)
-                    && (status === '' || row.data('status') === status)
+                    // "Actifs" also shows the pending accounts: just created, or to repair
+                    && (status === '' || row.data('status') === status
+                        || (status === 'active' && row.data('status') === 'pending'))
                     && (php === '' || String(row.data('php')) === php)
                     && (!quotaExceeded || String(row.data('quota-exceeded')) === '1');
 

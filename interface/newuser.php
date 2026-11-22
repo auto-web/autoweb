@@ -26,6 +26,75 @@ if (count($admin) == 1) {
 
 require_once 'lib/Job.class.php';
 
+// Accounts written in the database with their creation job, in one transaction: if one of them is wrong, nothing
+// is created. They stay pending until the robot has created them on the system ("Réparer" creates them again).
+// $rows: [label => ['first_name' => ..., 'last_name' => ..., 'email' => ..., 'description' => ...]]
+// Returns the errors, one per wrong account.
+function create_accounts($rows) {
+    $errors = [];
+    $jobs_data = [];
+    $pdo = connect();
+    $pdo->beginTransaction();
+
+    foreach ($rows as $label => $row) {
+        $user = new User;
+        $user->first_name = trim($row['first_name'] ?? '');
+        $user->last_name = trim($row['last_name'] ?? '');
+        $user->email = trim($row['email'] ?? '');
+        $user->description = trim($row['description'] ?? '');
+        $user->quota = new Quota();
+        $user->quota->quota_limit = Config::getValue('quotas_default');
+
+        if ($user->first_name === '' || $user->last_name === '') {
+            $errors[] = $label . ' : prénom ou nom manquant.';
+            continue;
+        }
+        if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = $label . ' : e-mail invalide « ' . $user->email . ' ».';
+            continue;
+        }
+        // Same connection: sees the accounts written before in this transaction, so no login nor e-mail twice
+        try {
+            $user->generate_user_info();
+        } catch (Exception $e) {
+            $errors[] = $label . ' : ' . $e->getMessage();
+            continue;
+        }
+        if (!User::insertUser($user)) {
+            $errors[] = $label . ' : enregistrement impossible (login ou e-mail déjà utilisé).';
+            continue;
+        }
+        $jobs_data[] = ['user_id' => $user->id];
+    }
+
+    if (!$errors && !$jobs_data) {
+        $errors[] = 'Aucun compte à créer.';
+    }
+    // Only the ids: the robot reads the accounts in the database
+    if (!$errors && !Job::addJob('create_users', json_encode($jobs_data))) {
+        $errors[] = 'Le lancement de la tâche de création a rencontré un problème.';
+    }
+
+    if ($errors) {
+        $pdo->rollBack();
+    } else {
+        $pdo->commit();
+    }
+    return $errors;
+}
+
+// Messages of create_accounts(): the creation is refused as a whole, with the wrong accounts
+function accounts_messages($errors, $success) {
+    if (!$errors) {
+        return [['type' => 'success', 'message' => $success]];
+    }
+    $messages = [['type' => 'danger', 'message' => 'Création refusée, aucun compte n\'a été créé. Corrigez puis recommencez :']];
+    foreach ($errors as $error) {
+        $messages[] = ['type' => 'danger', 'message' => $error];
+    }
+    return $messages;
+}
+
 $messages = [];
 
 if (isset($_FILES['new_users_info'])) {
@@ -53,51 +122,29 @@ if (isset($_FILES['new_users_info'])) {
         exit();
     }
 
-    $users = [];
-
-    while (($rows = fgetcsv($handle, 1024)) !== false) {
-        $user = new User;
-        $user->first_name = $rows[$header_indexes['first_name']];
-        $user->last_name = $rows[$header_indexes['last_name']];
-        $user->email = $rows[$header_indexes['email']];
-        $user->description = $rows[$header_indexes['description']];
-        $user->quota = new Quota();
-        $user->quota->quota_limit = Config::getValue('quotas_default');
-
-        if (!$user->generate_user_info()) {
-            echo 'Wrong computed UID';
-            exit();
-        } else {
-            $users[] = $user;
+    // Accounts by line number of the file (the header is line 1)
+    $rows = [];
+    $line = 1;
+    while (($fields = fgetcsv($handle, 1024)) !== false) {
+        $line++;
+        // Empty line
+        if ($fields === [null]) {
+            continue;
         }
+        $row = [];
+        foreach ($required_headers as $header) {
+            $row[$header] = $fields[$header_indexes[$header]] ?? '';
+        }
+        $rows['Ligne ' . $line] = $row;
     }
 
-    if (Job::addCreateUsersJob($users)) {
-        $messages[] = ['type' => 'success', 'message' => 'La tâche de création des utilisateurs a été lancée...'];
-    } else {
-        $messages[] = ['type' => 'danger', 'message' => 'Le lancement de la tâche de création des utilisateurs a rencontré un problème...'];
-    }
+    $messages = accounts_messages(create_accounts($rows),
+        sprintf('La tâche de création de %d compte(s) a été lancée...', count($rows)));
 }
 
 if (isset($_POST['first_name'])) {
-    $user = new User;
-    $user->first_name = $_POST['first_name'];
-    $user->last_name = $_POST['last_name'];
-    $user->email = $_POST['email'];
-    $user->description = $_POST['description'];
-    $user->quota = new Quota();
-    $user->quota->quota_limit = Config::getValue('quotas_default');
-
-    if (!$user->generate_user_info()) {
-        echo 'Wrong computed UID';
-        exit();
-    }
-
-    if (Job::addCreateUsersJob([$user])) {
-        $messages[] = ['type' => 'success', 'message' => 'La tâche de création de l\'utilisateur a été lancée...'];
-    } else {
-        $messages[] = ['type' => 'danger', 'message' => 'Le lancement de la tâche de création de l\'utilisateur a rencontré un problème...'];
-    }
+    $messages = accounts_messages(create_accounts(['Compte' => $_POST]),
+        'La tâche de création de l\'utilisateur a été lancée...');
 }
 
 echo $twig->render('admin/newuser.twig', ['domain_name' => Config::getValue('domain_name'), 'messages' => $messages, 'is_admin' => $is_admin]);

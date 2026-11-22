@@ -164,15 +164,23 @@ jobs:
           mariadb -h mariadb -uroot -proot autoweb -e "
             DROP TABLE phinxlog;
             INSERT INTO autoweb_users VALUES ('user1', 'u', 'u', 'user1', 'pw', 'user1', 'pw',
-              'user1@example.com', 'user1.example.com', '8.3', '', 0, 1);"
+              'user1@example.com', 'user1.example.com', '8.3', '', 0, 1);
+            INSERT INTO autoweb_users VALUES ('user2', 'u', 'u', 'user2', 'pw', 'user2', 'pw',
+              'user2@example.com', 'user2.example.com', '8.2', '', 0, 0);"
 
-      # InitialSchema is recorded without changing anything (tables exist), PhpVersionVarchar is applied
-      - name: Existing server - baseline recorded, php_version becomes a VARCHAR, data are kept
+      # InitialSchema is recorded without changing anything (tables exist), PhpVersionVarchar and UsersStatus
+      # are applied
+      - name: Existing server - baseline recorded, php_version becomes a VARCHAR, is_active a status, data are kept
         run: |
           vendor/bin/phinx migrate -c phinx.php -e production | tee migrate.log
-          test "$(grep -c ' migrated ' migrate.log)" = 2
+          test "$(grep -c ' migrated ' migrate.log)" = 3
           vendor/bin/phinx status -c phinx.php -e production
           test "$(mariadb -h mariadb -uautoweb -p"$AUTOWEB_DB_PASSWORD" autoweb -N -e "
             SELECT CONCAT(php_version, ' ', COLUMN_TYPE) FROM autoweb_users, information_schema.COLUMNS
             WHERE id = 'user1' AND TABLE_SCHEMA = 'autoweb' AND TABLE_NAME = 'autoweb_users'
             AND COLUMN_NAME = 'php_version'")" = "8.3 varchar(8)"
+          test "$(mariadb -h mariadb -uautoweb -p"$AUTOWEB_DB_PASSWORD" autoweb -N -e "
+            SELECT GROUP_CONCAT(id, ':', status ORDER BY id) FROM autoweb_users")" = "user1:active,user2:inactive"
+          test "$(mariadb -h mariadb -uautoweb -p"$AUTOWEB_DB_PASSWORD" autoweb -N -e "
+            SELECT COUNT(*) FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = 'autoweb' AND TABLE_NAME = 'autoweb_users' AND COLUMN_NAME = 'is_active'")" = 0

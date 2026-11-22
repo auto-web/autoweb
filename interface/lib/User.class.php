@@ -6,9 +6,15 @@ require_once __DIR__ . '/Quota.class.php';
 
 class User {
 
-    // Logins never given to a new account (issue #10): the MariaDB accounts and databases of the server (the
-    // login is also the name of the MySQL user and of its database; "ansible" is the default ansible_mysql_login)
+    // Logins never given to a new account: the MariaDB accounts and databases of the server (the login is also
+    // the name of the MySQL user and of its database; "ansible" is the default ansible_mysql_login)
     const RESERVED_LOGINS = ['root', 'mysql', 'sys', 'autoweb', 'phpmyadmin', 'sendmailwrapper', 'ansible'];
+
+    // Status of an account: pending from its creation in the interface until the robot has created it on the
+    // system, then active or inactive
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
 
     public $id;
     public $first_name;
@@ -25,13 +31,13 @@ class User {
     public $description;
 
     public $is_admin;
-    public $is_active;
+    public $status;
 
     public $quota;
 
     private function load($id, $first_name, $last_name, $unix_username,
     $unix_password, $mysql_username, $mysql_password, $email, $domain_name, $php_version,
-    $description, $is_admin, $is_active, $quota) {
+    $description, $is_admin, $status, $quota) {
         $this->id =             $id;
         $this->first_name =     $first_name;
         $this->last_name =      $last_name;
@@ -44,7 +50,7 @@ class User {
         $this->php_version =    $php_version;
         $this->description =    $description;
         $this->is_admin =       $is_admin;
-        $this->is_active =      $is_active;
+        $this->status =         $status;
         $this->quota =          $quota;
     }
 
@@ -106,7 +112,7 @@ class User {
         $this->domain_name = $this->unix_username . '.' . Config::getValue('domain_name');
 
         $this->is_admin = false;
-        $this->is_active = true;
+        $this->status = self::STATUS_PENDING;
         $this->php_version = '8.2';
 
         return true;
@@ -140,7 +146,7 @@ class User {
                         $result->php_version,
                         $result->description,
                         $result->is_admin,
-                        $result->is_active,
+                        $result->status,
                         $quota
                     );
 
@@ -180,7 +186,7 @@ class User {
                         $result->php_version,
                         $result->description,
                         $result->is_admin,
-                        $result->is_active,
+                        $result->status,
                         $quota
                     );
 
@@ -203,7 +209,7 @@ class User {
         $sql = 'UPDATE autoweb_users SET first_name = :first_name, last_name = :last_name, unix_username = :unix_username,
                                 unix_password = :unix_password, mysql_username = :mysql_username, mysql_password = :mysql_password,
                                 email = :email, domain_name = :domain_name, php_version = :php_version, description = :description,
-                                is_admin = :is_admin, is_active = :is_active
+                                is_admin = :is_admin, status = :status
                 WHERE autoweb_users.id = :id';
         $stmt = $pdo->prepare($sql);
 
@@ -219,7 +225,7 @@ class User {
         $stmt->bindValue('php_version', $this->php_version, PDO::PARAM_STR);
         $stmt->bindValue('description', $this->description, PDO::PARAM_STR);
         $stmt->bindValue('is_admin', $this->is_admin, PDO::PARAM_BOOL);
-        $stmt->bindValue('is_active', $this->is_active, PDO::PARAM_BOOL);
+        $stmt->bindValue('status', $this->status, PDO::PARAM_STR);
 
         try {
             $stmt->execute();
@@ -228,6 +234,24 @@ class User {
             return false;
         }
 
+    }
+
+    // Only the status: e.g. pending to active once the robot has created the account
+    public function setStatus($status) {
+        $pdo = connect();
+
+        $sql = 'UPDATE autoweb_users SET status = :status WHERE autoweb_users.id = :id';
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue('id', $this->id, PDO::PARAM_STR);
+        $stmt->bindValue('status', $status, PDO::PARAM_STR);
+
+        try {
+            $stmt->execute();
+            $this->status = $status;
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     public function removeUser() {
@@ -251,9 +275,9 @@ class User {
         $pdo = connect();
 
         $sql = 'INSERT INTO autoweb_users (id, first_name, last_name, unix_username, unix_password, mysql_username, mysql_password, email,
-                                    domain_name, php_version, description, is_admin, is_active)
+                                    domain_name, php_version, description, is_admin, status)
                     VALUES (:id, :first_name, :last_name, :unix_username, :unix_password, :mysql_username, :mysql_password, :email,
-                                    :domain_name, :php_version, :description, :is_admin, :is_active)';
+                                    :domain_name, :php_version, :description, :is_admin, :status)';
         $stmt = $pdo->prepare($sql);
 
         $stmt->bindValue('id', $user->id, PDO::PARAM_STR);
@@ -268,7 +292,7 @@ class User {
         $stmt->bindValue('php_version', $user->php_version, PDO::PARAM_STR);
         $stmt->bindValue('description', $user->description, PDO::PARAM_STR);
         $stmt->bindValue('is_admin', $user->is_admin, PDO::PARAM_BOOL);
-        $stmt->bindValue('is_active', $user->is_active, PDO::PARAM_BOOL);
+        $stmt->bindValue('status', $user->status, PDO::PARAM_STR);
 
         try {
             $stmt->execute();
@@ -280,9 +304,9 @@ class User {
         $quota->user_id = $user->id;
         $quota->quota_used = 0;
         $quota->quota_limit = $user->quota->quota_limit;
-        Quota::insertQuota($quota);
 
-        return true;
+        // false: the account is written without its quota (newuser.php then cancels its transaction)
+        return Quota::insertQuota($quota);
 
     }
 
@@ -314,7 +338,7 @@ class User {
                                 $result->php_version,
                                 $result->description,
                                 $result->is_admin,
-                                $result->is_active,
+                                $result->status,
                                 $quota
                             );
 
@@ -354,7 +378,7 @@ class User {
         foreach ($filters as $filter => $value) {
             $dataType = PDO::PARAM_STR;
 
-            if ($filter == 'is_active' || $filter == 'is_admin') {
+            if ($filter == 'is_admin') {
                 $dataType = PDO::PARAM_BOOL;
             }
 
@@ -382,7 +406,7 @@ class User {
                                 $result->php_version,
                                 $result->description,
                                 $result->is_admin,
-                                $result->is_active,
+                                $result->status,
                                 $quota
                             );
 

@@ -50,16 +50,29 @@ function doJob($job) {
     }
 }
 
+// Accounts written as pending by newuser.php: active once create_user.yml succeeds. When it fails, they stay
+// pending, and "Relancer la création" (admin.php) adds a new create_users job for them.
 function create_users($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
+    $users = [];
+
+    foreach ($users_data as $item) {
+        $user = new User();
+        // No user_id: job of a former version, whose accounts are not in the database
+        if (!isset($item->user_id) || !$user->loadUserByID($item->user_id)) {
+            $job->markAs('failed');
+            return;
+        }
+        $users[] = $user;
+    }
 
     $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
         $admins[] = ['mysql_username' => $full_admin->mysql_username];
     }
 
-    $data = ['users' => $users_data, 'admins' => $admins];
+    $data = ['users' => $users, 'admins' => $admins];
 
     file_write(json_encode($data), '/opt/autoweb/robot/data/args.json');
     $outputs = null;
@@ -72,8 +85,9 @@ function create_users($job) {
         return;
     }
 
-    foreach ($users_data as $user) {
-        User::insertUser($user);
+    // Already in the database (newuser.php): only the status changes
+    foreach ($users as $user) {
+        $user->setStatus(User::STATUS_ACTIVE);
     }
 
     $job->markAs('done');
@@ -123,6 +137,7 @@ function create_admins($job) {
     }
 
     foreach ($users_data as $user) {
+        $user->status = User::STATUS_ACTIVE;
         User::insertUser($user);
     }
 
@@ -138,7 +153,7 @@ function reactivate($job) {
     foreach ($users_data as $item) {
         $user = new User();
         $user->loadUserByID($item->user_id);
-        $user->is_active = true;
+        $user->status = User::STATUS_ACTIVE;
         $users[] = $user;
     }
 
@@ -174,7 +189,7 @@ function deactivate($job) {
     foreach ($users_data as $item) {
         $user = new User();
         $user->loadUserByID($item->user_id);
-        $user->is_active = false;
+        $user->status = User::STATUS_INACTIVE;
         $users[] = $user;
     }
 
@@ -211,7 +226,7 @@ function remove_users($job) {
         $user = new User();
         $user->loadUserByID($item->user_id);
         $users[] = $user;
-        if ($user->is_active) {
+        if ($user->status !== User::STATUS_INACTIVE) {
             $job->markAs('failed');
             return;
         }
@@ -244,7 +259,7 @@ function remove_users($job) {
 function repare_all($job) {
     $job->markAs('running');
 
-    $users = User::getUsers(['is_active' => true]);
+    $users = User::getUsers(['status' => User::STATUS_ACTIVE]);
 
     $full_admins = User::getUsers(['is_admin' => true]);
     foreach ($full_admins as $full_admin) {
