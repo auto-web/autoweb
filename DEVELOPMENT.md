@@ -49,9 +49,17 @@ Then open https://autoweb.localhost:8443/admin.php, accept the self-signed certi
 | `development/incus.sh reset` | back to the snapshot `installed`: fresh installation, no accounts |
 | `development/incus.sh shell` | root shell in the machine |
 | `development/incus.sh destroy` | deletes the machine and its snapshots |
+| `development/incus.sh check` | checks the services (Apache, MariaDB, DNS, SFTP, cron, no failed unit) and the admin page (authentication, assets, internal files not served) |
+| `development/incus.sh check-account` | creates an account from the interface as an admin does, waits for the robot, then checks the unix user, its PHP site and its read-only logs |
 
 `sync` does not delete in the machine the files deleted locally: use `reset`, or `destroy` then `up`.
 
 Robot logs, after an action in the interface: `incus exec autoweb-dev -- journalctl -u cron`.
+
+### Installation test in the CI
+
+The GitHub Actions workflow `install` ([.github/workflows/install.yml](.github/workflows/install.yml)) runs `up`, `check` and `check-account` on a runner. It takes about 15 minutes, so it only runs when started by hand: in the Actions tab of GitHub (install > Run workflow, choose the branch), or with `gh workflow run install.yml --ref <branch>`.
+
+### Quotas
 
 To test the quotas, the same machine can be a virtual machine with a dedicated disk: `incus launch images:debian/13 autoweb-dev --vm` (not done by the script).

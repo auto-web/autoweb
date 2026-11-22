@@ -1,0 +1,60 @@
+---
+
+# Full installation of AutoWeb in an Incus system container (development/incus.sh, see DEVELOPMENT.md),
+# then checks of the services, of the admin page, and of an account created by the robot.
+# Started by hand only (about 15 minutes): Actions tab > install > Run workflow, or
+#     gh workflow run install.yml --ref <branch>
+name: install
+
+on:
+  workflow_dispatch:
+    inputs:
+      account:
+        description: "Also create an account with the robot, and check its site and its logs"
+        type: boolean
+        default: true
+
+concurrency:
+  group: install-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    # A VM: Incus runs system containers with systemd on it
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Incus
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends incus
+          sudo incus admin init --minimal
+
+      # Docker, installed on the runners, drops the forwarded traffic: without these rules,
+      # the container has no access to the Internet (apt, pip, Composer, git clone of sendmail-wrapper)
+      - name: Allow the network of the Incus bridge
+        run: |
+          sudo iptables -I DOCKER-USER -i incusbr0 -j ACCEPT
+          sudo iptables -I DOCKER-USER -o incusbr0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+      - name: Install AutoWeb (incus.sh up)
+        run: sudo bash development/incus.sh up
+
+      - name: Check the services and the admin page (incus.sh check)
+        run: sudo bash development/incus.sh check
+
+      - name: Create an account with the robot, check its site and its logs (incus.sh check-account)
+        if: inputs.account
+        run: sudo bash development/incus.sh check-account
+
+      - name: Logs of the machine
+        if: failure()
+        run: |
+          sudo incus exec autoweb-dev -- systemctl --failed --no-pager || true
+          sudo incus exec autoweb-dev -- journalctl --no-pager -n 300 || true
+          sudo incus exec autoweb-dev -- tail -n 100 /var/log/apache2/error.log || true
