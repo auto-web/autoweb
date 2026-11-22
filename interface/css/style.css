@@ -177,6 +177,46 @@
     opacity: 1;
 }
 
+/* Users list wider than the page: shadow on each side that still has hidden columns
+   (classes set by autoweb.usersTable.updateScroll in js/main.js) */
+.users-table-scroll {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+/* Margin on .users-table-scroll instead: the shadows stop at the bottom of the table */
+.users-table-scroll .table {
+    margin-bottom: 0;
+}
+
+.users-table-scroll::before,
+.users-table-scroll::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2em;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1;
+}
+
+.users-table-scroll::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.2), transparent);
+}
+
+.users-table-scroll::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.2), transparent);
+}
+
+.users-table-scroll.can-scroll-left::before,
+.users-table-scroll.can-scroll-right::after {
+    opacity: 1;
+}
+
 /* Quota bar of the users list: details in its title (tooltip) */
 .admin-users-table .quota-bar {
     min-width: 6em;

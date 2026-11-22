@@ -74,8 +74,20 @@ var autoweb = {
                 });
             jQuery('#users-search').on('input', table.filter);
             jQuery('#users-status, #users-php, #users-quota-exceeded').on('change', table.filter);
+            jQuery('#users-table-scroll .table-responsive').on('scroll', table.updateScroll);
+            jQuery(window).on('resize', table.updateScroll);
 
             table.filter();
+        },
+
+        // Table wider than the page: hint, and shadow on each side that still has hidden columns
+        updateScroll: function() {
+            var scroll = jQuery('#users-table-scroll .table-responsive')[0];
+            var left = scroll.scrollLeft > 0;
+            var right = scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1;
+
+            jQuery('#users-table-scroll').toggleClass('can-scroll-left', left).toggleClass('can-scroll-right', right);
+            jQuery('#users-scroll-hint').toggleClass('d-none', !left && !right);
         },
 
         // Text without case nor accents, for the search
@@ -114,6 +126,7 @@ var autoweb = {
             jQuery('#users-table [data-col]').each(function() {
                 jQuery(this).toggleClass('d-none', autoweb.usersTable.hiddenColumns.indexOf(jQuery(this).data('col')) !== -1);
             });
+            autoweb.usersTable.updateScroll();
         },
 
         // PHP versions of the accounts, in the PHP filter
@@ -161,6 +174,7 @@ var autoweb = {
 
             jQuery('#users-count').text(shown + ' / ' + rows.length + ' compte' + (rows.length > 1 ? 's' : ''));
             jQuery('#users-empty').toggleClass('d-none', shown > 0);
+            table.updateScroll();
         },
 
         // Sort on the clicked column, ascending then descending
