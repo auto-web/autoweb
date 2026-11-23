@@ -328,9 +328,10 @@ function repare_all($job) {
 }
 
 /**
- * Creates again an account on the system (create_user.yml), as it is in the database.
+ * Creates again active accounts on the system (create_user.yml), as they are in the database.
  *
- * @param Job $job Job whose data is [{"user_id": ...}]; with several ids, only the last one is repaired
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]; failed, before create_user.yml, when an id is
+ *                 unknown or an account is not active
  * @return void
  */
 function repare($job) {
@@ -339,9 +340,11 @@ function repare($job) {
     $users = [];
 
     foreach ($users_data as $item) {
-        $users = array();
         $user = new User();
-        $user->loadUserByID($item->user_id);
+        if (!$user->loadUserByID($item->user_id) || $user->status !== User::STATUS_ACTIVE) {
+            $job->markAs('failed');
+            return;
+        }
         $users[] = $user;
     }
 
