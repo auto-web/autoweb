@@ -456,7 +456,7 @@ class User {
     }
 
     /**
-     * Retuns accounts matching all the filters, with their quota.
+     * Returns accounts matching all the filters, with their quota.
      *
      * @param array $filters Values by column of autoweb_users, all equal (e.g. ['status' => User::STATUS_ACTIVE,
      *                       'is_admin' => false]); is_admin is compared as a boolean
