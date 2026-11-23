@@ -197,14 +197,29 @@ class ServerStats {
     }
 
     /**
-     * Returns Number of processes whose PID is 1000 or more, from ps.
+     * Returns the number of processes run by the AutoWeb accounts (members of the jailkit group, see
+     * roles/create_user), e.g. their PHP sites (fcgid) and SSH/SFTP sessions, from ps.
      *
      * @return array ['count' => int]
      */
     private function getProcess(): array {
-        $count = (int) trim(shell_exec(
-            "ps -eo pid --no-headers | awk '\$1 >= 1000' | wc -l"
-        ));
+        // UIDs of the AutoWeb accounts
+        $group = posix_getgrnam('jailkit');
+        $uids = [];
+        foreach ($group ? $group['members'] : [] as $login) {
+            $user = posix_getpwnam($login);
+            if ($user !== false) {
+                $uids[$user['uid']] = true;
+            }
+        }
+
+        // Real UID of each process, with ps: /proc/<pid> is out of the open_basedir of the interface
+        $count = 0;
+        foreach (preg_split('/\s+/', trim((string) shell_exec('ps -eo ruid=')), -1, PREG_SPLIT_NO_EMPTY) as $uid) {
+            if (isset($uids[(int) $uid])) {
+                $count++;
+            }
+        }
 
         return [
             'count' => $count,
