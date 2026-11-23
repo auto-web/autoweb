@@ -30,7 +30,7 @@ jobs:
       - name: Install git
         run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # PHP 8.2 (php hooks), phpcs and twig-cs-fixer, pre-commit
       - name: Install the tools
@@ -65,7 +65,7 @@ jobs:
           python3 -m venv /opt/ansible
           /opt/ansible/bin/pip install 'ansible>=15' PyMySQL
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Check the syntax of the playbooks
         run: |
@@ -117,7 +117,7 @@ jobs:
         working-directory: /
         run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install the tools
         run: ../.github/scripts/setup-debian.sh mariadb-client
