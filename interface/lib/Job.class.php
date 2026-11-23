@@ -21,6 +21,16 @@ class Job {
     public $data;
     public $status;
 
+    /**
+     * Sets the properties from a row of autoweb_jobs.
+     *
+     * @param int    $id        Id of the job
+     * @param string $timestamp Date and time of its creation
+     * @param string $operation Operation to be run by robot/robot.php (create_users, repare...)
+     * @param string $data      Arguments of the operation, in JSON (usually [{"user_id": ...}])
+     * @param string $status    todo, running, done or failed
+     * @return void
+     */
     private function load($id, $timestamp, $operation, $data, $status) {
         $this->id =         $id;
         $this->timestamp =  $timestamp;
@@ -29,6 +39,12 @@ class Job {
         $this->status =     $status;
     }
 
+    /**
+     * Saves a new status for a job.
+     *
+     * @param string $status running, done or failed
+     * @return bool false on a database error
+     */
     public function markAs($status) {
         $pdo = connect();
 
@@ -47,6 +63,13 @@ class Job {
 
     }
 
+    /**
+     * Adds a job to do, to be run by the robot (cron, every minute).
+     *
+     * @param string $op   Operation (see doJob() in robot/robot.php)
+     * @param string $data Arguments of the operation, in JSON (usually [{"user_id": ...}], '' for repare_all)
+     * @return bool false on a database error
+     */
     public static function addJob($op, $data) {
         $pdo = connect();
 
@@ -64,6 +87,13 @@ class Job {
         }
     }
 
+    /**
+     * Return all jobs matching the corresponding filters.
+     *
+     * @param array $filters Values by column of autoweb_jobs (e.g. ['status' => 'todo']), all equal;
+     *               data cannot be a filter
+     * @return Job[]|false Empty on a database error, false with a data filter
+     */
     public static function getJobs($filters) {
 
         $pdo = connect();

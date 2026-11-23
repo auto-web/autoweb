@@ -9,6 +9,12 @@ class ServerStats {
     public const PROCESSES = 'processes';
     public const CONNECTED_USERS = 'users';
 
+    /**
+     * Get one stat value from the server.
+     *
+     * @param string $stat One of the constants of this class (CPU, RAM, DISK...)
+     * @return array The statistic (see the private getters), empty for an unknown name
+     */
     public function getStat(string $stat): array {
         return match ($stat) {
             self::CPU => $this->getCpu(),
@@ -22,6 +28,11 @@ class ServerStats {
         };
     }
 
+    /**
+     * All the stats of the server (admin page, "État du serveur").
+     *
+     * @return array Statistics indexed by constant of this class
+     */
     public function getAllStats(): array {
         return [
             self::CPU => $this->getCpu(),
@@ -34,6 +45,11 @@ class ServerStats {
         ];
     }
 
+    /**
+     * Returns CPU usage over 0.1 s, from /proc/stat.
+     *
+     * @return array ['percent' => float]
+     */
     private function getCpu(): array {
         $stat1 = file('/proc/stat')[0];
         usleep(100000);
@@ -68,6 +84,11 @@ class ServerStats {
         ];
     }
 
+    /**
+     * Returns Memory used (total - available), from /proc/meminfo.
+     *
+     * @return array ['used_gb' => float, 'total_gb' => float, 'percent' => float]
+     */
     private function getRam(): array {
         $memInfo = file('/proc/meminfo');
         $mem = [];
@@ -92,6 +113,12 @@ class ServerStats {
         ];
     }
 
+    /**
+     * Returns space of the mounted /dev/* file systems, from df.
+     *
+     * @return array One entry per file system: ['device' => string, 'total_gb' => float, 'used_gb' => float,
+     *               'free_gb' => float, 'percent' => float, 'mountpoint' => string]
+     */
     private function getStorage(): array {
         $disks = [];
 
@@ -128,6 +155,11 @@ class ServerStats {
         return $disks;
     }
 
+    /**
+     * Returns Load averages.
+     *
+     * @return array ['1min' => float, '5min' => float, '15min' => float]
+     */
     private function getLoad(): array {
         $load = sys_getloadavg();
 
@@ -138,6 +170,11 @@ class ServerStats {
         ];
     }
 
+    /**
+     * Returns Time since the boot, from /proc/uptime.
+     *
+     * @return array ['seconds' => int, 'human' => string, e.g. "3j 04h 12m"]
+     */
     private function getUptime(): array {
         $uptime = (int) explode(
             ' ',
@@ -159,6 +196,11 @@ class ServerStats {
         ];
     }
 
+    /**
+     * Returns Number of processes whose PID is 1000 or more, from ps.
+     *
+     * @return array ['count' => int]
+     */
     private function getProcess(): array {
         $count = (int) trim(shell_exec(
             "ps -eo pid --no-headers | awk '\$1 >= 1000' | wc -l"
@@ -169,6 +211,11 @@ class ServerStats {
         ];
     }
 
+    /**
+     * Returns Users logged in on the server, from who.
+     *
+     * @return array ['count' => int, 'list' => array of ['user' => string, 'tty' => string]]
+     */
     private function getConnectedUsers(): array {
         $output = trim(shell_exec('who'));
 

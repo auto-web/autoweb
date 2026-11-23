@@ -35,6 +35,25 @@ class User {
 
     public $quota;
 
+    /**
+     * Sets the properties from a row of autoweb_users.
+     *
+     * @param string $id             Id of the account (same value as the logins)
+     * @param string $first_name     First name
+     * @param string $last_name      Last name
+     * @param string $unix_username  Unix login (SSH/SFTP)
+     * @param string $unix_password  Unix password
+     * @param string $mysql_username MariaDB user, also the name of its database
+     * @param string $mysql_password MariaDB password
+     * @param string $email          E-mail
+     * @param string $domain_name    Domain of the site: <login>.<domain_users>
+     * @param string $php_version    PHP version of the site, e.g. "8.2"
+     * @param string $description    Free text of the admin
+     * @param bool   $is_admin       Admin of the web interface
+     * @param string $status         STATUS_PENDING, STATUS_ACTIVE or STATUS_INACTIVE
+     * @param Quota  $quota          Quota of the account
+     * @return void
+     */
     private function load($id, $first_name, $last_name, $unix_username,
     $unix_password, $mysql_username, $mysql_password, $email, $domain_name, $php_version,
     $description, $is_admin, $status, $quota) {
@@ -54,6 +73,11 @@ class User {
         $this->quota =          $quota;
     }
 
+    /**
+     * Sets a new random password (16 letters and digits), the same for unix and MariaDB. Not saved.
+     *
+     * @return void
+     */
     public function generate_user_password() {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $password = substr(str_shuffle($chars), 0, 16);
@@ -62,12 +86,25 @@ class User {
         $this->mysql_password = $password;
     }
 
-    // Reserved login (RESERVED_LOGINS), or existing system user (root, daemon, admin of the server...).
-    // The robot checks it again before running Ansible (robot/tasks/validate_args.yml).
+    /**
+     * Whether a login cannot be given to a new account: in RESERVED_LOGINS, or existing system user (root,
+     * daemon, admin of the server...). The robot checks it again before running Ansible
+     * (robot/tasks/validate_args.yml).
+     *
+     * @param string $uid Login
+     * @return bool
+     */
     private static function isReservedLogin($uid) {
         return in_array($uid, self::RESERVED_LOGINS, true) || posix_getpwnam($uid) !== false;
     }
 
+    /**
+     * Login made of the first letters of the first name and the last name, without accents, in lowercase
+     * letters and digits only, 32 characters at most.
+     *
+     * @param int $first_name_length Number of letters of the first name (more on each try of generate_user_info())
+     * @return string Login, may be empty
+     */
     private function generate_uid($first_name_length = 1) {
         $uid = preg_replace('/[^a-z0-9]/', '',
         strtolower(
@@ -78,6 +115,13 @@ class User {
         return $uid;
     }
 
+    /**
+     * Sets the generated values of a new account from its first name, last name and e-mail: login (not used in
+     * the database nor reserved, up to 6 tries), password, domain, PHP 8.2, not admin, status pending. Not saved.
+     *
+     * @return bool true
+     * @throws Exception When the login is empty or not original after 6 tries, or the e-mail is already used
+     */
     public function generate_user_info() {
         global $domain_name;
 
@@ -118,6 +162,12 @@ class User {
         return true;
     }
 
+    /**
+     * Loads an account and its quota from User Id.
+     *
+     * @param string $id Id of the account
+     * @return bool true when found, false otherwise or on a database error
+     */
     public function loadUserByID($id) {
         $pdo = connect();
 
@@ -158,6 +208,12 @@ class User {
         }
     }
 
+    /**
+     * Loads an account and its quota from Email.
+     *
+     * @param string $email E-mail of the account
+     * @return bool true when found, false otherwise or on a database error
+     */
     public function loadUserByEmail($email) {
         $pdo = connect();
 
@@ -198,6 +254,11 @@ class User {
         }
     }
 
+    /**
+     * Saves all the properties of this account, and its quota (Quota::storeQuota()).
+     *
+     * @return bool false when the quota or the account cannot be saved
+     */
     public function storeUser() {
 
         if ( $this->quota->storeQuota() === false ) {
@@ -236,7 +297,12 @@ class User {
 
     }
 
-    // Only the status: e.g. pending to active once the robot has created the account
+    /**
+     * Saves only the status of this account, e.g. pending to active once the robot has created it.
+     *
+     * @param string $status STATUS_PENDING, STATUS_ACTIVE or STATUS_INACTIVE
+     * @return bool false on a database error
+     */
     public function setStatus($status) {
         $pdo = connect();
 
@@ -254,6 +320,11 @@ class User {
         }
     }
 
+    /**
+     * Deletes this account from the database (its quota row follows the foreign key).
+     *
+     * @return bool false on a database error
+     */
     public function removeUser() {
         $pdo = connect();
 
@@ -271,6 +342,12 @@ class User {
     }
 
 
+    /**
+     * Inserts a new account and its quota row (quota_used 0, quota_limit of $user->quota).
+     *
+     * @param User $user Account with all its properties set (generate_user_info())
+     * @return bool false when the account (e.g. id or e-mail already used) or its quota cannot be inserted
+     */
     public static function insertUser($user) {
         $pdo = connect();
 
@@ -310,6 +387,11 @@ class User {
 
     }
 
+    /**
+     * Returns all the accounts, with their quota.
+     *
+     * @return User[] Empty on a database error
+     */
     public static function getAllUsers() {
 
         $pdo = connect();
@@ -353,14 +435,33 @@ class User {
 
     }
 
+    /**
+     * Returns all accounts with corresponding e-mail.
+     *
+     * @param string $email E-mail
+     * @return User[] At most one account (unique e-mail), empty when none
+     */
     public static function getUserByEmail($email) {
         return self::getUsers(['email' => $email]);
     }
+    /**
+     * Accounts with this id.
+     *
+     * @param string $id Id of the account
+     * @return User[] At most one account, empty when none
+     */
     public static function getUserById($id) {
 
         return self::getUsers(['id' => $id]);
     }
 
+    /**
+     * Retuns accounts matching all the filters, with their quota.
+     *
+     * @param array $filters Values by column of autoweb_users, all equal (e.g. ['status' => User::STATUS_ACTIVE,
+     *                       'is_admin' => false]); is_admin is compared as a boolean
+     * @return User[] Empty when none or on a database error
+     */
     public static function getUsers($filters) {
 
         $pdo = connect();

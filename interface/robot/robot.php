@@ -12,6 +12,12 @@ foreach ($jobs as $job) {
     doJob($job);
 }
 
+/**
+ * Runs a specific job. Each run marks the job running, then sets the jobs status to done or failed.
+ *
+ * @param Job $job Job to do
+ * @return void
+ */
 function doJob($job) {
     switch ($job->operation) {
         case 'create_users':
@@ -50,8 +56,13 @@ function doJob($job) {
     }
 }
 
-// Accounts written as pending by newuser.php: active once create_user.yml succeeds. When it fails, they stay
-// pending, and "Relancer la création" (admin.php) adds a new create_users job for them.
+/**
+ * Creates on the system the accounts written as pending by newuser.php (create_user.yml): active once it
+ * succeeds. When it fails, they stay pending, and "Relancer la création" (admin.php) adds a new create_users job.
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]; failed when an id is missing or unknown
+ * @return void
+ */
 function create_users($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -94,6 +105,13 @@ function create_users($job) {
 
 }
 
+/**
+ * Creates admin accounts (create_user.yml), grants them read access to the databases of all the accounts
+ * (grant_admin.yml), then inserts them in the database as active. No page adds this job today.
+ *
+ * @param Job $job Job whose data is the list of the admin accounts, with all their properties
+ * @return void
+ */
 function create_admins($job) {
     $users_data = json_decode($job->data);
 
@@ -145,6 +163,12 @@ function create_admins($job) {
 
 }
 
+/**
+ * Reactivates disabled accounts (create_user.yml), then saves them as active.
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]
+ * @return void
+ */
 function reactivate($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -181,6 +205,12 @@ function reactivate($job) {
     $job->markAs('done');
 }
 
+/**
+ * Disables accounts (disable_user.yml: no login, site and DNS disabled), then saves them as inactive.
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]
+ * @return void
+ */
 function deactivate($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -217,6 +247,12 @@ function deactivate($job) {
     $job->markAs('done');
 }
 
+/**
+ * Removes disabled accounts from the system (remove_user.yml), then from the database.
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]; failed when one of the accounts is not inactive
+ * @return void
+ */
 function remove_users($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -256,6 +292,12 @@ function remove_users($job) {
     $job->markAs('done');
 }
 
+/**
+ * Creates again all the active accounts on the system (create_user.yml), as they are in the database.
+ *
+ * @param Job $job Job without data
+ * @return void
+ */
 function repare_all($job) {
     $job->markAs('running');
 
@@ -285,6 +327,12 @@ function repare_all($job) {
     $job->markAs('done');
 }
 
+/**
+ * Creates again an account on the system (create_user.yml), as it is in the database.
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}]; with several ids, only the last one is repaired
+ * @return void
+ */
 function repare($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -321,6 +369,12 @@ function repare($job) {
     $job->markAs('done');
 }
 
+/**
+ * Sends to each account its current password by e-mail (templates/mail/password.twig).
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]; failed when one of the e-mails cannot be sent
+ * @return void
+ */
 function send_password($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -365,6 +419,12 @@ function send_password($job) {
 
 }
 
+/**
+ * Sets a new password to each account: sent by e-mail, applied by change_password.yml, then saved.
+ *
+ * @param Job $job Job whose data is [{"user_id": ...}, ...]
+ * @return void
+ */
 function change_password($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -415,6 +475,12 @@ function change_password($job) {
 
 }
 
+/**
+ * Changes the PHP version of the sites (change_php_version.yml), then saves it.
+ *
+ * @param Job $job Job whose data is [{"user_id": ..., "php_version": "8.4"}, ...]
+ * @return void
+ */
 function change_php_version($job) {
     $users_data = json_decode($job->data);
     $job->markAs('running');
@@ -448,6 +514,12 @@ function change_php_version($job) {
     $job->markAs('done');
 }
 
+/**
+ * Changes the disk quota of accounts (change_quota.yml), then saves it.
+ *
+ * @param Job $job Job whose data is [{"user_id": ..., "quota_limit": <MB>}, ...]
+ * @return void
+ */
 function change_quota($job) {
     $quota_data = json_decode($job->data);
     $job->markAs('running');
@@ -481,6 +553,13 @@ function change_quota($job) {
     $job->markAs('done');
 }
 
+/**
+ * Writes a file, replacing its content (data/args.json of the playbooks).
+ *
+ * @param string $data Content
+ * @param string $file Path of the file
+ * @return void
+ */
 function file_write($data, $file) {
     $handle = fopen($file, 'w');
     fwrite($handle, $data);

@@ -25,9 +25,13 @@ if (count($admin) == 1) {
 
 require_once 'lib/Job.class.php';
 
-// New create_users job for pending accounts (written in the database, not created on the system yet).
-// An account already in a create_users job to do or running is left out: never created twice at the same time.
-// Returns the message to show.
+/**
+ * Adds a new create_users job for pending accounts (written in the database, not created on the system yet).
+ * An account already in a create_users job to do or running is left out: never created twice at the same time.
+ *
+ * @param string[] $user_ids Ids of the accounts; the ones not pending are left out
+ * @return array Message to show: ['type' => success|warning|danger, 'message' => string]
+ */
 function retry_create_users($user_ids) {
     $queued = [];
     foreach (['todo', 'running'] as $status) {

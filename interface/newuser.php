@@ -26,10 +26,14 @@ if (count($admin) == 1) {
 
 require_once 'lib/Job.class.php';
 
-// Accounts written in the database with their creation job, in one transaction: if one of them is wrong, nothing
-// is created. They stay pending until the robot has created them on the system ("Réparer" creates them again).
-// $rows: [label => ['first_name' => ..., 'last_name' => ..., 'email' => ..., 'description' => ...]]
-// Returns the errors, one per wrong account.
+/**
+ * Writes new accounts in the database with their create_users job, in one transaction: if one of them is
+ * wrong, nothing is created. They stay pending until the robot has created them on the system.
+ *
+ * @param array $rows Accounts by label shown in the errors (e.g. "Ligne 3"): ['first_name' => string,
+ *                    'last_name' => string, 'email' => string, 'description' => string]
+ * @return string[] Errors, one per wrong account; empty when the accounts and the job are written
+ */
 function create_accounts($rows) {
     $errors = [];
     $jobs_data = [];
@@ -83,7 +87,13 @@ function create_accounts($rows) {
     return $errors;
 }
 
-// Messages of create_accounts(): the creation is refused as a whole, with the wrong accounts
+/**
+ * Messages to show after create_accounts(): the creation is refused as a whole, with the wrong accounts.
+ *
+ * @param string[] $errors  Errors returned by create_accounts()
+ * @param string   $success Message shown when there is no error
+ * @return array Messages: ['type' => success|danger, 'message' => string]
+ */
 function accounts_messages($errors, $success) {
     if (!$errors) {
         return [['type' => 'success', 'message' => $success]];

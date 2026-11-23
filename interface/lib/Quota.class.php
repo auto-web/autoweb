@@ -10,6 +10,11 @@ class Quota {
     public $quota_used;
     public $quota_limit;
 
+    /**
+     * __tostring for "used" and "limit" values, in MB, e.g. "120 / 1024"
+     *
+     * @return string
+     */
     public function __toString(): string {
         return sprintf(
             '%d / %d',
@@ -18,12 +23,26 @@ class Quota {
         );
     }
 
+    /**
+     * Sets the properties from a row of autoweb_quotas.
+     *
+     * @param string   $user_id     Id of the account (autoweb_users.id)
+     * @param int|null $quota_used  Used space, in MB (null: not measured yet)
+     * @param int|null $quota_limit Limit, in MB (null: no quota)
+     * @return void
+     */
     private function load($user_id, $quota_used, $quota_limit) {
         $this->user_id =        $user_id;
         $this->quota_used =     $quota_used;
         $this->quota_limit =    $quota_limit;
     }
 
+    /**
+     * Loads the quota of an account.
+     *
+     * @param string $user_id Id of the account (autoweb_users.id)
+     * @return bool true when found, false when the account has no quota row or on a database error
+     */
     public function loadQuotaByUserID($user_id) {
         $pdo = connect();
 
@@ -50,6 +69,11 @@ class Quota {
         }
     }
 
+    /**
+     * Saves quota_used and quota_limit of this quota (row of $this->user_id) into database.
+     *
+     * @return bool false on a database error
+     */
     public function storeQuota() {
         $pdo = connect();
 
@@ -69,6 +93,12 @@ class Quota {
         }
     }
 
+    /**
+     * Inserts into database the quota row of a new account.
+     *
+     * @param Quota $quota Quota with user_id, quota_used and quota_limit set
+     * @return bool false on a database error (e.g. row already there)
+     */
     public static function insertQuota($quota) {
         $pdo = connect();
 
@@ -88,6 +118,11 @@ class Quota {
         }
     }
 
+    /**
+     * Returns users whose used space is over quota.
+     *
+     * @return array Quotas, empty on a database error
+     */
     public static function loadExceededQuotas() {
 
         $pdo = connect();
@@ -118,6 +153,11 @@ class Quota {
 
     }
 
+    /**
+     * Returns all users quotas.
+     *
+     * @return Quota[] Empty on a database error
+     */
     public static function getAllQuotas() {
 
         $pdo = connect();
@@ -148,6 +188,12 @@ class Quota {
 
     }
 
+    /**
+     * Saves to database the used space of specified users.
+     *
+     * @param Quota[] $quotas Quotas with user_id and quota_used set
+     * @return false|null false on the first database error (the next quotas are not saved), null otherwise
+     */
     public static function updateQuotaUsed($quotas) {
         $pdo = connect();
 
