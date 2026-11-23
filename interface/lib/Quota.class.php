@@ -119,41 +119,6 @@ class Quota {
     }
 
     /**
-     * Returns users whose used space is over quota.
-     *
-     * @return array Quotas, empty on a database error
-     */
-    public static function loadExceededQuotas() {
-
-        $pdo = connect();
-
-        $sql = 'SELECT * FROM autoweb_quotas WHERE quota_used > quota_limit';
-        $stmt = $pdo->prepare($sql);
-
-        try {
-            $stmt->execute();
-            $results = $stmt->fetchAll(PDO::FETCH_OBJ);
-            $quotas = array();
-
-            foreach ($results as $result) {
-                $quota = new User();
-                $quota->load(   $result->user_id,
-                                $result->quota_used,
-                                $result->quota_limit
-                            );
-
-                $quotas[] = $quota;
-            }
-
-            return $quotas;
-
-        } catch (Exception $e) {
-            return array();
-        }
-
-    }
-
-    /**
      * Returns all users quotas.
      *
      * @return Quota[] Empty on a database error
